@@ -32,7 +32,7 @@ categories: jekyll update
 
 This is it!
 
-At lasat i took the time to read about the documentation of github pages and jekyll.
+At last i took the time to read about the documentation of github pages and jekyll.
 So this is my blog reborn.
 I'll try to be more regular than during the previous year.
 I do have a lot of things to share so it should be work.

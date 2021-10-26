@@ -57,7 +57,8 @@ Unfortunately, there was no equivalent in PowerShell, which meant, at least for 
 
 If you had the opportunity to check on the Azure documentation, you know that the previous way of integrating with Azure AD is called **Azure AD integration (legacy)** while the new one is called **AKS-managed Azure AD**
 
-![Illustration01](./Img/AKSManaged001.png){:class="img-responsive"}
+<img src="./Img/AKSManaged001.png" alt=""/>
+
 
 Behind this fancy name is hiding a more integrated AKS which relies on Azure managed identities.  
 
