@@ -106,7 +106,7 @@ The pod identity will operate as described on this schema, originating [Pod Iden
 
 ![Illustration 6](./Img/podid07.png)
 
-As displayed on the picture, there are 2 kubernetes objects for the infrastructure: 
+As displayed on the picture, there are 2 kubernetes objects for the infrastructure:
 
 - a deployment called the MIC (Managed Identity Controller) which deploys pods responsible to watch pods and assign Managed Identities
 - a daemon set called NMI (Node Managed Identity), which talk to the MIC through the API server when a Pod requires a token through a Managed Identity
@@ -119,13 +119,13 @@ Abstracting the Kubernetes Control plane, it looks like this:
 ## 6. Preparing installation on an AKS cluster
 
 After describing the concepts, it's now time for some practial matter.
-First thing ifrst we will start from an already deployed AKS cluster with the following: 
+First thing ifrst we will start from an already deployed AKS cluster with the following:
 
 - Managed Azure AD integration (vs the legacy with app registrations)
 - RBAC enabled (obviously)
 
 I personnally deploy everything through terraform. An exemple of the config can be found [here](https://github.com/dfrappart/Terra-AZModuletest/tree/master/Custom_Modules/IaaS_AKS_ClusterwithRBAC_Kubenet).
-Through terraform output proper declaration, it's quite easy to get information on the cluster for the required post configuration. 
+Through terraform output proper declaration, it's quite easy to get information on the cluster for the required post configuration.
 
 In Pod identity documentation, it is specified that some RBAC configurations are required. I recommand reading it throroughly to avoid the discovery through trial and error (but who would do that ^^).
 The roles to assign are:
@@ -137,12 +137,12 @@ Now the question is, who get those role assignments. That's where we can leverag
 
 | Output name | Value | Description |
 |:------------|:------------|:------|
-| KubeControlPlane_SAI | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.identity` | AKS Control plane Managed Identity block| 
-| KubeControlPlane_SAI_PrincipalId | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.identity[0].principal_id` | AKS Control plane Managed Identity principal Id | 
-| KubeKubelet_UAI | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.kubelet_identity` | User Assigned Identity block for the Kubelet | 
+| KubeControlPlane_SAI | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.identity` | AKS Control plane Managed Identity block|
+| KubeControlPlane_SAI_PrincipalId | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.identity[0].principal_id` | AKS Control plane Managed Identity principal Id |
+| KubeKubelet_UAI | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.kubelet_identity` | User Assigned Identity block for the Kubelet |
 | KubeKubelet_UAI_ClientId | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.kubelet_identity[0].client_id` |User Assigned Identity for kubelet principal Id |  
 | KubeKubelet_UAI_ObjectId | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.kubelet_identity[0].object_id` | User Assigned Identity for kubelet object Id |
-| KubeKubelet_UAI_Id | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.kubelet_identity[0].user_assigned_identity_id` | User Assigned Identity for kubelet resource Id | 
+| KubeKubelet_UAI_Id | `azurerm_kubernetes_cluster.TerraAKSwithRBAC.kubelet_identity[0].user_assigned_identity_id` | User Assigned Identity for kubelet resource Id |
 
 after deployment, the outputs gives the appropriate informations required:
 
@@ -168,7 +168,7 @@ tolist([
 
 ```
 
-With that we need to assign the roles, which can be done through a simple role assignment through terraform, like this: 
+With that we need to assign the roles, which can be done through a simple role assignment through terraform, like this:
 
 ```bash
 
@@ -182,7 +182,7 @@ resource "azurerm_role_assignment" "TerraAssignedBuiltin" {
 
 The module i use is available [here](https://github.com/dfrappart/Terra-AZModuletest/tree/master/Modules_building_blocks/401_RBACAssignment_BuiltinRole).  
 
-In our case, the module call should look like this: 
+In our case, the module call should look like this:
 
 ```bash
 
@@ -256,7 +256,7 @@ That's it for the preparation. Next comes the installation.
 
 To install the Pod Identity on an AKS Cluster, we refer once again to the [documentation](https://azure.github.io/aad-pod-identity/docs/getting-started/installation/).
 The funny thing at first, is that the installation is by default blocked for cluster with kubenet. The reason behind is a limitation on the network security native to kubenet, but that's a story for another day.
-Fortunately, there is a way to install nevertheless, by adding a switch on the nmi containers: 
+Fortunately, there is a way to install nevertheless, by adding a switch on the nmi containers:
 
 ```yaml
 
@@ -271,7 +271,7 @@ Fortunately, there is a way to install nevertheless, by adding a switch on the n
 
 ```
 
-Once the yaml file is modified accordingly, it is time to deploy the pod identity infra and the associated exception: 
+Once the yaml file is modified accordingly, it is time to deploy the pod identity infra and the associated exception:
 
 ```powershell
 
@@ -366,7 +366,7 @@ spec:
 
 I use a specific module to make the yaml at the User Assigned IDentity creation. You can find this module [here](https://github.com/dfrappart/Terra-AZModuletest/tree/master/Custom_Modules/Kube_UAI)
 
-The module output the interpolated yaml in output like this: 
+The module output the interpolated yaml in output like this:
 
 ```bash
 
@@ -391,7 +391,7 @@ output "podidentitybindingmanifest" {
 
 ```
 
-and afterward, as mentioned, through a simple local file resource, the files are generated: 
+and afterward, as mentioned, through a simple local file resource, the files are generated:
 
 ```bash
 
@@ -417,13 +417,13 @@ The second is the glue with the pod. With the selector spec, we can add to a pod
 
 ```
 
-Ok, that being said, we can focus on an example. 
+Ok, that being said, we can focus on an example.
 
 ## 8. Pod Identity in action
 
-A simple example is to give access to a Key Vault, through the CSI Driver for Key Vault. Since we want to focus on the pod identity here, we will just list some links: 
+A simple example is to give access to a Key Vault, through the CSI Driver for Key Vault. Since we want to focus on the pod identity here, we will just list some links:
 
-```
+```bash
 
 https://github.com/kubernetes-sigs/secrets-store-csi-driver#usage
 
@@ -433,7 +433,7 @@ https://azure.github.io/secrets-store-csi-driver-provider-azure/getting-started/
 
 ```
 
-In this use case, a secret store pointing to a Key Vault is created: 
+In this use case, a secret store pointing to a Key Vault is created:
 
 ```yaml
 
@@ -499,17 +499,15 @@ e+9qBwdjC<q6<P_n
 
 ```
 
-This should be the same value as the key vault secret on the portal: 
+This should be the same value as the key vault secret on the portal:
 
 ![Illustration 8](./Img/podid09.png)
 
 And that's it for the demo. Now a time for the conclusion.  
 
-
-
 ## 9. Conclusion and next steps
 
-So, if i'm correct, chance are the technology seems interesting but there are still some question remaining. 
+So, if i'm correct, chance are the technology seems interesting but there are still some question remaining.
 Well that's the case for me at this point.
 While the architecture and how it's working between the 2 worlds (Azure and Kubernetes) seems clear enough, the impact on how to use it does not seem as clear.
 Also, as presented here, as an OSS, it is not fully supported by Microsoft.
