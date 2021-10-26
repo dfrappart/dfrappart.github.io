@@ -53,4 +53,3 @@ exclude:
 #   - vendor/gems/
 #   - vendor/ruby/
   - readme.md
-  - /Img/
