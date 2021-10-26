@@ -59,7 +59,6 @@ If you had the opportunity to check on the Azure documentation, you know that th
 
 <img src="./Img/AKSManaged001.png" alt=""/>
 
-
 Behind this fancy name is hiding a more integrated AKS which relies on Azure managed identities.  
 
 Yes, **plural to identities**  
