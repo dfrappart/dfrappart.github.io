@@ -57,7 +57,7 @@ Unfortunately, there was no equivalent in PowerShell, which meant, at least for 
 
 If you had the opportunity to check on the Azure documentation, you know that the previous way of integrating with Azure AD is called **Azure AD integration (legacy)** while the new one is called **AKS-managed Azure AD**
 
-![Illustration01](/Img/AKSManaged001.png)
+![Illustration01](/img/aksmanaged001.png)
 
 Behind this fancy name is hiding a more integrated AKS which relies on Azure managed identities.  
 
@@ -361,11 +361,11 @@ It will look like that then as an output (with additional information that are r
 
 In a more human readable format, it show something like that on the portal:  
 
-![Illustration02](/Img/AKSManaged002.png)
+![Illustration02](/img/aksmanaged002.png)
 
 We can see a bunch of identity objects that are attached to the node pools:  
 
-![Illustration03](/Img/AKSManaged003.png)
+![Illustration03](/img/aksmanaged003.png)
 
 notably, the identity for the agent pool is the one corresponding to the kubelet_identity that is displayed in the terraform outputs.
 
@@ -405,9 +405,9 @@ It is clearly identified as a SystemAssigned type, and if we needed more, we can
 
 and find the System Assigned Identity on the portal by looking in the IAM section:
 
-![Illustration04](./Img/AKSManaged004.png)
+![Illustration04](/img/aksmanaged004.png)
 
-![Illustration05](./Img/AKSManaged005.png)
+![Illustration05](/img/aksmanaged005.png)
 
 ## 6. Conclusion and next steps
 
