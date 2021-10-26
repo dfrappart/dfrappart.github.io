@@ -5,8 +5,6 @@ date:   2021-02-10 11:31:40 +0200
 categories: AKS
 ---
 
-# AKS: Use AAD identity for pods and make your SecOps happy  
-
 ## Table of content  
 
 1. Introduction

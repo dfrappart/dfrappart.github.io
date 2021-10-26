@@ -5,8 +5,6 @@ date:   2020-12-17 11:31:40 +0200
 categories: AKS
 ---
 
-# AKS: integration to AAD with managed identity  
-
 ## Table of content  
 
 1. Introduction
