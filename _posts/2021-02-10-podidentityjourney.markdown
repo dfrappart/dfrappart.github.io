@@ -72,7 +72,7 @@ Which is nice in many aspect, for instance decorrelating application from depend
 
 However in our case, by isolating  the application part from the rest of the Azure platform, we lock down the managed identity capability.  
 **By no mean can a container be used with managed identity...**  
-Actually, that's not exactly true. For instance you can leverage managed identity for Azure Container Instance. 
+Actually, that's not exactly true. For instance you can leverage managed identity for Azure Container Instance.
 However, you cannot, container natively speaking, have a container be seen directly by the Azure control plane, and thus be associated with stuff from this control plane such as the managed identity that we are talking about.
 
 That being said, we are now in the heart of our topic. sorry for the long introduction ^^
@@ -96,7 +96,7 @@ For that Azure pod identity relies on the following objects: (yes taken from the
 - AzureIdentityBinding which is the object inKubernetes API to bind a pod to an AzureIdentity (and thus an UAI) by the means of labels. We will see that in details afterward
 - AzureAssignedIdentity which is an object in Kubernetes describing therelationship state between the two previous object
 
-And that's all for the basics objects. With that we start to get an idea on how to make those things work. The following schema aims to illustrate the link between our 2 differents control plane: 
+And that's all for the basics objects. With that we start to get an idea on how to make those things work. The following schema aims to illustrate the link between our 2 differents control plane:
 
 ![Illustration 5](./Img/podid06.png)
 
@@ -112,7 +112,6 @@ As displayed on the picture, there are 2 kubernetes objects for the infrastructu
 - a daemon set called NMI (Node Managed Identity), which talk to the MIC through the API server when a Pod requires a token through a Managed Identity
 
 Abstracting the Kubernetes Control plane, it looks like this:  
-
 
 ![Illustration 7](./Img/podid08.png)
 
@@ -294,7 +293,7 @@ azurepodidentityexception.aadpodidentity.k8s.io/aks-addon-exception created
 
 ```
 
-To check the installation we can simply run a kubectl get pods, since at this point, everything is still in the default namespace: 
+To check the installation we can simply run a kubectl get pods, since at this point, everything is still in the default namespace:
 
 ```powershell
 
@@ -337,7 +336,7 @@ I0207 02:22:35.483511       1 mic.go:398] sync thread started.
 
 ```
 
-Now we can deploy the CRD for Azure Identity. For that we need to have the azureidentity manifest and the azure identity binding manifest. Since we need to have those objects corresponding to an object in Azure, i personnaly use a local file resource in terraform to build the definition from interpolation. The tempalted yaml are as follow: 
+Now we can deploy the CRD for Azure Identity. For that we need to have the azureidentity manifest and the azure identity binding manifest. Since we need to have those objects corresponding to an object in Azure, i personnaly use a local file resource in terraform to build the definition from interpolation. The tempalted yaml are as follow:
 
 ```yaml
 
@@ -408,7 +407,7 @@ resource "local_file" "podidentitybindingmanifest" {
 ```
 
 Now we have everything available to use pod identity, except something to use it with. Before that, it is important to understand how a pod is linked to a managed identity. As we have described, we have 2 objects, the `AzureIdentity` and the `AzureIdentityBinding`.
-The second is the glue with the pod. With the selector spec, we can add to a pod a specific label which, if it match the selector, will allow the mic to identify the link between pod and UAI: 
+The second is the glue with the pod. With the selector spec, we can add to a pod a specific label which, if it match the selector, will allow the mic to identify the link between pod and UAI:
 
 ```yaml
 
