@@ -33,7 +33,7 @@ There are thus 2 important things here:
 - Is the password stored securely?
 - How do we rotate the password value?
 
-![Illustration 1](./Img/podid02.png)
+![Illustration 1](/assets/podid02.png)
 
 Without going yet into the details, we will have exactly the same issue in containerized environment, and even more but we will deep in that afterward.  
 For now, let's just say that Cloud platforms such as Azure come with proposal to solve this challenge and, in Azure case, are called the managed identities.
@@ -55,9 +55,9 @@ For information, Azure managed identity come in two flavors:
 
 **Note that only one SAI can be associated to a service while we can have more than one UAI associated with a service instance.**  
 
-![Illustration 2](./Img/podid03.png)
+![Illustration 2](/assets/podid03.png)
 
-![Illustration 3](./Img/podid04.png)
+![Illustration 3](/assets/podid04.png)
 
 Now let's look at that from a containerized stand point.  
 
@@ -68,7 +68,7 @@ I know that containers help a great deal in application lifecycle.
 But, technically speaking, the property of a container is to isolate the runtime, providing a kind of blackbox for the rest of the system.
 Which is nice in many aspect, for instance decorrelating application from dependency on the OS.  
 
-![Illustration 4](./Img/podid05.png)
+![Illustration 4](/assets/podid05.png)
 
 However in our case, by isolating  the application part from the rest of the Azure platform, we lock down the managed identity capability.  
 **By no mean can a container be used with managed identity...**  
@@ -98,13 +98,13 @@ For that Azure pod identity relies on the following objects: (yes taken from the
 
 And that's all for the basics objects. With that we start to get an idea on how to make those things work. The following schema aims to illustrate the link between our 2 differents control plane:
 
-![Illustration 5](./Img/podid06.png)
+![Illustration 5](/assets/podid06.png)
 
 Those 3 specifics objects are the CRDs of the pod identity architecture. Now let's have a look at the core componants.  
 
 The pod identity will operate as described on this schema, originating [Pod Identity Site](https://azure.github.io/aad-pod-identity/docs/concepts/block-diagram-and-design/)
 
-![Illustration 6](./Img/podid07.png)
+![Illustration 6](/assets/podid07.png)
 
 As displayed on the picture, there are 2 kubernetes objects for the infrastructure:
 
@@ -113,7 +113,7 @@ As displayed on the picture, there are 2 kubernetes objects for the infrastructu
 
 Abstracting the Kubernetes Control plane, it looks like this:  
 
-![Illustration 7](./Img/podid08.png)
+![Illustration 7](/assets/podid08.png)
 
 ## 6. Preparing installation on an AKS cluster
 
@@ -500,7 +500,7 @@ e+9qBwdjC<q6<P_n
 
 This should be the same value as the key vault secret on the portal:
 
-![Illustration 8](./Img/podid09.png)
+![Illustration 8](/assets/podid09.png)
 
 And that's it for the demo. Now a time for the conclusion.  
 
