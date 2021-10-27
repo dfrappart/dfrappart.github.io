@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Archive
-permalink: /about/
+permalink: /archive/
 ---
 
 [Archive articles in PDF](https://github.com/dfrappart/articles/blob/master/pdf/)
