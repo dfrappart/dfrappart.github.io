@@ -983,11 +983,11 @@ This time, with the spec.pod_selector.match_labels.app parameter, we select the 
 
 The service testnginxsvc is accessible:
 
-![Illustration10](/assets/AKS10.png)
+![Illustration10](/assets/aks10.png)
 
 While the service testnginxsvc2 is not:
 
-![Illustration11](/assets/AKS11.png)
+![Illustration11](/assets/aks11.png)
 
 In the previous code, the netpol is described in HCL, but logically, we could let the team managing the application manage this kind of policy and thus, there is now reason that they would use terraform instead of yaml with kubectl.
 On the other hand, since we want to secure the AKS cluster at the deployment, having the capability to describe basic netpol in HCL gives us a way to simplify the hardening of the K8S cluster.
