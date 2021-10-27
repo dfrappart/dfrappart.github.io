@@ -13,12 +13,8 @@ gem "minima", "~> 2.5"
 gem "jekyll-theme-midnight", "~> 0.2.0"
 # If you want to use GitHub Pages, remove the "gem "jekyll"" above and
 # uncomment the line below. To upgrade, run `bundle update github-pages`.
-<<<<<<< HEAD
 #gem "github-pages"
 #group: :jekyll_plugins
-=======
-# gem "github-pages", group: :jekyll_plugins
->>>>>>> parent of def7e47 (testing some stuff)
 # If you have any plugins, put them here!
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.12"
