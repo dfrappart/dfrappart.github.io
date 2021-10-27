@@ -28,7 +28,7 @@ twitter_username: cloudgeekdavid
 github_username:  dfrappart
 
 # Build settings
-theme: jekyll-theme-minimal
+theme: minima
 plugins:
   - jekyll-feed
   - jekyll-remote-theme
