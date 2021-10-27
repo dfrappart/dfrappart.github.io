@@ -634,13 +634,13 @@ To sign in, use a web browser to open the page https://microsoft.com/devicelogin
 
 ```
 
-![Illustration1](https://github.com/dfrappart/articles/blob/master/Img/AKS01.png)
+![Illustration1](/assets/aks01.png)
 
-![Illustration2](https://github.com/dfrappart/articles/blob/master/Img/AKS02.png)
+![Illustration2](/assets/aks02.png)
 
-![Illustration3](https://github.com/dfrappart/articles/blob/master/Img/AKS03.png)
+![Illustration3](/assets/aks03.png)
 
-![Illustration4](https://github.com/dfrappart/articles/blob/master/Img/AKS04.png)
+![Illustration4](/assets/aks04.png)
 
 ```bash
 
@@ -662,15 +662,15 @@ To sign in, use a web browser to open the page https://microsoft.com/devicelogin
 
 ```
 
-![Illustration5](https://github.com/dfrappart/articles/blob/master/Img/AKS05.png)
+![Illustration5](/assets/aks05.png)
 
-![Illustration6](https://github.com/dfrappart/articles/blob/master/Img/AKS06.png)
+![Illustration6](/assets/aks06.png)
 
-![Illustration7](https://github.com/dfrappart/articles/blob/master/Img/AKS07.png)
+![Illustration7](/assets/aks07.png)
 
-![Illustration8](https://github.com/dfrappart/articles/blob/master/Img/AKS08.png)
+![Illustration8](/assets/aks08.png)
 
-![Illustration9](https://github.com/dfrappart/articles/blob/master/Img/AKS09.png)
+![Illustration9](/assets/aks09.png)
 
 ```bash
 
@@ -983,11 +983,11 @@ This time, with the spec.pod_selector.match_labels.app parameter, we select the 
 
 The service testnginxsvc is accessible:
 
-![Illustration10](https://github.com/dfrappart/articles/blob/master/Img/AKS10.png)
+![Illustration10](/assets/AKS10.png)
 
 While the service testnginxsvc2 is not:
 
-![Illustration11](https://github.com/dfrappart/articles/blob/master/Img/AKS11.png)
+![Illustration11](/assets/AKS11.png)
 
 In the previous code, the netpol is described in HCL, but logically, we could let the team managing the application manage this kind of policy and thus, there is now reason that they would use terraform instead of yaml with kubectl.
 On the other hand, since we want to secure the AKS cluster at the deployment, having the capability to describe basic netpol in HCL gives us a way to simplify the hardening of the K8S cluster.
