@@ -6,4 +6,4 @@ layout: home
 ---
 
 Welcome on teknew blog 2.0 ^^
-Old articles from the wrodpress era are available as archive in pdf in the Archive section.
+Old articles from the Wordpress era are available as archive in pdf in the Archive section.
