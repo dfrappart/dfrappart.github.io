@@ -7,18 +7,14 @@ categories: AKS, LogicApps
 
 ## 1. Introduction
 
-
 In this multi part article, i propose that we have a look on some Ops actions regarding AKS cluster and how, as is proper for a lazy Ops, it is possible to automate some of those actions with Azure services.
 
-The content below was highly inspired by Thomas Stringer who published the basis of the stuff that we will do on his [blog](https://trstringer.com/schedule-aks-start-stop-automatically).
+The content below was highly inspired by [Thomas Stringer](https://www.linkedin.com/in/trstringer/) who published the basis of the stuff that we will do on his [blog](https://trstringer.com/schedule-aks-start-stop-automatically).
 I found that i had to dive in his solution before being able to makes something works and this article is the result of my lacks and struggles.
-Nevertheless, kudos to him. He didi help me achieve things i really wanted to do.
-And with that let's get going.
-
-
+Nevertheless, kudos to him. He did help me achieve things i really wanted to do.
+And with that let's get going.\
 
 ## 2. Review of our need
-
 
 So, i mentionned Ops actions on AKS cluster. what are we talking about and why it caused me a few headhaches.
 First let's note that i usually look first on PowerShell and Azure Automation runbook to automate stuff in Azure.
