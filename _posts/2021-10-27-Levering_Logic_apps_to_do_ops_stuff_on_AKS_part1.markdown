@@ -7,7 +7,6 @@ categories: AKS, LogicApps
 
 ## 1. Introduction
 
-00000000-0000-0000-0000-000000000000
 
 In this multi part article, i propose that we have a look on some Ops actions regarding AKS cluster and how, as is proper for a lazy Ops, it is possible to automate some of those actions with Azure services.
 
