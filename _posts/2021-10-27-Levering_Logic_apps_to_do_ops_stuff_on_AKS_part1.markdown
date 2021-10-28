@@ -137,11 +137,12 @@ We will just activate the system managed identity
 
 
 
-And grant it access on the subsccrption
+And grant it access on the subscription
 
 
 
 ![Illustration 6](/assets/aksops06.png)
+
 ![Illustration 7](/assets/aksops07.png)
 
 
