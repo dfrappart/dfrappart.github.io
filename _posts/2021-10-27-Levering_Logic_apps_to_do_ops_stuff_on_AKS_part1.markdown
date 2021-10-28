@@ -104,7 +104,7 @@ Afterward we have something like that:
 
 and we can start exploring the logic apps actions.
 After configuring a trigger, in our case a timer, we will look upon the Azure Resource Manager.
-Since we want to to invoke an operation, the action `Invoke resource operation` seems nice, but so does the `List resources from a Resource Group` to avoid writing something too static:
+Since we want to to invoke an operation, the action `Invoke resource operation` seems nice, but so does the `List resources by Resource Group` to avoid writing something too static:
 
 
   
