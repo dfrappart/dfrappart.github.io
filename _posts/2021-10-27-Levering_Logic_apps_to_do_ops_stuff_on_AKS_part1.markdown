@@ -157,29 +157,21 @@ After that we can go back to the Designer and create an new connection.
 Selecting `connect with managed identity`
 
 ![Illustration 9](/assets/aksops09.png)
+
 ![Illustration 10](/assets/aksops10.png)
-
-
 
 Navigating in the portal, you may notice the presence of an Azure resource called API Connection
 
-
-
 ![Illustration 11](/assets/aksops11.png)
+
 ![Illustration 12](/assets/aksops12.png)
 
 Which is, as the name implies, the object behind the scene responsible for allowing the interaction between the logic app managed identity and the ARM API.
 As a matter of fact, now that we added the details of the invoke operation:
 
-
-
 ![Illustration 13](/assets/aksops13.png)
 
-
-
 let's look on the `code view`
-
-
 
 ![Illustration 14](/assets/aksops14.png)
 
@@ -204,8 +196,6 @@ let's look on the `code view`
 
 ```
 
-
-
 This section is where the logic apps gets the connection information and matches with the `API Connection`.
 Ok, we are done for now, we have a very simple logic app which is should be able to stop our cluster aks `aks-csi1`.
 But as i said, we want some dynamic thing, so let's insert a `List Resource From Resource Group` first:
@@ -214,34 +204,22 @@ But as i said, we want some dynamic thing, so let's insert a `List Resource From
 
 Just to be sure, let's trigger our logic app and see what's happens.
 
-
-
 ![Illustration 16](/assets/aksops16.png)
+
 ![Illustration 17](/assets/aksops17.png)
-
-
 
 It worked!!!
 Let's see the Azure resource side:
 
-
-
 In the Activity logs, we can see the Stop action done by our managed identity `lgaaksops`
 
-
-
 ![Illustration 18](/assets/aksops18.png)
+
 ![Illustration 19](/assets/aksops19.png)
-
-
 
 And the cluster is indeed stopped:
 
-
-
 ![Illustration 20](/assets/aksops20.png)
-
-
 
 ```bash
 
@@ -252,8 +230,6 @@ PS C:\Users\jubei.yagyu> az aks show -n aks-csi1 -g rsgcsimeetup1 --query powerS
 PS C:\Users\jubei.yagyu>
 
 ```
-
-
 
 That sound good enough for me now.
 
