@@ -8,13 +8,13 @@ permalink: /archive/
 
 [Application Security Group in Azure with Terraform](https://github.com/dfrappart/articles/blob/master/pdf/Application%20Security%20Group%20in%20Azure%20with%20Terraform.pdf)
 
-[Bootstraping Azure VMs](https://github.com/dfrappart/articles/blob/master/pdf/Bootstraping%20Azure%20VMs.pdf)
+[Bootstrapping Azure VMs](https://github.com/dfrappart/articles/blob/master/pdf/Bootstraping%20Azure%20VMs.pdf)
 
 [Deploy Azure Firewall with Terraform](https://github.com/dfrappart/articles/blob/master/pdf/Deploy%20Azure%20Firewall%20with%20Terraform.pdf)
 
 [Exploring Terraform features for Infrastructures as Code optimizations](https://github.com/dfrappart/articles/blob/master/pdf/Exploring%20Terraform%20features%20for%20Infrastructure%20as%20Code%20optimizations.pdf)
 
-[Getting started with Azure deployment throught Terraform](https://github.com/dfrappart/articles/blob/master/pdf/Getting%20Started%20with%20Azure%20deployment%20through%20Terraform.pdf)
+[Getting started with Azure deployment through Terraform](https://github.com/dfrappart/articles/blob/master/pdf/Getting%20Started%20with%20Azure%20deployment%20through%20Terraform.pdf)
 
 [Getting started with Data Sources](https://github.com/dfrappart/articles/blob/master/pdf/Getting%20started%20with%20Terraform%20Data%20Source%20-%20Deploy%20on%20existing%20Azure%20infrastructure.pdf)
 
