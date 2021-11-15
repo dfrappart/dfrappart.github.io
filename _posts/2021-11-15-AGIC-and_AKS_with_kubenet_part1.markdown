@@ -7,7 +7,7 @@ categories: AKS
 
 ## 1. Introduction  
 
-In this a multipart article, we will come back on Application Gateway as Ingress Controller and its configuration and usage specifically in an AKS / Kubenet environment.
+In this multipart article, we will come back on Application Gateway as Ingress Controller and its configuration and usage specifically in an AKS / Kubenet environment.
 This is the result of a series of talks that I had the opportunity to do last year, so now comes the time for a written summary ^^
 I hope you'll enjoy it.  
   
