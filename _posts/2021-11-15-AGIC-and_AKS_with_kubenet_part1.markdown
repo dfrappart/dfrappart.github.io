@@ -15,9 +15,9 @@ I hope you'll enjoy it.
   
 ![Illustration 1](/assets/agic001.png)
   
-Before going in depht about Application Gateway as an Ingress Controller (refered as AGIC in the document), let's have a tl;dr description ^^
+Before going in depht about **Application Gateway as an Ingress Controller** (refered as **AGIC** in the document), let's have a tl;dr description ^^
   
-AGIC is a way to provide an Ingress Controller in AKS, meaning in the kubernetes control plane, based on the Application Gateway that lives in AZure control plane.
+**AGIC** is a way to provide an Ingress Controller in AKS, meaning in the kubernetes control plane, based on the Application Gateway that lives in AZure control plane.
 That's kind of the recurring thing with AKS and its integration with the Azure platform, having things live in both control plane and gain Cloud managed feature, which is fine.
 One obvious advantage is that since the control plane of Application Gateway lives in Azure, it does not require Kubernetes Ops to manage everything such as WAF policies.
   
@@ -33,7 +33,7 @@ Now there is also another thing to remember. AGIC comes in two flavour, an OSS p
 And that's about all, as i said, a tl;dr, we don't want to copy paste the documentation,which is quite good.
 About that, when i mention docuentation, i mean the OSS documentation in [github](https://azure.github.io/application-gateway-kubernetes-ingress/).  
   
-## 3. Review AKS Networking model  
+## 3. Review AKS Kubenet model  
   
 Before going in the first way of installing AGIC, we need to review the networking model available in AKS.
 Because we will focus on one of those model and some of the imapct that it can have. So let's get going.  
@@ -53,7 +53,7 @@ Thanks to Azure documentation, we can have nice schemas explaining the differenc
 
 ![Illustration 3](/assets/agic003.png)  
   
-- Kubenet acts as an NAT and Network flow is routed between the Azure VNet and the Pods IP range.  
+- **Kubenet** acts as an NAT and Network flow is routed between the Azure VNet and the Pods IP range.  
   
 ![Illustration 4](/assets/agic004.png)  
   
