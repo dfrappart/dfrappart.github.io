@@ -8,7 +8,9 @@ categories: AKS
 ## 1. Introduction  
 
 In this multipart article, we will come back on Application Gateway as Ingress Controller and its configuration and usage specifically in an AKS / Kubenet environment.
+
 This is the result of a series of talks that I had the opportunity to do last year, so now comes the time for a written summary ^^
+
 I hope you'll enjoy it.  
   
 ## 2. AGIC TL;DR  
@@ -223,7 +225,7 @@ This identity is assigned RBAC roles on both resource groups containing the AKS 
   
 Those roles will allows AKS and its Ingress Controller extension to manipulate the Application Gateway when needed.
 
-This is the assignment done by the addon installation, but it is also possible to scope the Contributor role to the Application Gateway only. In this case it is required to add assign Reader role on the Resource Group containing the Application Gateway. More details available on the [AGIC documentation](https://azure.github.io/application-gateway-kubernetes-ingress/setup/install-existing/).  
+This is the assignment done by the add-on installation, but it is also possible to scope the Contributor role to the Application Gateway only. In this case it is required to add assign Reader role on the Resource Group containing the Application Gateway. More details available on the [AGIC documentation](https://azure.github.io/application-gateway-kubernetes-ingress/setup/install-existing/).  
 
 And last, since we are using Kubenet, you may remember that an UDR is created at the AKS cluster provisioning time. This UDR is in the Resource Group containing all the AKS resources and is associated by default with the subnet in which the nodes reside.  
 
