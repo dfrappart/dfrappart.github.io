@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Secure AKS at the deployment"
-date:   2020-02-14 11:31:40 +0200
+date:   2019-10-23 11:31:40 +0200
 categories: AKS
 ---
 
