@@ -354,10 +354,10 @@ Everything seems fine, after a refresh. that's because I created the managed ide
   
 It's time to wrap up this 2nd part already.  
 To conclude, one interesting fact:
-AGIC is a candidate for Pd Identity. That's exactly what we did in this article.
-Second, we performed a full unmanaged installation of AGIC with its dependency Pod Identity, and well, there are a lot of moving part.
+AGIC is a candidate for Pod Identity. That's exactly what we did in this article.
+Second, we performed a full unmanaged installation of AGIC with its requirement `Pod Identity`, and well, there are a lot of moving part.
 I guess that the reason to use the helm chart instead of the add-on should really be discussed thoroughly.
-Probably, the capabilities of Pod Identity may give us more segregation option in the Kubernetes control plan thant the AGIC add-on.  
+Probably, the capabilities of Pod Identity may give us more segregation option in the Kubernetes control plan than the AGIC add-on.  
 
 but that's up to you ^^
 
