@@ -5,15 +5,20 @@ date:   2021-11-15 15:00:00 +0200
 categories: AKS
 ---
 
-## 1. Introduction  
-
 In this multipart article, we will come back on Application Gateway as Ingress Controller and its configuration and usage specifically in an AKS / Kubenet environment.
 
 This is the result of a series of talks that I had the opportunity to do last year, so now comes the time for a written summary ^^
 
-I hope you'll enjoy it.  
+I hope you'll enjoy it.
   
-## 2. AGIC TL;DR  
+## Table of content
+
+1. AGIC TL;DR
+2. Review AKS kubenet model
+3. Installing AGIC the easy way, and looking what's done behind the scene
+4. What you should keep from this
+  
+## 1. AGIC TL;DR  
   
 ![Illustration 1](/assets/agic001.png)
   
@@ -35,7 +40,7 @@ Now there is also another thing to remember. AGIC comes in two flavour, an OSS p
 And that's about all, as I said, a tl;dr, we don't want to copy paste the documentation, which is quite good.
 About that, when I mention documentation, I mean the OSS documentation in [github](https://azure.github.io/application-gateway-kubernetes-ingress/).  
   
-## 3. Review AKS Kubenet model  
+## 2. Review AKS Kubenet model  
   
 Before going in the first way of installing AGIC, we need to review the available networking models in AKS.
 Because we will focus on one of those models and some of the impact that it can have. So let's get going.  
@@ -100,9 +105,9 @@ That being said, it does imply that the method of deployment should involve eith
 Ok that' enough for this networking reminder, which was quite long.
 Let's have some fun and let's look at the installation of the add-on.  
   
-## 4. Installing AGIC the easy way, and looking what's done behind the scene  
+## 3. Installing AGIC the easy way, and looking what's done behind the scene  
   
-### 4.1. Install  
+### 3.1. Install  
   
 AS mentioned earlier, we can benefit from AGIC through an add-on.
 This is quite easy to activate then, through a simple `az cli` command which would look like that:  
@@ -165,7 +170,7 @@ Btw, my config is available on [github](https://github.com/dfrappart/aksagiclab)
 
 Let's now look at what happened.
 
-### 4.2. What's happening under the hood  
+### 3.2. What's happening under the hood  
   
 So, as mentioned, we now want to see what really happened behind the scene.
 First thing, we may go to the portal to see what was done. Or we could also use an `az cli` command just like that:
@@ -239,7 +244,7 @@ Since the Application Gateway lives in an Azure Virtual Network and has no clue 
   
 With that, we have seen all the visible things on the Azure control plane. We could also explore the Kubernetes objects, but we'll keep that for another day.
 
-## 5. What you should keep from this
+## 4. What you should keep from this
 
 It's time to wrap up, at least for this part.
 
