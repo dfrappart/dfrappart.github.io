@@ -10,7 +10,7 @@ In the second part of our AGIC & AKS Kubenet serie, we will look at the installa
 
 Instead of the add-on, we will look to the **Open Source Project** (which is the origin of the add-on btw) and look how to deploy through **Helm** (and also terraform)
 
-Agin, I hope you'll enjoy it.  
+Again, I hope you'll enjoy it.  
 
 ## Table of content
 
@@ -29,7 +29,7 @@ While technical content can be found on [Azure Documentation](https://docs.micro
 To summarize, we want to install AGIC by ourselve, meaning as kubernetes componants. But we also identified that to work, specifically in a kubenet model AKS, we have prerequisites in terms of Azure resources and authorizations.
 Also, something that is quite not clear with the add-on but explicitly mentionned in the OSS documentation, we need to be able to interact with the Azure control plane from the kubernetes control plane.
 
-That required some Azure Role assignment and a way to interact with AZure AD from within Kubernetes.
+That required some Azure Role assignments and a way to interact with Azure AD from within Kubernetes.
 
 And what better to do that than relying on the Azure AD integration and the Pod Identity feature?
 
@@ -127,13 +127,13 @@ Regarding AGIC prerequisites, we have it. Now let's move on to the Kubernetes co
   
 We are now at the point of installing AGIC from the Helm chart. Before going further, let's discuss about Helm.  
 
-Some people, and I am still part of tose people sometimes, have a tendency to refuse by default any talk about Helm, invoking security questions.
-The power of Helm is double edged, as for all powerfull tools, and it can indeed bring security question, when a chart is taken from a helm repository, without further analysis.  
+Some people, and I am still part of those sometimes, have a tendency to refuse by default any talk about Helm, invoking security questions.
+The power of Helm is double edged, as for all powerfull tools, and it can indeed bring security questions, when a chart is taken from a helm repository, without further analysis.  
 
 On the other hand, a Helm chart is specifically designed to package complex application with a way to use paramters for custom configuration.
-AGIC is specifically a quite complex feature, in the way that it connect Azure control plane and Kubernetes control plane. Pod Identity, whcih we will need to makes our AGIC deployment work, is also this kind of feature.  
+AGIC is specifically a quite complex feature, in the way that it connect Azure control plane and Kubernetes control plane. Pod Identity, which we will need to make our AGIC deployment works, is also this kind of feature.  
 
-So I guess that the best answer IMHO is to take the time to look at the Helm chart, in terms of where it comes from, and which parameters are the best for a secure deployemnt.
+So I guess that the best answer **IMHO** is to take the time to look at the Helm chart, in terms of where it comes from, and which parameters are the best for a secure deployemnt.
 That being said, it is kind of out of the scope of this article, but let's just say that we will only use Helm chart from Microsoft initiated Open Source Project for specifically AKS.
 
 So I will make the assumption that those Helm chart are secure ^^  
