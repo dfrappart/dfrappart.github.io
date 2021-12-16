@@ -21,7 +21,7 @@ Let's get going!
 
 1. Adding intellignce to our Start/Stop AKS logic app
 2. Automate AKS Certificate rotation
-3. Takeway
+3. Take Away
 
 ## 1. Adding intelligence to our Start/Stop AKS logic app  
 
@@ -438,7 +438,7 @@ Which we approve or rject to complete the workflow:
   
 And that's it ^^
 
-## takeaway
+## 3. Take away
 
 In this 2 part article, we were able to create logic apps to manage Ops activities on AKS cluster.
 SO we have two main area of benefits here.
