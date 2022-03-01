@@ -52,9 +52,9 @@ What it does:
 
 Before moving forward, a word on the Service Tags and the Application Security Groups:
 
-- Service tags are, as the name implies, tags used to identify known IP addresses range, such as **Internet**, **AzureCloud**, **LoadBalancer**, **VirtualNetwork**...
+- Service tags are, as the name implies, tags used to identify known IP addresses ranges, such as **Internet**, **AzureCloud**, **LoadBalancer**, **VirtualNetwork**...
 
-  By using those tags, it is possible to avoid IP addresses range in rules.
+  By using those tags, it is possible to avoid IP addresses ranges in rules.
   
   The IP ranges behind the tags are updated on Microsoft side
 
@@ -236,14 +236,54 @@ Considering the `WebServer`, it means that the rule 65000 will allow access
 | 65000 | AllowVnetInBound | Inbound | Allow | * | * | * |  VirtualNetwork |  VirtualNetwork |
 
 Considering the `BackendServer`, well, it's a little different, because we added another rule that match also its address so we have this: 
+  
+| priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
+|-|-|-|-|-|-|-|-|-|
+| 1010 | AllowWebServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  WebServer | BackendServer |
+| 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | BackendServer |
+  
+Prior to rule 65000, rule 3010 here would match VirtualNetwork traffic, because `*` includes it.
 
+So the VM is not allowed access in this specific case.
 
+How could we proceed to allow access?
 
-### 3.3. Managing Network flows for 2 VM in a Spoke Virtual Network
+An attentive reader would probably propose to use an ASG. But, because there is a but, ASGs work only for the local virtual network.
 
+It means that it is not possible to reference virtual machines as source / target with ASGs when the VMs are in different VNet.
+The error message is pretty explicit: 
 
-### 3.4. Scenarios that do not work with NSG
+```json
 
+"statusMessage": "{\"error\":
+                    {
+                        \"code\":\"AllApplicationSecurityGroupsInSecurityRuleMustBeFromSameVnet\",
+                        \"message\":\"Security Rule /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rghub/providers/Microsoft.Network/networkSecurityGroups/nsg-spoke-subnet1/securityRules/DenyallfromVMHubToWebServer has Application Security Groups (ASGs) from multiple virtual networks (/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RGHUB/providers/Microsoft.Network/virtualNetworks/VNETHUB, /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/RGHUB/providers/Microsoft.Network/virtualNetworks/VNETSPOKE). All ASGs on the Security Rule must be from the same virtual network.\",
+                        \"details\":[]
+                    }
+                  }"
+
+``` 
+
+So then, alowing traffic for the VM from the Hub Network can only be done through IP based rule. That's a shame.
+
+We would need to implemen something like this: 
+
+| priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
+|-|-|-|-|-|-|-|-|-|
+| 1010 | AllowWebServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  WebServer | BackendServer |
+| 1020 | AllowHubServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  **IP_Of_HubVM** | BackendServer |
+| 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | BackendServer |
+
+Ok it's time to wrap up 
 ## 4. What you should remember
 
+What did we find out then?
 
+NSG can manage network flows on a distributed approach, by applying an NSG to a subnet preferably, or a VM if really needed.
+NSG is easier to manage with rules leveraging ASGs and Service Tags
+NSG is ideal for Intra-Virtual Network filtering, but less ideal for cross Virtual Networ filtering
+
+Also, peering has an impact on the VirtualNetwork Service Tag, and thus on default NSG, except if you are aware of it and configure your peering with custom parameters.
+
+There are some things that we did not discuss, such as spoke-to-spoke filtering. There is a reason, which is, very synthetically, is related to  the routing 
