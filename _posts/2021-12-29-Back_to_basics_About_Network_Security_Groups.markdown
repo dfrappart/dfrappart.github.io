@@ -106,7 +106,7 @@ This one is easy, but, well, we do need to start with something.
 So we have 1 VM, in a subnet in a VNet.
 By default, we should have an NSG and since, i follow my own recommandation, it is applied at the Subnet level
 
-**Schema to put here**
+![Schema 1](/assets/aboutnsgschema001.png)
 
 At first, we have only the following rules, because those are the default NSG rules that come with **all** NSG:
 
@@ -142,7 +142,7 @@ But, remember, we want to avoid managing IPs, because it's a pain, so we add an 
  Let's call this ASG `WebServer`.
 Also, it's kind of obvious, but the VM needs a public IP before being reachable.
 
-**Schema to put here**
+![Schema 2](/assets/aboutnsgschema002.png)
 
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
@@ -155,7 +155,7 @@ Still not too hard. Let's add new things
 This time, we have an additional VM in the same VNet.
 To get started, let's take the hypothesis that the new VM is in another subnet.
 
-**Schema to put here**
+![Schema 3](/assets/aboutnsgschema003.png)
 
 Let's put an NSG on the subnet where this VM lives.
 Without adding anything, this NSG will come with the default rules.
@@ -185,27 +185,27 @@ So let's do this:
 | 1010 | AllowWebServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  WebServer | BackendServer |
 | 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | BackendServer |
   
-**Schema to put here**
+![Schema 4](/assets/aboutnsgschema004.png)
   
 Still not too hard right?
 
 Note that we did not add an egress rule to limit traffic between the `WebServer` VM and the `BackendServer` VM.  It's really not necessary at this point.
 
-Ok, let's dig further then
+Ok, let's dig further then...
 
 ### 3.2. Managing Network flows for 2 VM in an Virtual Network peered to another Virtual Network
 
 So now we add another VM, but in another Virtual Network.
 
-If we consider jsut our 2 isolated Virtual Network like that, well it is the first section scenario.
+If we consider jsut our 2 isolated Virtual Network like that, well it is the first section scenario:
 
-Only the WebServer is accessible to from the Internet. The new VM in the new VNet can reach it through it's Internet access.
+The WebServer is accessible from the Internet. The new VM in the new VNet can reach it through it's Internet access.
 
 Not really interesting.
 
 Now if we add the peering concept, we can allow communication between the 2 virtual networks.
 
-**Schema to put here**
+![Schema 5](/assets/aboutnsgschema005.png)
 
 There are options available for the Peering that must be taken into account.
 
