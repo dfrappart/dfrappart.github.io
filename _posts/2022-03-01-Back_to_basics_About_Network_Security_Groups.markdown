@@ -19,7 +19,7 @@ This article aims to help fill those gaps.
 
 1. The Network Security Group 101
 2. Recommandations for using NSG
-3. Scenario of Network flows with NSG
+3. Scenarios of Network flows with NSG
 4. What you should remember
 
 ## 1. The Network Security Group 101  
