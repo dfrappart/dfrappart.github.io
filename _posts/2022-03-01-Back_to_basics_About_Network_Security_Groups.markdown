@@ -1,8 +1,8 @@
 ---
 layout: post
 title:  "Back to basics - About Network Security Groups"
-date:   2021-12-29 17:28:00 +0200
-categories: AKS
+date:   2022-03-01 22:45:00 +0200
+categories: Network
 ---
 
 Hi!
@@ -13,7 +13,7 @@ How is it working, when does it filter traffic, is it enough in a hub and spoke 
 
 Many questions that are not that complex but still require to take some time to answer to.
 
-This article aims to fill those gaps...
+This article aims to help fill those gaps.
   
 ## Table of content
 
@@ -95,7 +95,7 @@ Note that some Azure services, such as Azure Bastion, or Application Gateway, wh
 - Read the Azure doc about the services you are using, to be sure that you do not miss any requirements
 - Last but not least, **read the Azure doc**
   
-## 3. Scenario of Network flows with NSG  
+## 3. Scenarios of Network flows with NSG  
   
 Ok, now that we put some ground rules and that everyone has read the docs, what about a few examples?
   
@@ -193,7 +193,7 @@ Note that we did not add an egress rule to limit traffic between the `WebServer`
 
 Ok, let's dig further then...
 
-### 3.2. Managing Network flows for 2 VM in an Virtual Network peered to another Virtual Network
+### 3.2. Managing Network flows between VMs in in peered Virtual Network
 
 So now we add another VM, but in another Virtual Network.
 
@@ -275,15 +275,71 @@ We would need to implemen something like this:
 | 1020 | AllowHubServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  **IP_Of_HubVM** | BackendServer |
 | 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | BackendServer |
 
-Ok it's time to wrap up 
+Ok it's time for our last scenario.
+  
+### 3.3. Managing Network flows in a Hub & Spokes topology
+
+A usual network topology in Azure is the Hub & Spoke.
+
+In this approach, similarly to the last scenario, we have a Hub Virtual Network which is peered to all the different Spokes.
+
+Since this is a model relying on Virtual Network peering, what we discussed in the previous section is valid.
+However, there's more.
+The peering, by design, is not transitive. Which mean that Spoke-to-spoke traffic is not routed. So in this case, there is no real need to define rules on NSG right?
+
+Well, there is. Because, with something playing the role of a router, we can define a route from one Spoke to another through the Hub.
+
+This article is about NSG, so we won't go into detail in routing scenarios in Hub & Spoke. However, it means that we have the same scenario as previously which summarize in 2 points: 
+
+- Virtual Network Service Tag in a Spoke is extended by default with the range of the direct peer, in this case the Hub Virtual Network
+- ASG are not usable to filter traffic originating from the Hub, or another Spoke
+
+Let's illustrate: 
+
+![Schema 6](/assets/aboutnsgschema006.png)
+
+Considering VM1 in the left Spoke, the default peering configuration and rule 65000 allow traffic from VM2 to VM1
+
+| priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
+|-|-|-|-|-|-|-|-|-|
+| 65000 | AllowVnetInBound | Inbound | Allow | * | * | * |  VirtualNetwork |  VirtualNetwork |
+  
+And that's the same for VM3 regarding traffic coming from VM2.
+
+For traffic coming from VM3 to VM1 (and vice versa), there is no rule that is allowing traffic, because the VirtualNetwork Service Tag only extend to get the range from the Hub Network.
+Also, there is **no route** from Spoke to Spoke. So even if we add a rule on one of the spoke NSG, it won't be routed without adding something (that we won't talk in this article ^^).
+
+Now, if we wanted to add granular rule to specifically allow or deny VM2 to VM1 (or VM3), we **cannot** use an ASG to identify the source from VM2 to the NSG in the spoke VM, because **ASG can only be used for rules in the VNet in which the ASG is applying to**.
+
+Ok, not easy, but hopefully detailed enough.
+
+Last, if we take the hypothesis of using a NSG in the Hub Network to filter traffic from VM3 to VM2, **It will not work**, because the NSG filter traffic on 
+
+what it is applied to. So, in this case, the NSG would be applied in a subnet  in the Hub which does not apply for spoke-to-spoke traffic. 
+
+And also there's no route in our case anyway ^^  
+  
+Below schema summarize everything we just detailled: 
+  
+  
+![Schema 7](/assets/aboutnsgschema007.png)
+  
+That's it for now so let's wrap up.
 ## 4. What you should remember
 
-What did we find out then?
-
+So, in a few sentences:
+  
 NSG can manage network flows on a distributed approach, by applying an NSG to a subnet preferably, or a VM if really needed.
+
 NSG is easier to manage with rules leveraging ASGs and Service Tags
-NSG is ideal for Intra-Virtual Network filtering, but less ideal for cross Virtual Networ filtering
 
-Also, peering has an impact on the VirtualNetwork Service Tag, and thus on default NSG, except if you are aware of it and configure your peering with custom parameters.
+NSG is ideal for Intra-Virtual Network filtering, but less ideal for cross Virtual Networ filtering, because ASGs won't work for cross VNet NSG rules
 
-There are some things that we did not discuss, such as spoke-to-spoke filtering. There is a reason, which is, very synthetically, is related to  the routing 
+Also, peering has an impact on the VirtualNetwork Service Tag, and thus on default NSGrules, except if you are aware of it and configure your peering with custom parameters.
+
+Without additional routing, spoke-to-spoke communication in Hub & Spoke is not possible, but not limited by NSG, which can be used for filtering, even if we need to rely on IP based rules in this case.
+
+Ok, that's all.
+I hope this help for the use of NSG.
+There's probably room for other network topics such as routing or waf, or even other firewall solutions, but well not here so next time ^^.
+
