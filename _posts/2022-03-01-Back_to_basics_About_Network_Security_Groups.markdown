@@ -18,8 +18,8 @@ This article aims to help fill those gaps.
 ## Table of content
 
 1. The Network Security Group 101
-2. Recommandations for using NSG
-3. Scenarios of Network flows with NSG
+2. Recommandations for using NSGs
+3. Scenarios of Network flows with NSGs
 4. What you should remember
 
 ## 1. The Network Security Group 101  
@@ -35,11 +35,11 @@ What it does:
   
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
-| 65000 | AllowVnetInBound | Inbound | Allow | * |  * |  * |  VirtualNetwork |  VirtualNetwork |
-| 65001 | AllowAzureLoadBalancerInBound | Inbound | Allow | * |  * |  * |  AzureLoadBalancer |  * |
+| 65000 | AllowVnetInBound | Inbound | Allow | * |  * |  * |  **VirtualNetwork** |  **VirtualNetwork** |
+| 65001 | AllowAzureLoadBalancerInBound | Inbound | Allow | * |  * |  * |  **AzureLoadBalancer** |  * |
 | 65500 | DenyAllInBound | Inbound | Deny | * |  * |  * |  * |  * |
-| 65000 | AllowVnetOutBound | Outbound | Allow | * |  * |  * |  VirtualNetwork |  VirtualNetwork |
-| 65001 | AllowInternetOutBound | Outbound | Allow | * |  * |  * |  * |  Internet |
+| 65000 | AllowVnetOutBound | Outbound | Allow | * |  * |  * |  **VirtualNetwork** |  **VirtualNetwork** |
+| 65001 | AllowInternetOutBound | Outbound | Allow | * |  * |  * |  * |  **Internet** |
 | 65500 | DenyAllOutBound | Outbound | Deny | * |  * |  * |  * |  * |
   
 - NSG rules have a priority defined by a priority number, **between 100 and 4096**. THe lower the number, the higher the priority
@@ -88,9 +88,9 @@ Note that some Azure services, such as Azure Bastion, or Application Gateway, wh
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
 | 4000 | DefaultDenyAllToOnPremise | Inbound | Deny | * |  * |  * |  * |  **On-Premise Ranges** |
-| 3000 | DefaultAllowAlltoAzureCloud | Outbound | Allow | * |  * |  * |  * |  AzureCloud |
+| 3000 | DefaultAllowAlltoAzureCloud | Outbound | Allow | * |  * |  * |  * |  **AzureCloud** |
 | 4000 | DefaultDenyAllToOnPremise | Outbound | Deny | * |  * |  * |  * |  **On-Premise Ranges** |
-| 4010 | DefaultDenyAllInternet | Outbound | Deny | * |  * |  * |  * |  Internet |
+| 4010 | DefaultDenyAllInternet | Outbound | Deny | * |  * |  * |  * |  **Internet** |
 
 - Read the Azure doc about the services you are using, to be sure that you do not miss any requirements
 - Last but not least, **read the Azure doc**
@@ -112,11 +112,11 @@ At first, we have only the following rules, because those are the default NSG ru
 
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
-| 65000 | AllowVnetInBound | Inbound | Allow | * |  * |  * |  VirtualNetwork |  VirtualNetwork |
-| 65001 | AllowAzureLoadBalancerInBound | Inbound | Allow | * |  * |  * |  AzureLoadBalancer |  * |
+| 65000 | AllowVnetInBound | Inbound | Allow | * |  * |  * |  **VirtualNetwork** |  **VirtualNetwork** |
+| 65001 | AllowAzureLoadBalancerInBound | Inbound | Allow | * |  * |  * |  **AzureLoadBalancer** |  * |
 | 65500 | DenyAllInBound | Inbound | Deny | * |  * |  * |  * |  * |
-| 65000 | AllowVnetOutBound | Outbound | Allow | * |  * |  * |  VirtualNetwork |  VirtualNetwork |
-| 65001 | AllowInternetOutBound | Outbound | Allow | * |  * |  * |  * |  Internet |
+| 65000 | AllowVnetOutBound | Outbound | Allow | * |  * |  * |  **VirtualNetwork** |  **VirtualNetwork** |
+| 65001 | AllowInternetOutBound | Outbound | Allow | * |  * |  * |  * |  **Internet** |
 | 65500 | DenyAllOutBound | Outbound | Deny | * |  * |  * |  * |  * |
 
 So, in this case, our little VM is indeed isolated, because it's alone in the VNet, and we did not specify any rule.
@@ -129,7 +129,7 @@ If we follow the evaluation logic:
 
 For the egress traffic, if we still follow the same logic, we get this:  
 
-- Rule 65000 would allow the VM, because it match the service tag VirtualNetwork, to reach something corresponding to the service tag VirtualNetwork. But it's a lonley VM, so nothing math here
+- Rule 65000 would allow the VM, because it match the service tag **VirtualNetwork**, to reach something corresponding to the service tag **VirtualNetwork**. But it's a lonley VM, so nothing math here
 - Rule 65001 is where it start to get interesting. It states that **"*"**, which means anything this NSG is applied to, so the VM is part of it, can go to the Internet. So the VM is able to reach, let's say [github](https://github.com)
 - Last, rule 65500 is here to block all remaining traffic. But we already matched a lot of traffic with the previous one...
 
@@ -146,11 +146,11 @@ Also, it's kind of obvious, but the VM needs a public IP before being reachable.
 
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
-| 1010 | AllowWebServerInbound | Inbound | Allow | TCP |  * | 443 | Internet |  WebServer |
+| 1010 | AllowWebServerInbound | Inbound | Allow | TCP |  * | 443 | Internet |  `WebServer` |
   
 Still not too hard. Let's add new things
 
-### 3.2. Managing Network flows for 2 VM in an isolated Virtual Network
+### 3.2. Managing Network flows for 2 VMs in an isolated Virtual Network
 
 This time, we have an additional VM in the same VNet.
 To get started, let's take the hypothesis that the new VM is in another subnet.
@@ -170,20 +170,20 @@ Again, following the logic of evaluation, we can the initial VM, which lives in 
 
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
-| 65000 | AllowVnetInBound | Inbound | Allow | * | * | * |  VirtualNetwork |  VirtualNetwork |
+| 65000 | AllowVnetInBound | Inbound | Allow | * | * | * |  **VirtualNetwork** |  **VirtualNetwork** |
   
 It could be ok, but we would like to be a little more selective right?
 
 So let's do this:
 
-- First, let's add a new ASG on the new VM, something like BackendServer
-- Second, let's add a new rule which allows specifically the ASG WebServer to reach the ASG BackendServer on, let's say, TCP 1433
-- Last, to ensure that only this port is available, we could add another rule that deny everything on ASG BackendServer
+- First, let's add a new ASG on the new VM, something like `BackendServer`
+- Second, let's add a new rule which allows specifically the ASG `WebServer` to reach the ASG `BackendServer` on, let's say, TCP 1433
+- Last, to ensure that only this port is available, we could add another rule that deny everything on ASG `BackendServer`
 
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
-| 1010 | AllowWebServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  WebServer | BackendServer |
-| 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | BackendServer |
+| 1010 | AllowWebServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  `WebServer` | `BackendServer` |
+| 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | `BackendServer` |
   
 ![Schema 4](/assets/aboutnsgschema004.png)
   
@@ -193,13 +193,13 @@ Note that we did not add an egress rule to limit traffic between the `WebServer`
 
 Ok, let's dig further then...
 
-### 3.2. Managing Network flows between VMs in in peered Virtual Network
+### 3.2. Managing Network flows between VMs in 2 peered Virtual Networks
 
 So now we add another VM, but in another Virtual Network.
 
-If we consider jsut our 2 isolated Virtual Network like that, well it is the first section scenario:
+If we consider just our 2 isolated Virtual Network like that, well it is the first section scenario:
 
-The WebServer is accessible from the Internet. The new VM in the new VNet can reach it through it's Internet access.
+The `WebServer` is accessible from the Internet. The new VM in the new VNet can reach it through it's Internet access.
 
 Not really interesting.
 
@@ -219,7 +219,7 @@ By default, the traffic is allowed between the peered VNet.
   
 ![Illustration 4](/assets/aboutnsg004.png)  
   
-It has also another impact, which is to change the value of the `VirtualNetwork` Service tag
+It has also another impact, which is to change the value of the **VirtualNetwork** Service tag
   
 Remember, VNet peering is connecting 2 VNets, so it works both ways, which means that we have this configuration on both VNets.
 
@@ -227,22 +227,22 @@ Remember, VNet peering is connecting 2 VNets, so it works both ways, which means
   
 ![Illustration 6](/assets/aboutnsg006.png)  
   
-So back to our scenario. By default, the VM in the peered VNet, that we call `vnethub` here, will be able match rules that include the `VirtualNetwork` service tags.
+So back to our scenario. By default, the VM in the peered VNet, that we call *vnethub* here, will be able match rules that include the **VirtualNetwork** service tags.
 
 Considering the `WebServer`, it means that the rule 65000 will allow access
 
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
-| 65000 | AllowVnetInBound | Inbound | Allow | * | * | * |  VirtualNetwork |  VirtualNetwork |
+| 65000 | AllowVnetInBound | Inbound | Allow | * | * | * |  **VirtualNetwork** |  **VirtualNetwork** |
 
 Considering the `BackendServer`, well, it's a little different, because we added another rule that match also its address so we have this: 
   
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
-| 1010 | AllowWebServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  WebServer | BackendServer |
-| 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | BackendServer |
+| 1010 | AllowWebServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  `WebServer` | `BackendServer` |
+| 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | `BackendServer` |
   
-Prior to rule 65000, rule 3010 here would match VirtualNetwork traffic, because `*` includes it.
+Prior to rule 65000, rule 3010 here would match **VirtualNetwork** traffic, because `*` includes it.
 
 So the VM is not allowed access in this specific case.
 
@@ -271,9 +271,9 @@ We would need to implemen something like this:
 
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
-| 1010 | AllowWebServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  WebServer | BackendServer |
-| 1020 | AllowHubServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  **IP_Of_HubVM** | BackendServer |
-| 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | BackendServer |
+| 1010 | AllowWebServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  `WebServer` | `BackendServer` |
+| 1020 | AllowHubServerToBackEndServer | Inbound | Allow | TCP | * | 1433 |  **IP_Of_HubVM** | `BackendServer` |
+| 3010 | DenyAllToBackendServer | Inbound | Deny | * | * | * | * | `BackendServer` |
 
 Ok it's time for our last scenario.
   
@@ -302,11 +302,11 @@ Considering VM1 in the left Spoke, the default peering configuration and rule 65
 
 | priority | name | direction | access | protocol | source Port Range(s) | destination Port Range(s) | source Address Prefix(es) | destination Address Prefix(es) |
 |-|-|-|-|-|-|-|-|-|
-| 65000 | AllowVnetInBound | Inbound | Allow | * | * | * |  VirtualNetwork |  VirtualNetwork |
+| 65000 | AllowVnetInBound | Inbound | Allow | * | * | * |  **VirtualNetwork** |  **VirtualNetwork** |
   
 And that's the same for VM3 regarding traffic coming from VM2.
 
-For traffic coming from VM3 to VM1 (and vice versa), there is no rule that is allowing traffic, because the VirtualNetwork Service Tag only extend to get the range from the Hub Network.
+For traffic coming from VM3 to VM1 (and vice versa), there is no rule that is allowing traffic, because the **VirtualNetwork** Service Tag only extend to get the range from the Hub Network.
 Also, there is **no route** from Spoke to Spoke. So even if we add a rule on one of the spoke NSG, it won't be routed without adding something (that we won't talk in this article ^^).
 
 Now, if we wanted to add granular rule to specifically allow or deny VM2 to VM1 (or VM3), we **cannot** use an ASG to identify the source from VM2 to the NSG in the spoke VM, because **ASG can only be used for rules in the VNet in which the ASG is applying to**.
@@ -335,7 +335,7 @@ NSG is easier to manage with rules leveraging ASGs and Service Tags
 
 NSG is ideal for Intra-Virtual Network filtering, but less ideal for cross Virtual Networ filtering, because ASGs won't work for cross VNet NSG rules
 
-Also, peering has an impact on the VirtualNetwork Service Tag, and thus on default NSGrules, except if you are aware of it and configure your peering with custom parameters.
+Also, peering has an impact on the **VirtualNetwork** Service Tag, and thus on default NSGrules, except if you are aware of it and configure your peering with custom parameters.
 
 Without additional routing, spoke-to-spoke communication in Hub & Spoke is not possible, but not limited by NSG, which can be used for filtering, even if we need to rely on IP based rules in this case.
 
