@@ -21,15 +21,15 @@ Let's get going!
 
 1. Adding intellignce to our Start/Stop AKS logic app
 2. Automate AKS Certificate rotation
-3. Takeway
+3. Take Away
 
-## 1. Adding intellignce to our Start/Stop AKS logic app  
+## 1. Adding intelligence to our Start/Stop AKS logic app  
 
 Ok, we stopped last time with a workflow like that:  
   
 ![Illustration 1](/assets/aksops15.png)
   
-A very simple workflow, in which we put manually the aks cluster name is added manually.
+A very simple workflow, in which we put manually the aks cluster name.
 
 Not very dynamic!  
 
@@ -287,7 +287,7 @@ We want to get only the AKS cluster so we will add a filter:
   
 ![Illustration 2](/assets/aksops21.png)  
   
-The logic app will gently propose us some dynamic content. We will put the `value` of `List resource by resource group` action in the `From` and filter on the `Type` that we will want to be equal to **Microsoft.containerService/ManagedCluster**
+The logic app will gently proposes us some dynamic content. We will put the `value` of `List resource by resource group` action in the `From` and filter on the `Type` that we will want to be equal to **Microsoft.containerService/ManagedCluster**
   
 ![Illustration 3](/assets/aksops22.png)  
   
@@ -316,11 +316,11 @@ The result output will be the AKS cluster:
 
 ```
   
-With taht we can now change the `Invoke resource operation`with its static value to something more dynamic. To do so, we first add a `For each` control action
+With that we can now change the `Invoke resource operation`with its static value to something more dynamic. To do so, we first add a `For each` control action
   
 ![Illustration 4](/assets/aksops23.png)  
   
-And select as the output hte `Body`of our `filter` action
+And select as the output the `Body`of our `filter` action
   
 ![Illustration 5](/assets/aksops24.png)  
   
@@ -438,7 +438,7 @@ Which we approve or rject to complete the workflow:
   
 And that's it ^^
 
-## takeaway
+## 3. Take away
 
 In this 2 part article, we were able to create logic apps to manage Ops activities on AKS cluster.
 SO we have two main area of benefits here.
