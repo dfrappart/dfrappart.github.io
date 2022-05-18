@@ -54,3 +54,4 @@ exclude:
 #   - vendor/ruby/
 - readme.md
 - CNAME
+- archives/
