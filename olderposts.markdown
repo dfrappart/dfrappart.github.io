@@ -6,6 +6,6 @@ permalink: /2020_Posts
 
 Posts prior to 2021 are referenced here
 
-[Secure-AKS-at-deployment](http://blog.teknews.cloud/archives/2019-10-23-Secure-AKS-at-deployment.html)
+[Secure-AKS-at-deployment](http://blog.teknews.cloud/archives/2019_Posts/Secure-AKS-at-deployment)
 
-[AKS-ManagedAAD](http://blog.teknews.cloud/archives/2020-12-17-AKS-ManagedAAD.html)
+[AKS-ManagedAAD](http://blog.teknews.cloud/2020_Posts/AKS-ManagedAAD)
