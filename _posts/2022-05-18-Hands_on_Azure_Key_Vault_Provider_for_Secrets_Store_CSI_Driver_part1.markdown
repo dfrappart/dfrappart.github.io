@@ -141,7 +141,7 @@ spec:
 
 ```
 
-For the purpose of being as thorough as possible, we could put all the available properties in a table. However, since it is available on the [documentation page](https://azure.github.io/secrets-store-csi-driver-provider-azure/docs/getting-started/usage/), let's not do that ^^ but only focus on the main properties: 
+For the purpose of being as thorough as possible, we could put all the available properties in a table. However, since it is available on the [documentation page](https://azure.github.io/secrets-store-csi-driver-provider-azure/docs/getting-started/usage/), let's not do that ^^ but only focus on the main properties:  
 
 | Property name | Required | Description | Default value |
 |-|-|-|-|
@@ -307,7 +307,7 @@ Note that installing the secrets store CSI driver is a prerequisite for using an
 
 Note also that to make things simpler, there is an option to install the secrets store CSI driver automatically when installing the chart for the Key Vault part.
 
-There is no need to copy paste the documentation so let's just focus on the parameters that are of interest ofr us here: 
+There is no need to copy paste the documentation so let's just focus on the parameters that are of interest ofr us here:  
 
 | Helm chart parameter | Description | Configured value |
 |-|-|-|
