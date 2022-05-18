@@ -7,4 +7,4 @@ layout: home
 
 Welcome on teknews blog 2.0 ^^
   
-Old articles from the WordPress era are available as archive in pdf in the [Archive](http://blog.teknews.cloud/archive/) section.
+Old articles from the WordPress era are available as archive in pdf in the [Archive](http://blog.teknews.cloud/archive/) section while older post are moved progressively in, well the older posts section.
