@@ -20,7 +20,6 @@ This is part 2, in which instead on focusing on the Azure part, we will look int
 6. A look at the way it works with the add-on
 7. Before leaving
 
-
 ## 1. About our playground
 
 Obviously, we will use an AKS cluster to perform our test.
