@@ -76,8 +76,8 @@ Starting from our last kubernetes representation, we get something like below in
 
 As we can see on this (yet again) very simplified schema, AKS is PaaS. As a majority of PaaS, it is by design exposed in a public DNS namespace. In AKS case `<something>.<azureregion>.azmk8s.io`.
 
-Now the main discussion point is this *public* access. For the fluidity of the discussion heren, let's just say that we want a way to avoid public exposition of the control plane.
-We have a few option. The simplest being to use an accept list on the API server. Thus, only known and defined public IP can access to the API server, which is the part that we access on the control plane.
+Now the main discussion point is this *public* access. For the fluidity of the discussion heren, let's just say that we want a way to avoid public exposition of the control plane, and specifically the API server.
+We have a few options. The simplest being to use an accept list on the API server. Thus, only known and defined public IP can access to the API server, which is the part that we access on the control plane.
 
 But in some case, a simple accept list is not acceptable because, well, it does not follow a regulation.
 
@@ -92,3 +92,50 @@ Just to be clear, Private Endpoint is not limited to AKS, even if we will only l
 So to summarize all that, we get a schema looking like that: 
 
 ![Illustration 4](/assets/pvaks/pvaks004.png)  
+
+And that's how, on the principles, we render our API server fully private.
+
+However, there are a few catch:
+
+- There is a limitation with with NSG filtering private endpoint. Indeed, this specific NIC NATing the PaaS instance is not filterable by an NSG rules. So, inside the Subnet, no filtering to this NIC. IT's on the point of changing though because the filtering is currelntly in preview and start to be visible from the portal.
+
+- A similar limitation regarding routing with UDR ia also impacting the private endpoint, if you ever thought of wrking around the previous limitation by routing the traffic to an NVA doing the filtering in its place.
+
+- Because it's changing the network path to the PaaS instance, it also change the public FQDN, managed by Microsoft, to a Private FQDN. In our AKS case, we move to a sub DNS zone prefixed with `privatelink` such as `<something>.privatelink.<azureregion>.azmk8s.io`.
+
+![Illustration 5](/assets/pvaks/pvaks005.png) 
+
+Apart from that it seems good. Now how do we try that? That's coming in the next part
+
+## 3. From the infrastructure as code point of view
+
+### 3.1. 
+
+From the previous part, we know that first we will need those objects: 
+
+- A virtual Network with at least 1 subnet
+- An AKS cluster
+- A private DNS zone
+- Additional USer assigned identities that we did not discussed yet ^^
+
+Obviously, we want to rely on [terraform documentation about AKS](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/kubernetes_cluster)
+
+Specifically we will look at those arguments in the kubernetes cluster resource: 
+
+![Illustration 6](/assets/pvaks/pvaks006.png) 
+  
+![Illustration 7](/assets/pvaks/pvaks007.png) 
+
+### 3.2. creating the basic resources
+
+### 3.2. adding a kubernetes cluster
+vfvfv
+
+### 3.3. MAking it private
+
+
+### 3.4. byo DNS zone
+
+
+### 3.5 private but not private
+
