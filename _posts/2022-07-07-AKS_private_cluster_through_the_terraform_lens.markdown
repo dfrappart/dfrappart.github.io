@@ -1,11 +1,11 @@
 ---
 layout: post
 title:  "AKS private cluster through the terraform lens"
-date:   2022-07-08 10:00:00 +0200
+date:   2022-07-07 15:00:00 +0200
 categories: AKS
 ---
 
-Hi everyboy!
+Hi everybody!
 
 Today's topic is AKS in private mode.
 
@@ -19,7 +19,6 @@ At the end of those lines, we will have gone through the differents requirements
 2. Translating Kubernetes Security in Azure
 3. From the Infrastructure as code point of view
 4. Before leaving
-
 
 ## 1. Kubernetes Seurity principles in 2 minutes
 
