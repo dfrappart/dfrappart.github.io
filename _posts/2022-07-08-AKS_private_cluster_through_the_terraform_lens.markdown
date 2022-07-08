@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "AKS private cluster through the terraform lens"
-date:   2022-06-20 08:51:00 +0200
+date:   2022-07-08 10:00:00 +0200
 categories: AKS
 ---
 
@@ -1141,5 +1141,3 @@ This is not the place to address that but is still a mandatory topic to address.
 
 Last, there is a [new preview regarding the API server for AKS](https://docs.microsoft.com/en-us/azure/aks/api-server-vnet-integration), which allow to integrate directly in a Virtual Network the API server.
 We'll probably give it a ride in a coming article, but for today, that's enough.
-
-
