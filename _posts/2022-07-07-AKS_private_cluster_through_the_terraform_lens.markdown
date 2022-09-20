@@ -75,7 +75,7 @@ Starting from our last kubernetes representation, we get something like below in
 
 As we can see on this (yet again) very simplified schema, AKS is PaaS. As a majority of PaaS, it is by design exposed in a public DNS namespace. In AKS case `<something>.<azureregion>.azmk8s.io`.
 
-Now the main discussion point is this *public* access. For the fluidity of the discussion heren, let's just say that we want a way to avoid public exposition of the control plane, and specifically the API server.
+Now the main discussion point is this *public* access. For the fluidity of the discussion here, let's just say that we want a way to avoid public exposition of the control plane, and specifically the API server.
 We have a few options. The simplest being to use an accept list on the API server. Thus, only known and defined public IP can access to the API server, which is the part that we access on the control plane.
 
 But in some case, a simple accept list is not acceptable because, well, it does not follow a regulation.
@@ -86,7 +86,7 @@ Technically, a Network Interface Card is connected in a Virtual Network and NATe
 
 Also, in the meantime, the public fqdn is disabled and makes it impossible to reach the PaaS instance from anywhere on the Internet. We have to be **inside** the private network to reach the PaaS instance.
 
-Just to be clear, Private Endpoint is not limited to AKS, even if we will only look at how to put tha tin place in the following part.
+Just to be clear, Private Endpoint is not limited to AKS, even if we will only look at how to put that in place in the following parts.
 
 So to summarize all that, we get a schema looking like that:  
 
@@ -104,7 +104,7 @@ However, there are a few catches:
 
 ![Illustration 5](/assets/pvaks/pvaks005.png)  
 
-Apart from that it seems good. Now how do we try that? That's coming in the next part
+Apart from that it seems good. Now how do we try that? That's coming in the next part!
 
 ## 3. From the infrastructure as code point of view
 
@@ -129,7 +129,7 @@ Specifically we will look at those arguments in the kubernetes cluster resource:
 
 Let's start by the basics resources then. We could relies on some module, but the purpose being solely to get uder the hood of the private AKS, we'll keep it simple.
 
-So firt, a [resource group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group):
+So first, a [resource group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group):
 
 ```bash
 
@@ -168,7 +168,8 @@ resource "azurerm_subnet" "DemoSubnet" {
 ```
 
 Nothing very difficult here. Notice however the `count` meta-argument. That's because we have more than one scenario so we want to have a look at all of those.
-Ok that's about it for the basics resources so let's play with the AKS pal. Let's run a plan and a apply to have it built and forget it in the following steps: 
+
+Ok that's about it for the basics resources so let's play with the AKS pal. Let's run a plan and a apply to have it built and forget it in the following steps:  
 
 ```bash
 
@@ -636,7 +637,7 @@ Now let's run a plan again. We should have a change for the `azurerm_kubernetes_
 
 ```
 
-If you apply the configuration, you should notice that it's faster to provision a public clsuter than a private cluster:
+If you apply the configuration, you should notice that it's faster to provision a public cluster than a private cluster:
 
 ```bash
 
