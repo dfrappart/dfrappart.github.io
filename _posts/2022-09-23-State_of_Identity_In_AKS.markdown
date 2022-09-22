@@ -63,7 +63,7 @@ In the heart of the topic, at last ^^
 
 This part will probably be the most rich in terms of concepts, because, as we said, the control plane... control everything!
 
-### 2.1. Azure Active Directory Integration
+### 2.1. Authentication with Azure Active Directory Integration
 
 We mentioned the requirement of an Azure Active Directory Group. And that's because AKS can integrate with Azure AD for authentication.
 That means that we don't need to manage from the `kubectl` actions around csr, because our Identity provider is the same as the one for the Azure platform: Azure Active Directory.
@@ -105,6 +105,8 @@ az aks create -g MyResourceGroup -n MyManagedCluster --enable-aad --aad-admin-gr
 
 ```
 
+Or in a terraform configuration:
+  
 ```bash
 
 
@@ -143,7 +145,7 @@ To sign in, use a web browser to open the page https://microsoft.com/devicelogin
 
 ```
 
-![Illustration 3](/assets/aksidentity/aksidentity003.png) 
+![Illustration 3](/assets/aksidentity/aksidentity003.png)  
 
 ```bash
 
@@ -159,7 +161,7 @@ tigera-operator     Active   7d11h
 ```
 
 As a matter of fact, if we check the Cluster role bindings on the cluster, we can see a clusterrolebinding that bind the cluster admin role and that is called ``:
-
+  
 ```bash
 
 k get clusterrolebindings.rbac.authorization.k8s.io | grep aad
@@ -187,12 +189,22 @@ roleRef:
 subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: Group
-  name: 546e2d3b-450e-4049-8f9c-423e1da3444c
+  name: 00000000-0000-0000-0000-000000000000
 
 ```
 
-In the subject section, the name of the group is actually the object id of the group that is assigned 
+If we look in the subjects section, we can find a kind set to `group` with a name defined as an object id, corresponding to the object id of the group that was specified in the aad profile.
 
-Now, let's see how we can manage access to users.
+Ok the admin access seems pretty clear, let's see the way we manage access for users.
 
-### 2.2. Azure Active Directory Integration
+### 2.2. Authorization with RBAC
+
+#### 2.2.1. RBAC for non admin user
+
+First let's step back a little.
+In the previous section, we were able to demonstrate that, throuh AAD managed integration, admins can gain authenticate and gain access to the cluster by being membeers of a group assigned as admin to the cluster.
+But we did not look at the whole picture.
+First, the AKS cluster is an objet living in Azure, so before doing anything, access to the control plane require access to its representation in Azure.
+That means we need to be able to login to the Azure portal and through Azure RBAC have the minimum access required to the Azure object.
+For that we have specific RBAC roles 
+
