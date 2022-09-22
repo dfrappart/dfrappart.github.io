@@ -146,6 +146,11 @@ To sign in, use a web browser to open the page https://microsoft.com/devicelogin
 ```
 
 ![Illustration 3](/assets/aksidentity/aksidentity003.png)  
+![Illustration 4](/assets/aksidentity/aksidentity004.png)  
+![Illustration 5](/assets/aksidentity/aksidentity005.png)  
+![Illustration 6](/assets/aksidentity/aksidentity006.png)  
+
+
 
 ```bash
 
@@ -197,14 +202,214 @@ If we look in the subjects section, we can find a kind set to `group` with a nam
 
 Ok the admin access seems pretty clear, let's see the way we manage access for users.
 
-### 2.2. Authorization with RBAC
+### 2.2. Authorization for non admin user
 
-#### 2.2.1. RBAC for non admin user
-
+#### 2.2.1. RBAC from the Azure plan
+  
 First let's step back a little.
-In the previous section, we were able to demonstrate that, throuh AAD managed integration, admins can gain authenticate and gain access to the cluster by being membeers of a group assigned as admin to the cluster.
-But we did not look at the whole picture.
-First, the AKS cluster is an objet living in Azure, so before doing anything, access to the control plane require access to its representation in Azure.
-That means we need to be able to login to the Azure portal and through Azure RBAC have the minimum access required to the Azure object.
-For that we have specific RBAC roles 
 
+In the previous section, we were able to demonstrate that, in a AKS managed Azure AD, as a member of the Azure Active Directory Group assigned to the cluster, we can get cluster admin access (in the kubernetes sense).
+
+But we did take a shortcut.
+
+To begin, let's consider this: the AKS cluster is an objet living in Azure
+
+So the first step is to have access in the Azure plane.
+For that, we have 2 roles in the list of Azure Built-in roles:
+
+- Azure Kubernetes Service User
+
+```json
+
+{
+  "assignableScopes": [
+    "/"
+  ],
+  "description": "List cluster user credential action.",
+  "id": "/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/4abbcc35-e782-43d8-92c5-2d3f1bd2253f",
+  "name": "4abbcc35-e782-43d8-92c5-2d3f1bd2253f",
+  "permissions": [
+    {
+      "actions": [
+        "Microsoft.ContainerService/managedClusters/listClusterUserCredential/action",
+        "Microsoft.ContainerService/managedClusters/read"
+      ],
+      "notActions": [],
+      "dataActions": [],
+      "notDataActions": []
+    }
+  ],
+  "roleName": "Azure Kubernetes Service Cluster User Role",
+  "roleType": "BuiltInRole",
+  "type": "Microsoft.Authorization/roleDefinitions"
+}
+
+```
+
+- Azure Kubernetes Service Cluster Admin Role 
+
+```json
+
+{
+  "assignableScopes": [
+    "/"
+  ],
+  "description": "List cluster admin credential action.",
+  "id": "/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/0ab0b1a8-8aac-4efd-b8c2-3ee1fb270be8",
+  "name": "0ab0b1a8-8aac-4efd-b8c2-3ee1fb270be8",
+  "permissions": [
+    {
+      "actions": [
+        "Microsoft.ContainerService/managedClusters/listClusterAdminCredential/action",
+        "Microsoft.ContainerService/managedClusters/accessProfiles/listCredential/action",
+        "Microsoft.ContainerService/managedClusters/read",
+        "Microsoft.ContainerService/managedClusters/runcommand/action"
+      ],
+      "notActions": [],
+      "dataActions": [],
+      "notDataActions": []
+    }
+  ],
+  "roleName": "Azure Kubernetes Service Cluster Admin Role",
+  "roleType": "BuiltInRole",
+  "type": "Microsoft.Authorization/roleDefinitions"
+}
+
+```
+
+The important part, specifically for the **Azure Kubernetes Service Cluster User Role** is the action `Microsoft.ContainerService/managedClusters/listClusterUserCredential/action`.
+
+With this, a user is able the get AKS credentials through `az aks get-credentials` as we did previously. And that's all.
+Following the process of logon, we would get a result like below:
+
+```bash
+
+az aks get-credentials -n aks-1 -g rsg-aksIdentityState1
+Merged "aks-1" as current context in /home/penny/.kube/config
+
+k get ns
+
+To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code D825HAGUL to authenticate.
+
+Error from server (Forbidden): namespaces is forbidden: User "penny@teknews.cloud" cannot list resource "namespaces" in API group "" at the cluster scope: User does not have access to the resource in Azure. Update role assignment to allow access.
+
+```
+
+And this is perfectly logical, because the actions in the role only grant access to get the credentials, nothing more. But is it possible to do more only from the Azure plane?
+
+If we have a look on the cluster configuration, we can see that there is one option mentionning Azure RBAC:
+
+![Illustration 7](/assets/aksidentity/aksidentity007.png)  
+
+We can check the status of the cluster through the cli:
+
+```bash
+
+az aks show -n aks-1 -g rsg-aksIdentityState1 | jq .aadProfile.enableAzureRbac
+true
+
+```
+
+And this allows to use other Azure roles, such as for example the `Azure Kubernetes Service RBAC Reader`
+
+```json
+
+{
+  "assignableScopes": [
+    "/"
+  ],
+  "description": "Allows read-only access to see most objects in a namespace. It does not allow viewing roles or role bindings. This role does not allow viewing Secrets, since reading the contents of Secrets enables access to ServiceAccount credentials in the namespace, which would allow API access as any ServiceAccount in the namespace (a form of privilege escalation). Applying this role at cluster scope will give access across all namespaces.",
+  "id": "/subscriptions/{subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/7f6c6a51-bcf8-42ba-9220-52d62157d7db",
+  "name": "7f6c6a51-bcf8-42ba-9220-52d62157d7db",
+  "permissions": [
+    {
+      "actions": [
+        "Microsoft.Authorization/*/read",
+        "Microsoft.Insights/alertRules/*",
+        "Microsoft.Resources/deployments/write",
+        "Microsoft.Resources/subscriptions/operationresults/read",
+        "Microsoft.Resources/subscriptions/read",
+        "Microsoft.Resources/subscriptions/resourceGroups/read",
+        "Microsoft.Support/*"
+      ],
+      "notActions": [],
+      "dataActions": [
+        "Microsoft.ContainerService/managedClusters/apps/controllerrevisions/read",
+        "Microsoft.ContainerService/managedClusters/apps/daemonsets/read",
+        "Microsoft.ContainerService/managedClusters/apps/deployments/read",
+        "Microsoft.ContainerService/managedClusters/apps/replicasets/read",
+        "Microsoft.ContainerService/managedClusters/apps/statefulsets/read",
+        "Microsoft.ContainerService/managedClusters/autoscaling/horizontalpodautoscalers/read",
+        "Microsoft.ContainerService/managedClusters/batch/cronjobs/read",
+        "Microsoft.ContainerService/managedClusters/batch/jobs/read",
+        "Microsoft.ContainerService/managedClusters/configmaps/read",
+        "Microsoft.ContainerService/managedClusters/endpoints/read",
+        "Microsoft.ContainerService/managedClusters/events.k8s.io/events/read",
+        "Microsoft.ContainerService/managedClusters/events/read",
+        "Microsoft.ContainerService/managedClusters/extensions/daemonsets/read",
+        "Microsoft.ContainerService/managedClusters/extensions/deployments/read",
+        "Microsoft.ContainerService/managedClusters/extensions/ingresses/read",
+        "Microsoft.ContainerService/managedClusters/extensions/networkpolicies/read",
+        "Microsoft.ContainerService/managedClusters/extensions/replicasets/read",
+        "Microsoft.ContainerService/managedClusters/limitranges/read",
+        "Microsoft.ContainerService/managedClusters/namespaces/read",
+        "Microsoft.ContainerService/managedClusters/networking.k8s.io/ingresses/read",
+        "Microsoft.ContainerService/managedClusters/networking.k8s.io/networkpolicies/read",
+        "Microsoft.ContainerService/managedClusters/persistentvolumeclaims/read",
+        "Microsoft.ContainerService/managedClusters/pods/read",
+        "Microsoft.ContainerService/managedClusters/policy/poddisruptionbudgets/read",
+        "Microsoft.ContainerService/managedClusters/replicationcontrollers/read",
+        "Microsoft.ContainerService/managedClusters/replicationcontrollers/read",
+        "Microsoft.ContainerService/managedClusters/resourcequotas/read",
+        "Microsoft.ContainerService/managedClusters/serviceaccounts/read",
+        "Microsoft.ContainerService/managedClusters/services/read"
+      ],
+      "notDataActions": []
+    }
+  ],
+  "roleName": "Azure Kubernetes Service RBAC Reader",
+  "roleType": "BuiltInRole",
+  "type": "Microsoft.Authorization/roleDefinitions"
+}
+
+```
+
+This time, the role comes with **dataActions** which relate to the Kubernetes plane.
+
+Granting this role to a user on a cluster withe the Azure RBAC set as true will us access to the Kubernetes plane:
+
+```bash
+
+k get ns in cluster 1
+
+```
+
+However, this same role on a cluster with only Kubernetes Native RBAC:
+
+```bash
+
+az aks show -n aks-2 -g rsg-aksIdentityState2 | jq .aadProfile.enableAzureRbac
+false
+
+```
+
+Does not grant access to the cluster, because it does not accept roles from the Azure plane to interact with Kubernetes object:
+
+```bash
+
+k get ns in cluster 2
+
+```
+
+So here comes the limit in terms of authorization management for kubernetes in the Azure plane. To be more grnaular on the kubernetes side, we need to look at the kubernetes native rbac.
+
+#### 2.2. RBAC from the Kubernetes plan
+
+#### 2.3 The weak link of inheritance and how to mitigate it
+
+#### 2.4. MAnaged Identities in the control plane
+
+
+### 3. IAM fo rthe worker plane
+
+### 4. IAM for workloads hosted on kubernetes
