@@ -57,7 +57,7 @@ Those we get once the service is built. But before building it, we need:
 
 Enough with this architecture review, we can now move on and see what are those AAD group and managed identities used for.
 
-## 2. IAM fo rthe control plane
+## 2. IAM for the control plane
 
 In the heart of the topic, at last ^^
 
@@ -65,7 +65,7 @@ This part will probably be the most rich in terms of concepts, because, as we sa
 
 ### 2.1. Azure Active Directory Integration
 
-We mention the requirement of an Azure Active Directory Group. And that's because AKS can integrate with Azure AD for authentication.
+We mentioned the requirement of an Azure Active Directory Group. And that's because AKS can integrate with Azure AD for authentication.
 That means that we don't need to manage from the `kubectl` actions around csr, because our Identity provider is the same as the one for the Azure platform: Azure Active Directory.
 
 The integration has evolved for the best and we can now benefit from the Managed Integration, as opposite to the now called legacy integration.
@@ -76,7 +76,7 @@ The Client app was the front App on which user interacted, and it had authorizat
 The Server app came with a secret that need to be managed, and all in all, the configuration was not trivial.
 
 But that was before, and now, while the process is clearly similar under the hood, we only care about specifying an Azure AD group which is granted cluster admin access on the cluster at creation.
-In terms of configuration, at build time, This group's object Id and the Azure AD tenant Id are specified in the configuration.
+In terms of configuration, at build time, this group's object Id and the Azure AD tenant Id are specified in the configuration.
 
 ```json
 
@@ -95,3 +95,104 @@ In terms of configuration, at build time, This group's object Id and the Azure A
 
 ```
 
+This setting is accessible through the API, with any tool talking to the API, such as az cli or terraform. 
+
+With az cli
+
+```bash
+
+az aks create -g MyResourceGroup -n MyManagedCluster --enable-aad --aad-admin-group-object-ids <id-1,id-2> --aad-tenant-id <id>
+
+```
+
+```bash
+
+
+resource "azurerm_kubernetes_cluster" "AKSRBACCNI" {
+
+================================truncated==================================
+  
+  role_based_access_control_enabled       = true
+
+  azure_active_directory_role_based_access_control {
+      managed                             = true
+      azure_rbac_enabled                  = true
+      admin_group_object_ids              = var.AKSClusterAdminsIds
+
+  }
+================================truncated==================================
+
+
+}
+
+```
+
+As a member of the group that is assigned to the cluster as an admin, it's quite easy to authenticate and interact with the cluster:
+
+```bash
+
+az aks get-credentials -n aks-1 -g rsg-aksIdentityState1
+
+Merged "aks-1" as current context in /home/df/.kube/config
+
+kubelogin convert-kubeconfig
+
+kubectl get namespaces 
+
+To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code DXJJZWZMT to authenticate.
+
+```
+
+![Illustration 3](/assets/aksidentity/aksidentity003.png) 
+
+```bash
+
+NAME                STATUS   AGE
+calico-system       Active   7d11h
+default             Active   7d11h
+gatekeeper-system   Active   7d11h
+kube-node-lease     Active   7d11h
+kube-public         Active   7d11h
+kube-system         Active   7d11h
+tigera-operator     Active   7d11h
+
+```
+
+As a matter of fact, if we check the Cluster role bindings on the cluster, we can see a clusterrolebinding that bind the cluster admin role and that is called ``:
+
+```bash
+
+k get clusterrolebindings.rbac.authorization.k8s.io | grep aad
+aks-cluster-admin-binding-aad                          ClusterRole/cluster-admin                                                          7d11h
+
+k get clusterrolebindings.rbac.authorization.k8s.io aks-cluster-admin-binding-aad -o yaml
+
+```
+
+```yaml
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+
+========truncated==========
+
+  name: aks-cluster-admin-binding-aad
+  resourceVersion: "505"
+  uid: 9e9d78b5-924a-4ac2-84fc-456bcd71a386
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: 546e2d3b-450e-4049-8f9c-423e1da3444c
+
+```
+
+In the subject section, the name of the group is actually the object id of the group that is assigned 
+
+Now, let's see how we can manage access to users.
+
+### 2.2. Azure Active Directory Integration
