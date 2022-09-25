@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "The state of Identity Management in AKS"
-date:   2022-09-27 09:00:00 +0200
+date:   2022-09-26 09:00:00 +0200
 categories: AKS
 ---
 
