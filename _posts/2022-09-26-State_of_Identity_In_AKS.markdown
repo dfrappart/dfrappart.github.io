@@ -22,7 +22,7 @@ That being said, let's get started.
   
 ## 1. A rapid review of the Kubernetes mapped in Azure context
 
-This part is a short one, just to summarize what we are looking at in Kubernetes and which parts are subject to IAM. 
+This part is a short one, just to summarize what we are looking at in Kubernetes and which parts are subject to IAM.  
 In a very simplified view, Kubernetes is composed of the control plane, which, as the name implies, control everything and the worker plane which, being controlled by the control plane, host Kubernetes workloads.
 Kubernetes workloads are composed of differents Kubernetes API objects, which are used by applications.
 
@@ -31,7 +31,7 @@ Kubernetes workloads are composed of differents Kubernetes API objects, which ar
 Now, what we should ask ourselves here is which part may interact with IAM topics. And the answer is, let's be blunt: All of them.
 
 Because the control plane is so important in the integrity of Kubernetes, there are indeed a lot of topics around IAM, and we'll see that in the following part.
-But there is also things to consider regarding the worker plane, and specifically Kubelet and how it interact with others things. 
+But there is also things to consider regarding the worker plane, and specifically Kubelet and how it interact with others things.  
 Because we are talking about AKS, obviously, we will have a look at Kubelet interactions with the Azure platform.
 Last, but not least, and unfortunately, not too deep, are the questions regarding how to managed workloads interaction with the Azure platform. We will keep on a higl level view for this, because it would require a dedicated article.
 
@@ -70,8 +70,8 @@ That means that we don't need to manage from the `kubectl` actions around csr, b
 
 The integration has evolved for the best and we can now benefit from the Managed Integration, as opposite to the now called legacy integration.
 In the previous version, we would have need to managed Service principals in Azure Active Directory, in the form of 2 application registrations.
-One was called the Server App, and the other the Client App. 
-In a simplified way, the Server app had access to the AAD tenant, te get information on users, and to authenticate on behlf of the user once the authorization were validated. 
+One was called the Server App, and the other the Client App.  
+In a simplified way, the Server app had access to the AAD tenant, to get information on users, and to authenticate on behalf of the user once the authorization were validated.  
 The Client app was the front App on which user interacted, and it had authorization on the Server app.
 The Server app came with a secret that need to be managed, and all in all, the configuration was not trivial.
 
@@ -95,7 +95,7 @@ In terms of configuration, at build time, this group's object Id and the Azure A
 
 ```
 
-This setting is accessible through the API, with any tool talking to the API, such as az cli or terraform. 
+This setting is accessible through the API, with any tool talking to the API, such as az cli or terraform.  
 
 With az cli
 
@@ -110,7 +110,7 @@ Or in a terraform configuration:
 ```bash
 
 
-resource "azurerm_kubernetes_cluster" "AKSRBACCNI" {
+resource "azurerm_kubernetes_cluster" "AKS" {
 
 ================================truncated==================================
   
@@ -166,7 +166,7 @@ tigera-operator     Active   7d11h
 
 ```
 
-As a matter of fact, if we check the Cluster role bindings on the cluster, we can see a clusterrolebinding that bind the cluster admin role and that is called ``:
+As a matter of fact, if we check the Cluster role bindings on the cluster, we can see a clusterrolebinding that bind the cluster admin role and that is called `aks-cluster-admin-binding-aad`:
   
 ```bash
 
@@ -218,7 +218,7 @@ To begin, let's consider this: the AKS cluster is an objet living in Azure
 So the first step is to have access in the Azure plane.
 For that, we have 2 roles in the list of Azure Built-in roles:
 
-- **Azure Kubernetes Service User**
+- **Azure Kubernetes Service Cluster User**
 
 ```json
 
@@ -302,7 +302,7 @@ Error from server (Forbidden): namespaces is forbidden: User "faye@teknews.cloud
 
 ```
 
-And this is perfectly logical, because the actions in the role only grant access to get the credentials, nothing more. 
+And this is perfectly logical, because the actions in the role only grant access to get the credentials, nothing more.  
 
 ![Illustration 7](/assets/aksidentity/aksidentity007.png)  
 
@@ -481,9 +481,6 @@ nginxtest   1/1     Running   0          5s
 But not on the cluster `aks-2`:
 
 ```bash
-
-leonard [ ~ ]$ k use-context aks-2
-error: unknown command "use-context" for "kubectl"
 
 leonard [ ~ ]$ k config use-context aks-2
 Switched to context "aks-2".
@@ -791,7 +788,7 @@ This excellent [article](https://blog.baeke.info/2022/01/31/kubernetes-workload-
 
 In my opinion, there is still one big lack with workload identity whic is the non support for managed identities.
 This make the solution very efficient for all Kubernetes cluster except AKS which would probably be better with managed identity support ^^.
-Also currently, I've seen only Key Vault CSI Secret store refering to an implementation in tis documentation. 
+Also currently, I've seen only Key Vault CSI Secret store refering to an implementation in tis documentation.  
 So let's be patient...
 
 ## 5. to summarize
