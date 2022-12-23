@@ -337,6 +337,11 @@ That's all for the on boarding part, let's have a look from an Azure Ops perspec
   
 ## 3. What the Azure Ops can do
 
+Once the cluster is on boarded, what can the ops can do?
+
+Well first the clusters are visible on the Azure portal.
+Also, It is possible to interact with those 
+
 ```bash
 
 
