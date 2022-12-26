@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Please Azure Arc Give me a Kubernetes Cluster"
-date:   2022-12-28 09:00:00 +0200
+date:   2022-12-26 18:00:00 +0200
 categories: AKS, Azure Arc
 ---
 
@@ -148,7 +148,7 @@ Now that the config is ok, we can initiate the onboarding:
 
 ```bash
 
-df@df2204lts:~/Documents/clonedrepo/azure_arc/azure_arc_k8s_jumpstart/gke/terraform$ az connectedk8s connect -n gke1 -g arcdemo
+yumemaru@azure:~/Documents/clonedrepo/azure_arc/azure_arc_k8s_jumpstart/gke/terraform$ az connectedk8s connect -n gke1 -g arcdemo
 This operation might take a while...
 
 {
@@ -197,9 +197,9 @@ Ok the cluster is onoarded so checking on the Azure portal, we can see the conne
 
 ```bash
 
-df@df2204lts:~/Documents/dfrappart.github.io$ az connectedk8s list | jq .[2].name
+yumemaru@azure:~$ az connectedk8s list | jq .[2].name
 "gke1"
-df@df2204lts:~/Documents/dfrappart.github.io$ az connectedk8s list | jq .[2]
+yumemaru@azure:~$ az connectedk8s list | jq .[2]
 {
   "agentPublicKeyCertificate": "",
   "agentVersion": "1.8.14",
@@ -246,7 +246,7 @@ We can see the `azure-arc` release and also the `azurepolicy` release.
 
 ```bash
 
-df@df2204lts:~/Documents/dfrappart.github.io$ helm list -A
+yumemaru@azure:~$ helm list -A
 NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                                           APP VERSION
 azure-arc       default         1               2022-12-13 11:39:07.233181548 +0100 CET deployed        azure-arc-k8sagents-1.8.14                      1.0        
 azurepolicy     kube-system     2               2022-12-13 10:54:30.763188969 +0000 UTC deployed        azure-policy-extension-arc-clusters-1.4.0       1      
@@ -274,7 +274,7 @@ Knowing that, we can have a look in the `azure-arc` namespace:
 
 ```bash
 
-df@df2204lts:~/Documents/dfrappart.github.io$ k get all -n azure-arc 
+yumemaru@azure:~$ k get all -n azure-arc 
 NAME                                            READY   STATUS    RESTARTS   AGE
 pod/cluster-metadata-operator-79f6ff784-s6c5k   2/2     Running   0          27m
 pod/clusterconnect-agent-5b888b7dd-5g98q        3/3     Running   0          27m
@@ -340,37 +340,40 @@ That's all for the on boarding part, let's have a look from an Azure Ops perspec
 Once the cluster is on boarded, what can the ops can do?
 
 Well first the clusters are visible on the Azure portal.
-Also, It is possible to interact with those 
+Also, It is possible to interact with those clusters from the Azure portal as described on the schema in the previous part.
+We saw that the onboading is deploying Helm charts under the hood.
+
+We can add additional features on connected clusters through extensions and the az cli command `az k8s-extension create`.
+
+Available extensions are:
+
+| Extension | Description
+|-|-|
+| [Azure Monitor for containers](https://learn.microsoft.com/en-us/azure/azure-monitor/containers/container-insights-enable-arc-enabled-clusters?toc=/azure/azure-arc/kubernetes/toc.json&bc=/azure/azure-arc/kubernetes/breadcrumb/toc.json)​ | Provides visibility into the performance of workloads deployed on the Kubernetes cluster. Collects memory and CPU utilization metrics from controllers, nodes, and containers.​ |
+| [Azure Policy](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/policy-for-kubernetes?toc=/azure/azure-arc/kubernetes/toc.json&bc=/azure/azure-arc/kubernetes/breadcrumb/toc.json)​ | Azure Policy extends [Gatekeeper](https://github.com/open-policy-agent/gatekeeper), an admission controller webhook for [Open Policy Agent (OPA)](https://www.openpolicyagent.org/), to apply at-scale enforcements and safeguards on your clusters in a centralized, consistent manner.​​ |
+| [Azure Key Vault Secrets Provider](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/tutorial-akv-secrets-provider)​ | The Azure Key Vault Provider for Secrets Store CSI Driver allows for the integration of Azure Key Vault as a secrets store with a Kubernetes cluster via a CSI volume.​ |
+| [Microsoft Defender for Cloud](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-kubernetes-azure-arc?toc=/azure/azure-arc/kubernetes/toc.json&bc=/azure/azure-arc/kubernetes/breadcrumb/toc.json)​ | Gathers information related to security like audit log data from the Kubernetes cluster. Provides recommendations and threat alerts based on gathered data.​ |
+| [Azure Arc-enabled Open Service Mesh](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/tutorial-arc-enabled-open-service-mesh)​ | Deploys Open Service Mesh on the cluster and enables capabilities like mTLS security, fine grained access control, traffic shifting, monitoring with Azure Monitor or with open source add-ons of Prometheus and Grafana, tracing with Jaeger, integration with external certification management solution.​|
+| [Flux (GitOps)​](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-gitops-flux2) | Use GitOps with Flux to manage cluster configuration and application deployment.​ |
+| [Dapr extension for Azure Kubernetes Service (AKS) and Arc-enabled Kubernetes](​https://learn.microsoft.com/en-us/azure/aks/dapr)​ | Eliminates the overhead of downloading Dapr tooling and manually installing and managing the runtime on your clusters.​ |
+
+
+Without surprise, we have again Helm charts deployed under the hoods. 
+It's worthy of note that, as for the connected agent helm cart, the target namespace of the associated kubernetes resources is not necessarily the same as the one in which we find the release information.
+
+Also, looking at the extension, we can see a trend here. 
+
+Indeed, everything is aimed to help Azure Ops to manage from Azure the connected clusters. Which makes sense when thinking about the Arc concepts.
+that being said, let's have a look at a few of those extensions.
+
+### 3.1. Azure Monitor for containers extension
+
+To deploy the Azure Monitor extension, as for all the extension as a matter of facts, wde use the command `az k8s-extension create`:
 
 ```bash
 
 
-df@df2204lts:~/Documents/dfrappart.github.io$ k get all -n gatekeeper-system 
-NAME                                                 READY   STATUS    RESTARTS   AGE
-pod/gatekeeper-audit-5c55fc4ddf-h5sfw                1/1     Running   0          33m
-pod/gatekeeper-controller-manager-59c95b76c4-9dc4c   1/1     Running   0          33m
-pod/gatekeeper-controller-manager-59c95b76c4-vc6q6   1/1     Running   0          33m
-
-NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-service/gatekeeper-webhook-service   ClusterIP   10.39.244.191   <none>        443/TCP   33m
-
-NAME                                            READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/gatekeeper-audit                1/1     1            1           33m
-deployment.apps/gatekeeper-controller-manager   2/2     2            2           33m
-
-NAME                                                       DESIRED   CURRENT   READY   AGE
-replicaset.apps/gatekeeper-audit-5c55fc4ddf                1         1         1       33m
-replicaset.apps/gatekeeper-controller-manager-59c95b76c4   2         2         2       33m
-
-
-```
-
-azure monitor extension
-
-```bash
-
-
-df@df2204lts:~$ az k8s-extension create --name azuremonitor-containers --cluster-name gke1 --cluster-type connectedClusters --resource-group arcdemo --extension-type Microsoft.AzureMonitor.Containers --configuration-settings logAnalyticsWorkspaceResourceID='/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rsg-fr-poc-taflog/providers/Microsoft.OperationalInsights/workspaces/law-fr-poc-taflog16e85b36'
+yumemaru@azure:~$ az k8s-extension create --name azuremonitor-containers --cluster-name gke1 --cluster-type connectedClusters --resource-group arcdemo --extension-type Microsoft.AzureMonitor.Containers --configuration-settings logAnalyticsWorkspaceResourceID='/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rsg-fr-poc-taflog/providers/Microsoft.OperationalInsights/workspaces/law-fr-poc-taflog16e85b36'
 Ignoring name, release-namespace and scope parameters since microsoft.azuremonitor.containers only supports cluster scope and single instance of this extension.
 Defaulting to extension name 'azuremonitor-containers' and release-namespace 'azuremonitor-containers'
 {
@@ -421,11 +424,75 @@ Defaulting to extension name 'azuremonitor-containers' and release-namespace 'az
 
 ```
 
-defender
+As discussed, under the hood we have a Helm chart extension on which we can get information with the `helm get` command.
+A sample of this command output is displayed below:
+
+```yaml
+
+# Source: azuremonitor-containers/templates/ama-logs-rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ama-logs
+  namespace: kube-system
+  labels:
+    chart: azuremonitor-containers-3.0.0
+    release: azuremonitor-containers
+    heritage: Helm
+#===================Truncated==============================
+---
+# Source: azuremonitor-containers/templates/ama-logs-arc-k8s-crd.yaml
+apiVersion:  clusterconfig.azure.com/v1beta1
+kind: AzureClusterIdentityRequest
+metadata:
+  name: container-insights-clusteridentityrequest
+  namespace: azure-arc
+spec:
+  audience: https://monitor.azure.com/
+  resourceId: azuremonitor-containers
+---
+# Source: azuremonitor-containers/templates/ama-logs-arc-k8s-crd.yaml
+#extension model
+apiVersion: clusterconfig.azure.com/v1beta1
+kind: AzureExtensionIdentity
+metadata:
+  name: azuremonitor-containers
+  namespace: azure-arc
+spec:
+  serviceAccounts:
+    - name: ama-logs
+      namespace: kube-system
+  tokenNamespace: azure-arc
+
+```
+
+Note that this time, everything is deployed n the kube-system namespace, and also the CRDs that are added by the extension.
+
+With this extension, Azure Ops trained to Azure Monitor can get views of what happened on connected cluster, the same wya that a k8s ops usually gets view with the popular monitoring stacks (prometheus grafana...)
+
+![Illustration 8](/assets/arck8s/arck8s008.png)  
+  
+![Illustration 9](/assets/arck8s/arck8s009.png)  
+
+![Illustration 10](/assets/arck8s/arck8s010.png)  
+  
+![Illustration 11](/assets/arck8s/arck8s011.png)  
+
+![Illustration 12](/assets/arck8s/arck8s012.png)  
+  
+![Illustration 13](/assets/arck8s/arck8s013.png)  
+  
+### 3.2. Azure Defender for Cloud extension
+
+Another tool from the Azure Ops box is Defender for Cloud. As expected, this extension gives that capability of having a connection to Azure CSPM.
+While Monitoring may not necessarily be a target for experienced Kubernetes Ops, SecOps in Azure definitly have interest to get all Kubernetes assets in their CSPM's dashboard.
+
+Note that we get the target namespace `mdc`from the `az k8s-extension create` command:
+
 
 ```bash
 
-df@df2204lts:~$ az k8s-extension create --name microsoft.azuredefender.kubernetes --cluster-name gke1 --cluster-type connectedClusters --resource-group arcdemo --extension-type microsoft.azuredefender.kubernetes
+yumemaru@azure:~$ az k8s-extension create --name microsoft.azuredefender.kubernetes --cluster-name gke1 --cluster-type connectedClusters --resource-group arcdemo --extension-type microsoft.azuredefender.kubernetes
 Ignoring name, release-namespace and scope parameters since microsoft.azuredefender.kubernetes only supports cluster scope and single instance of this extension.
 Defaulting to extension name 'microsoft.azuredefender.kubernetes' and release-namespace 'mdc'
 {
@@ -476,34 +543,29 @@ Defaulting to extension name 'microsoft.azuredefender.kubernetes' and release-na
 
 ```
 
-```bash
+Defender for Cloud and specifically hybrid aspects of CSPM is a full topic in itself, so let's keep the deep dive for another time.
+Let's just say that with this installation and the Azure documentation, it's easy to get started on CSPM for Arc enabled Kubernetes.
 
+![Illustration 16](/assets/arck8s/arck8s016.png)  
 
-df@df2204lts:~$ k create sa arcdemo
-W1213 14:44:40.896342   16151 gcp.go:119] WARNING: the gcp auth plugin is deprecated in v1.22+, unavailable in v1.26+; use gcloud instead.
-To learn more, consult https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
-serviceaccount/arcdemo created
-df@df2204lts:~$ k create clusterrolebinding arcdemo-binding --clusterrole cluster-admin --serviceaccount default:demo
-W1213 14:45:42.582469   16386 gcp.go:119] WARNING: the gcp auth plugin is deprecated in v1.22+, unavailable in v1.26+; use gcloud instead.
-To learn more, consult https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
-clusterrolebinding.rbac.authorization.k8s.io/arcdemo-binding created
-df@df2204lts:~$ k create clusterrolebinding arcdemo-binding --clusterrole cluster-admin --serviceaccount default:arcdemo
-W1213 14:55:52.453977   19650 gcp.go:119] WARNING: the gcp auth plugin is deprecated in v1.22+, unavailable in v1.26+; use gcloud instead.
-To learn more, consult https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
-clusterrolebinding.rbac.authorization.k8s.io/arcdemo-binding created
-df@df2204lts:~$
+### 3.3. Azure Policy extension
 
-```
+Last in the extensions, but not list is the Azure Policy extension.
 
-### 2.3. Onboarding a self managed K8S, or what does It means to be a supported distribution
+This allows a control from the Azure plan for connected cluster through OPA and the infamous rego language, mixed with the json language from the Azure policies.
+theres's a gap in skill to adress before being efficient for the Azure Ops, not necessarily for the Kubernetes Ops already familiar with OPA.
 
-So, this time we will have a look at a microk8s cluster.
-The process is **exactly** the same as for the others Kubernetes distribution.
-The distribution is however not officially supported.
+In this specific case, I want to demonstrate the limit of the not officially supported kubernetes distribution version.
+Let's consider a microk8s installation for let's say a dev environment.
+It's easy to install and the arc connection would allow to apply automatically, specifically with Azure Pçolicy extension, enterprise guardrails.
 
-It does not mean It's not working. But there might be some limits.
+But there may be a catch.
 
-for example, when we try to add extension, from time to time it fails, with the following message:
+Below is a failed attempt to connect the microk8s cluster:
+
+![Illustration 17](/assets/arck8s/arck8s017.png)  
+
+![Illustration 18](/assets/arck8s/arck8s018.png)  
 
 ```json
 
@@ -521,8 +583,61 @@ for example, when we try to add extension, from time to time it fails, with the 
 
 ```
 
-The message is quite clear. The deployment failed because there is no match for the object `PodSecurityPolicy`. That's because the self managed Kubernetes is in a version higher than the supported ones. 
-Because all the extensions are installed through a helm wrapper aka the az cli command, there is no customization possible.
-So my 2 cents about self managed Kubernetes is that the version should match versions on officially supported Arc Kubernetes.
-That's all for the on boarding
+As we can see, it failed, simply because of the version of the used API object.
+In officially supported version, there's a well known roadmap of the kubernetes version, and corollary, of the kubernetes API version.
+but in our case, because we are in a 1.26 or something version, we do not have anymore the `PodSecurityPolicy` in version `policy/v1beta1`, hence the failure.
+Hopefully, It will be updated when AKS is in version 1.26+.
+
+### 3.4. Tunneling to connected cluster
+
+there may be time when an Ops need to access a connected cluster.
+
+But by default, as described in the architecture part, there are no incoming flows opened to allow the Ops to access.
+Except through the Arc agent.
+
+And with the agent, there is a capability of tunneling that can be configured, and that would allow interaction with the API server of the connected cluster.
+
+Azure Documentation described that more or less clearly. The less clear part, in my opinion, being the AAD integration.
+It should be known that the AAD integration is not available for other cloud managed Kubernetes such as EKS or GKE.
+
+But that does not mean that we cannot tunnel through those cluster. Only that we need to rely on a service account and a token:
+
+```bash
+
+
+yumemaru@azure:~$ k create sa arcdemo
+serviceaccount/arcdemo created
+yumemaru@azure:~$ k create clusterrolebinding arcdemo-binding --clusterrole cluster-admin --serviceaccount default:demo
+clusterrolebinding.rbac.authorization.k8s.io/arcdemo-binding created
+yumemaru@azure:~$ k create clusterrolebinding arcdemo-binding --clusterrole cluster-admin --serviceaccount default:arcdemo
+clusterrolebinding.rbac.authorization.k8s.io/arcdemo-binding created
+
+```
+
+Note that the code snippet is using a way to permissive binding with the cluster-admin role.
+
+A less permissive role coupled with the Azure portal native viewing capabilities would probably suffice and allow Ops to get enough information on the running workloads:
+
+![Illustration 20](/assets/arck8s/arck8s020.png)  
+
+![Illustration 21](/assets/arck8s/arck8s021.png)  
+
+![Illustration 22](/assets/arck8s/arck8s022.png)  
+
+## 4. To conclude
+
+
+That's the end of this article.
+
+From my opinion, Azure Arc, and specifically the Kubernetes extensions, is starting to be interesting.
+There is a(n easiest) path for Azure Ops that need to manage multi cloud, with the toolbox that are the connected clusters and their available extension.
+There's still the question of the cost for logs in Kubernetes environment I wouyld guess, and also room for evolution with the managed Prometheus and Grafana stacks that recently landed in the Azure landscape.
+
+I'll have things to look at quite soon I think ^^.
+
+
+
+
+
+
 
