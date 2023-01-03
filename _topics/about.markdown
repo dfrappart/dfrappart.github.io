@@ -4,7 +4,7 @@ title: About me and this blog
 permalink: /about/
 ---
 
-Hello there, my name is David and i'm an IT guy.
+Hello there, my name is David and I'm an IT guy.
 Some people may also call me a nerd from time to time but this is highly exaggerated ^^
 
 A few years ago, I decided to move from a WordPress blog to something else.
