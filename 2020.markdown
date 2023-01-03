@@ -6,7 +6,7 @@ description: Posts in 2020
 ---
 
 ## Posts in 2020
-{% assign posts = site.posts | where_exp: "item", "item.graduation_year == 2020" %}
+{% assign posts = site.posts | where_exp: "item", "item.year == 2020" %}
 {% for post in posts %}
   [{{ post.title }}]({{ post.url | relative_url }}) - {{ post.date | date_to_string }}
 {% endfor %}

@@ -3,6 +3,7 @@ layout: post
 title:  "AKS: integration to AAD with managed identity"
 date:   2020-12-17 11:31:40 +0200
 categories: AKS Security
+year: 2020
 permalink: /2020_Posts/AKS-ManagedAAD
 ---
 
