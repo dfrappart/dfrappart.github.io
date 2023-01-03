@@ -5,10 +5,10 @@
 layout: home
 ---
 
-## Welcome on teknews blog 2.0 ^^
-  
+Welcome on teknews blog 2.0 ^^
+
 This is my blog about IT stuff, mainly in the Cloud.
-It's called **2.0** because I used to have a wordpress, but not anymore ^^.
+It's called **2.0** because I used to have a wordpress, but not anymore.
 
 Old articles from the WordPress era are available as archive in pdf in the [Archive](https://blog.teknews.cloud/archive/) section.
 
