@@ -5,7 +5,9 @@ permalink: /2020/
 description: Posts in 2020
 ---
 
-{% assign posts = site.posts | where_exp: "item", "item.title contains '2020-'" %}
-{% for post in posts %}
-  [{{ post.title }}]({{ post.url | relative_url }}) - {{ post.date | date_to_string }}
+## Posts in 2020
+{% for post in site.posts %}
+- {{ post.date | date_to_string }}: [{{ post.title }}]({{ post.url | relative_url }})
 {% endfor %}
+
+
