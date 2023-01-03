@@ -5,20 +5,14 @@
 layout: home
 ---
 
-
-
-
-## What's this site ?
-Welcome on teknews blog 2.0 ^^
+## Welcome on teknews blog 2.0 ^^
   
+This is my blog about IT stuff, mainly in the Cloud.
+It's called **2.0** because I used to have a wordpress, but not anymore ^^.
+
 Old articles from the WordPress era are available as archive in pdf in the [Archive](https://blog.teknews.cloud/archive/) section.
 
-## Pages
+## Topics
 {% for topic in site.topics %}
 - [{{ topic.title }}]({{ topic.url | relative_url }})
-{% endfor %}
-
-## Posts 
-{% for post in site.posts %}
-- {{ post.date | date_to_string }}: [{{ post.title }}]({{ post.url | relative_url }})
 {% endfor %}
