@@ -2,7 +2,7 @@
 layout: page
 title: Terraform
 description: Posts about Terraform
-permalink: /aks/
+permalink: /terraform/
 ---
 ![terraform](/assets/terraform.png)
 {% assign posts = site.posts | where_exp: "item", "item.categories contains 'aks'" %}
