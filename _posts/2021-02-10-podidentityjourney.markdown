@@ -2,6 +2,7 @@
 layout: post
 title:  "AKS: Use AAD identity for pods and make your SecOps happy"
 date:   2021-02-10 11:31:40 +0200
+year: 2021
 categories: AKS Security
 ---
 

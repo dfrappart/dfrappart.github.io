@@ -2,6 +2,7 @@
 layout: post
 title:  "AKS private cluster through the terraform lens"
 date:   2022-07-07 15:00:00 +0200
+year: 2022
 categories: AKS Security
 ---
 

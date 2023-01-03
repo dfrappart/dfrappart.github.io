@@ -2,6 +2,7 @@
 layout: post
 title:  "AGIC and AKS with Kubenet - Part 1"
 date:   2021-11-15 15:00:00 +0200
+year: 2021
 categories: AKS Network
 ---
 

@@ -2,6 +2,7 @@
 layout: post
 title:  "Back to basics - About Network Security Groups"
 date:   2022-03-01 22:45:00 +0200
+year: 2022
 categories: Network
 ---
 
