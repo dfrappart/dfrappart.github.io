@@ -2,7 +2,7 @@
 layout: post
 title:  "Levering Logic apps to do ops stuff on AKS - Part 2"
 date:   2021-12-16 17:28:00 +0200
-categories: AKS
+categories: AKS Ops
 ---
 
 Hi!

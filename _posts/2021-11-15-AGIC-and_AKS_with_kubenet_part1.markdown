@@ -2,7 +2,7 @@
 layout: post
 title:  "AGIC and AKS with Kubenet - Part 1"
 date:   2021-11-15 15:00:00 +0200
-categories: AKS
+categories: AKS Network
 ---
 
 In this multipart article, we will come back on Application Gateway as Ingress Controller and its configuration and usage specifically in an AKS / Kubenet environment.

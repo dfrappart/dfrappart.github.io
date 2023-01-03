@@ -2,7 +2,7 @@
 layout: post
 title:  "Secure AKS at the deployment"
 date:   2019-10-23 11:31:40 +0200
-categories: AKS
+categories: AKS Security
 permalink: /2019_Posts/Secure-AKS-at-deployment
 ---
 

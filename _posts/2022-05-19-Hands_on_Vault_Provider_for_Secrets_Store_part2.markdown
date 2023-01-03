@@ -2,7 +2,7 @@
 layout: post
 title:  "Hands on Azure Key Vault Provider for Secrets Store CSI Driver Part 2"
 date:   2022-05-19 08:51:00 +0200
-categories: AKS
+categories: AKS Security
 ---
 
 Hello again!
