@@ -442,7 +442,7 @@ That was the easy part, adding parameter to existing resources. It's working as 
 Now the next step, the module as evolved, because the parameter is now configurable in the provider.
 In the module that we use, there is an addon on the readme:
 
- Name | Description | Type | Default | Required |
+| Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_IsBlobDriverEnabled"></a> [IsBlobDriverEnabled](#input\_IsBlobDriverEnabled) | Is the Blob CSI driver enabled? Defaults to false. | `bool` | `true` | no |
 
