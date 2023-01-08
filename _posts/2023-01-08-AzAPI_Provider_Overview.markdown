@@ -27,7 +27,7 @@ Before diving in AzAPI provider, let's do a little history of Terraform.
 
 ### 1.1. Going back to Terraform older versions
 
-As a 3rd pary / cloud agnostic product, Terraform can work with many different Clouds, or infrastructure providers or whatever.
+As a 3rd party / cloud agnostic product, Terraform can work with many different Clouds, or infrastructure providers or whatever.
 
 Because of this horizontal development, at one point, the Terraform binaries were splitted in 2 : 
 
