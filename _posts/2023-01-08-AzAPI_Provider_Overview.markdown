@@ -454,7 +454,7 @@ Well, one looking for answers should always start by the documentation.
 We can read in the Azure documentation that there is a tool to help the migration from AzAPI resources to AzureRM resources called [AzAPI2AzureRM](https://github.com/Azure/azapi2azurerm/releases).
 But this time, by documentation, I meant the Terraform registry website:
 
-![illustration8](/assets/azapi/azapi008.png)  
+![illustration9](/assets/azapi/azapi009.png)  
 
 Which means, that the property modified by the update will not be revert back if we delete the resource.
 
