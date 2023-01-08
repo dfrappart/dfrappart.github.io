@@ -557,7 +557,7 @@ We can now change the version of the module to the appropriate commit:
 module "AKS" {
   for_each                              = toset(var.TrainingList)
   #Module Location, with ref to last commit 
-  source                                = "github.com/dfrappart/Terra-AZModuletest//Custom_Modules/IaaS_AKS_Cluster?ref=aksv1"
+  source                                = "github.com/dfrappart/Terra-AZModuletest//Custom_Modules/IaaS_AKS_Cluster?ref=c8342aca9832e14dfe598c779a374d453ea76204"
 
   #Module variable
 
