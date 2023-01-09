@@ -370,7 +370,7 @@ that being said, let's have a look at a few of those extensions.
 
 ### 3.1. Azure Monitor for containers extension
 
-To deploy the Azure Monitor extension, as for all the extension as a matter of facts, wde use the command `az k8s-extension create`:
+To deploy the Azure Monitor extension, as for all the extension as a matter of facts, we use the command `az k8s-extension create`:
 
 ```bash
 
@@ -395,7 +395,7 @@ Defaulting to extension name 'azuremonitor-containers' and release-namespace 'az
   "extensionType": "microsoft.azuremonitor.containers",
   "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/arcdemo/providers/Microsoft.Kubernetes/connectedClusters/gke1/providers/Microsoft.KubernetesConfiguration/extensions/azuremonitor-containers",
   "identity": {
-    "principalId": "77f8d034-d0c4-4e8d-bd1e-e7b4ed81b22d",
+    "principalId": "00000000-0000-0000-0000-000000000000",
     "tenantId": null,
     "type": "SystemAssigned"
   },
@@ -468,7 +468,7 @@ spec:
 
 ```
 
-Note that this time, everything is deployed n the kube-system namespace, and also the CRDs that are added by the extension.
+Note that this time, everything is deployed in the kube-system namespace, and also the CRDs that are added by the extension.
 
 With this extension, Azure Ops trained to Azure Monitor can get views of what happened on connected cluster, the same wya that a k8s ops usually gets view with the popular monitoring stacks (prometheus grafana...)
 
@@ -559,7 +559,7 @@ theres's a gap in skill to adress before being efficient for the Azure Ops, not 
 
 In this specific case, I want to demonstrate the limit of the not officially supported kubernetes distribution version.
 Let's consider a microk8s installation for let's say a dev environment.
-It's easy to install and the arc connection would allow to apply automatically, specifically with Azure Pçolicy extension, enterprise guardrails.
+It's easy to install and the arc connection would allow to apply automatically, specifically with Azure Policy extension, enterprise guardrails.
 
 But there may be a catch.
 
@@ -592,7 +592,7 @@ Hopefully, It will be updated when AKS is in version 1.26+.
 
 ### 3.4. Tunneling to connected cluster
 
-there may be time when an Ops need to access a connected cluster.
+There may be time when an Ops need to access a connected cluster.
 
 But by default, as described in the architecture part, there are no incoming flows opened to allow the Ops to access.
 Except through the Arc agent.
