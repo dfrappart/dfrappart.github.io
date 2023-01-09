@@ -48,7 +48,7 @@ But because It exists in the Azure plane, It can also be managed in some ways in
   
 Now we mentioned a little bit of architecture, so how does It work inside this Arc Enabled cluster?
 
-Very simply, there is an agent, **the Arc enabled Kubernetes Agent**, which pushes and pulls information to and from the Azure plane.
+Very simply, there is an agent, **the Arc enabled Kubernetes Agent**, which pushes and pulls informations to and from the Azure plane.
 
 Once the cluster is onboarded, the agent becomes responsible of updating the state of the cluster against its state in Azure.
 When an Azure Ops change the configuration on the Azure side, the agent get the desired state and, if required, pulls container images from Azure container registry.
@@ -94,14 +94,15 @@ About the outbound connectivity to Azure, because there is no easy way to allow 
 | Endpoint | Description |
 |-|-|
 | https://management.azure.com (for Azure Cloud), https://management.usgovcloudapi.net (for Azure US Government)| Required for the agent to connect to Azure and register the cluster.​ |
-| https://<region>.dp.kubernetesconfiguration.azure.com (for Azure Cloud), https://<region>.dp.kubernetesconfiguration.azure.us (for Azure US Government) | Data plane endpoint for the agent to push status and fetch configuration information.​​ |
-| https://login.microsoftonline.com, https://<region>.login.microsoft.com, login.windows.net (for Azure Cloud), https://login.microsoftonline.us, <region>.login.microsoftonline.us (for Azure US Government)​ | Required to fetch and update Azure Resource Manager tokens.​​ |
+| https://`region`.dp.kubernetesconfiguration.azure.com (for Azure Cloud), https://`region`.dp.kubernetesconfiguration.azure.us (for Azure US Government) | Data plane endpoint for the agent to push status and fetch configuration information.​​ |
+| https://login.microsoftonline.com, https://`region`.login.microsoft.com, login.windows.net (for Azure Cloud), https://login.microsoftonline.us, `region`.login.microsoftonline.us (for Azure US Government)​ | Required to fetch and update Azure Resource Manager tokens.​​ |
 | https://mcr.microsoft.com, https://*.data.mcr.microsoft.com​ | Required to pull container images for Azure Arc agents.​​ |
 | https://gbl.his.arc.azure.com (for Azure Cloud), https://gbl.his.arc.azure.us (for Azure US Government) | Required to get the regional endpoint for pulling system-assigned Managed Identity certificates.​ |
 | https://*.his.arc.azure.com (for Azure Cloud), https://usgv.his.arc.azure.us (for Azure US Government) | Required to pull system-assigned Managed Identity certificates.​ |
 | https://k8connecthelm.azureedge.net​ | az connectedk8s connect uses Helm 3 to deploy Azure Arc agents on the Kubernetes cluster. This endpoint is needed for Helm client download to facilitate deployment of the agent helm chart.​ |
 | guestnotificationservice.azure.com, *.guestnotificationservice.azure.com, sts.windows.net, https://k8sconnectcsp.azureedge.net​ | For Cluster Connect and for Custom Location based scenarios.​ |
 | *.servicebus.windows.net​ | For Cluster Connect and for Custom Location based scenarios.​ |
+| https://graph.microsoft.com/ | Required when Azure RBAC is configured |
 
 Before onboarding a cluster, there is also a list of supported kubernetes distributions.
 This list, available on the [Azure Arc documentation](https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/validation-program), includes AWS EKS but also Google GKE clusters.
@@ -131,15 +132,15 @@ As mentionned, it's easier to get the kubeconfig file if we have the gcloud cli 
 
 ```bash
 
-gcloud container clusters list
+yumemaru@local:~$ gcloud container clusters list
 NAME  LOCATION  MASTER_VERSION  MASTER_IP      MACHINE_TYPE  NODE_VERSION    NUM_NODES  STATUS
 gke1  us-west1  1.24.5-gke.600  34.168.91.163  e2-medium     1.24.5-gke.600  2          PROVISIONING
 
-gcloud container clusters get-credentials gke1 --region us-west1
+yumemaru@local:~$ gcloud container clusters get-credentials gke1 --region us-west1
 Fetching cluster endpoint and auth data.
 kubeconfig entry generated for gke1.
 
-k config get-contexts
+yumemaru@local:~$ k config get-contexts
 CURRENT   NAME                                    CLUSTER                                 AUTHINFO                                          NAMESPACE
 *         gke_terraformgcptesting_us-west1_gke1   gke_terraformgcptesting_us-west1_gke1   gke_terraformgcptesting_us-west1_gke1 
 
@@ -149,7 +150,7 @@ Now that the config is ok, we can initiate the onboarding:
 
 ```bash
 
-yumemaru@azure:~/Documents/clonedrepo/azure_arc/azure_arc_k8s_jumpstart/gke/terraform$ az connectedk8s connect -n gke1 -g arcdemo
+yumemaru@local:~$ az connectedk8s connect -n gke1 -g arcdemo
 This operation might take a while...
 
 {
@@ -192,7 +193,7 @@ The cluster is now onboarded.
   
 ## 2.2. A more through look at the connected cluster  
   
-Ok the cluster is onoarded so checking on the Azure portal, we can see the connected kubernetes:
+Ok the cluster is onboarded so checking on the Azure portal, we can see the connected kubernetes:
   
 ![Illustration 6](/assets/arck8s/arck8s006.png)
 
@@ -247,7 +248,7 @@ We can see the `azure-arc` release and also the `azurepolicy` release.
 
 ```bash
 
-yumemaru@azure:~$ helm list -A
+yumemaru@local:~$ helm list -A
 NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                                           APP VERSION
 azure-arc       default         1               2022-12-13 11:39:07.233181548 +0100 CET deployed        azure-arc-k8sagents-1.8.14                      1.0        
 azurepolicy     kube-system     2               2022-12-13 10:54:30.763188969 +0000 UTC deployed        azure-policy-extension-arc-clusters-1.4.0       1      
@@ -275,7 +276,7 @@ Knowing that, we can have a look in the `azure-arc` namespace:
 
 ```bash
 
-yumemaru@azure:~$ k get all -n azure-arc 
+yumemaru@local:~$ k get all -n azure-arc 
 NAME                                            READY   STATUS    RESTARTS   AGE
 pod/cluster-metadata-operator-79f6ff784-s6c5k   2/2     Running   0          27m
 pod/clusterconnect-agent-5b888b7dd-5g98q        3/3     Running   0          27m
@@ -606,11 +607,11 @@ But that does not mean that we cannot tunnel through those cluster. Only that we
 ```bash
 
 
-yumemaru@azure:~$ k create sa arcdemo
+yumemaru@local:~$ k create sa arcdemo
 serviceaccount/arcdemo created
-yumemaru@azure:~$ k create clusterrolebinding arcdemo-binding --clusterrole cluster-admin --serviceaccount default:demo
+yumemaru@local:~$ k create clusterrolebinding arcdemo-binding --clusterrole cluster-admin --serviceaccount default:demo
 clusterrolebinding.rbac.authorization.k8s.io/arcdemo-binding created
-yumemaru@azure:~$ k create clusterrolebinding arcdemo-binding --clusterrole cluster-admin --serviceaccount default:arcdemo
+yumemaru@local:~$ k create clusterrolebinding arcdemo-binding --clusterrole cluster-admin --serviceaccount default:arcdemo
 clusterrolebinding.rbac.authorization.k8s.io/arcdemo-binding created
 
 ```
