@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "AKS encryption options"
-date:   2023-02-02 18:00:00 +0200
+date:   2023-02-03 18:00:00 +0200
 year: 2023
 categories: AKS Security
 ---
@@ -398,21 +398,107 @@ spike@azure:~$ az aks show -n <aks_cluster_name> -g <rgname> | jq .diskEncryptio
 
 With that, node OS disks are encrypted with a custom managed key.
 
-Let's have a look at the Kubernetes plane now.
+Now, workloads hosted on the cluster won't use the Os Disks but rather Managed disk provisionned through the storage classes avaiable in AKS.
+Nowadays, those storage classes rely n the csi provider, and specifically, for volume based on Azure managed disk, on the `disk.csi.azure.com` provisioner.
 
+Getting the definition of the storage classes shows that there is no default config for using the disk encryption set that we specified for the nodes.
+However, we can find in the AKS documentation or in the [Azure disk CSI driver documentation](https://github.com/kubernetes-sigs/azuredisk-csi-driver/blob/master/docs/driver-parameters.md), there's a parameter to specify the disk encryption set
+
+|Name	| Meaning	| Available Value |
+|-|-|-|
+| diskEncryptionSetID	| ResourceId of the disk encryption set to use for enabling encryption at rest	| format: /subscriptions/{subs-id}/resourceGroups/{rg-name}/providers/Microsoft.Compute/diskEncryptionSets/{diskEncryptionSet-name} |
+
+
+With taht we can create a storage class with the disk encryption set id:
 ```yaml
 
 kind: StorageClass
 apiVersion: storage.k8s.io/v1  
 metadata:
   name: byok
-provisioner: disk.csi.azure.com # replace with "kubernetes.io/azure-disk" if aks version is less than 1.21
+provisioner: disk.csi.azure.com
 parameters:
   skuname: StandardSSD_LRS
   kind: managed
   diskEncryptionSetID: "/subscriptions/{myAzureSubscriptionId}/resourceGroups/{myResourceGroup}/providers/Microsoft.Compute/diskEncryptionSets/{myDiskEncryptionSetName}"
   
 ```
+
+And then a persistent volume using this class:
+
+```yaml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-managed-disk
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: byok
+  resources:
+    requests:
+      storage: 5Gi
+
+```
+
+And to conclude, a pod using this volume
+
+```yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: encryptedpvc
+  name: nginxencryptedpvc
+spec:
+  containers:
+  - image: nginx
+    name: c1
+    env:                
+    - name: MY_NODE_NAME
+      valueFrom:        
+        fieldRef:       
+          fieldPath: spec.nodeName
+    volumeMounts:
+    - name: vol
+      mountPath: /vol
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  volumes:                 
+    - name: vol            
+      persistentVolumeClaim:
+        claimName: azure-managed-disk
+
+```
+
+There's a catch though.
+If we use the same encryption id that we used to encrypt the Os Disks, it does not live in the AKS managed resource groups, thus we should grant access to AKS control plane to this resource, as tstated by the error message below
+
+```
+
+Events:
+  Type     Reason                Age                     From                                                                                               Message
+  ----     ------                ----                    ----                                                                                               -------
+  Normal   ExternalProvisioning  3m15s (x26 over 9m10s)  persistentvolume-controller                                                                        waiting for a volume to be created, either by external provisioner "disk.csi.azure.com" or manually created by system administrator
+  Normal   Provisioning          37s (x10 over 9m10s)    disk.csi.azure.com_csi-azuredisk-controller-5bb9864b4c-jf85c_5b992153-3dd0-40f7-893c-edd7b6d2ab69  External provisioner is provisioning volume for claim "default/azure-managed-disk"
+  Warning  ProvisioningFailed    37s (x10 over 9m9s)     disk.csi.azure.com_csi-azuredisk-controller-5bb9864b4c-jf85c_5b992153-3dd0-40f7-893c-edd7b6d2ab69  failed to provision volume with StorageClass "byok": rpc error: code = Internal desc = Retriable: false, RetryAfter: 0s, HTTPStatusCode: 403, RawError: {"error":{"code":"LinkedAuthorizationFailed","message":"The client '00000000-0000-0000-0000-000000000000' with object id '00000000-0000-0000-0000-000000000000' has permission to perform action 'Microsoft.Compute/disks/write' on scope '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rsg-dfitcfr-dev-tfmodule-aksobjectsdavidfrappar/providers/Microsoft.Compute/disks/pvc-12a558e5-ef54-4f94-a0ed-6e4aca47a625'; however, it does not have permission to perform action 'read' on the linked scope(s) '/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rsg-david.frappart/providers/Microsoft.Compute/diskEncryptionSets/des-aks-david.frappart' or the linked scope(s) are invalid."}}
+
+```
+
+Once it's configured, checking on the pvc, we should see that it does use the encryption set, as expected.
+
+![ilustration6](/assets/aksencryption/aksencryption006.png)
+
+And that's it for encryption of disks in AKS. Note that we could wonder how it works with the Azure File based storage class.
+First, there's no dependency with a disk encryption set. 
+Second, If we were to look at the csi provider documentation, there is a reference to encryption, but at this point, I'm not sure it allows a byok scenario. 
+Another alternative could be to provision Azure storage accounts with a `CMK` and create statically assigned volumes from those storage accounts.
+We may look at that in another article ^^.
+
+With all of this, we covered the encrypiton of the storage layer. Let's see how we can add another security layer with host encryption.
+
 
 ### 3.2. End-to-end encryption with host encryption
 
@@ -452,5 +538,19 @@ spike@azure:~$ az aks show -n aks-davidfrappar -g rsg-david.frappart | grep -i e
       "enableEncryptionAtHost": true,
 
 ```
+
+## 4. To summarize
+
+Without a surprise, AKS leverage the Azure platform capabilities when the encryption questions come around:
+
+- Encruyption at rest for the storage layer
+- Host encryption to ensure end to end encryption from the host to the storage layer
+
+We have the choice to rely on the platform managed encryption which is enabled by default.
+We also have th option to prefer scenario where the `CMK` is the way to go. 
+About that, there's the operationnal overhead to consider, which requires the management of the encryption key, its rotation and most of all of its hosting in... an Azure Key Vault.
+One could wonder what's the gain to host the encryption key in the not so trusted cloud provider, but htat's more a compliance topic, than a technical security topic, which is the aim of this article.
+And that's all. See you around!
+
 
 
