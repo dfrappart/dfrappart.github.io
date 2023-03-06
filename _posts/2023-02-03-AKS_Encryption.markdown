@@ -543,7 +543,7 @@ spike@azure:~$ az aks show -n aks-davidfrappar -g rsg-david.frappart | grep -i e
 
 Without a surprise, AKS leverage the Azure platform capabilities when the encryption questions come around:
 
-- Encruyption at rest for the storage layer
+- Encryption at rest for the storage layer
 - Host encryption to ensure end to end encryption from the host to the storage layer
 
 We have the choice to rely on the platform managed encryption which is enabled by default.
