@@ -70,15 +70,16 @@ If we consider an AKS cluster, we can use daemon sets along with taints on node 
 ![illustration5](/assets/katacontainer/sbxcontainer005.png)
 
 If we want to install gVisor on all the nodes of a specific node pool, we could rely on a daemonset which would deploy a pod with an elevated container. If this said container was configured to execute the installation of gVisor, then we could achieve our goal.
+Note that there is a very nice article from [Daniel Neumann](https://www.danielstechblog.io/about-me/) on [his blog explaining this approach](https://www.danielstechblog.io/running-gvisor-on-azure-kubernetes-service-for-sandboxing-containers/).
 
 **schema pod installing gvisor**
 
-there are a few wtach points here however.
+there are a few watch points here however.
 
-First, we need to have a pod with elevated access, in this case access to the node local storage at least, so that we could deploy sandboexed container.
+First, we need to have a pod with elevated access, in this case access to the node local storage at least, so that we could deploy sandboxed container.
 There may be a contradiction here, don't you think? 
 Second, we need to modify the configuration of nodes managed by an Azure service. So while the approach wit the daemonset is typical of kubernetes environment and thus respect the best practice of kubernetes node management, it is kind of a grey zone in terms of Azure support. Meaning it should work but if it does not anymore, we're on our own because there won't be any support from Microsoft, or at least, not that much.
 
 Another way for sandbox container, this time supported by Microsoft, is to rely on a sandbox technology available on the underlying OS of the node image.
 Luckily for us, this is the case for katacontainer and the node image based on [Mariner](https://microsoft.github.io/CBL-Mariner/docs/#cbl-mariner-linux).
-In this specific case, no installation on the nodes is required, and we can only focus on the kubernetes part of creating our sandbox container
+In this specific case, no installation on the nodes is required, and we can only focus on the kubernetes part of creating our sandbox container.
