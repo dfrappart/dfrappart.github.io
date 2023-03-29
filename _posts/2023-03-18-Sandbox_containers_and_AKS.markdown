@@ -54,8 +54,6 @@ gVisor acts as an intermediary between the application and the host kernel. It i
 
 Ok that's all for the intro on sandbox containers. In the following sections, we will let the Rule-based execution apart and focus more specifically on katacontainer and gVisor, in an AKS context.
 
-
-
 ## 2. Preparing for sandbox containers in AKS
 
 Let's go back to our cloud managed Kubernetes now.
@@ -87,10 +85,49 @@ Another way for sandbox container, this time supported by Microsoft, is to rely 
 Luckily for us, this is the case for katacontainer and the node image based on [Mariner](https://microsoft.github.io/CBL-Mariner/docs/#cbl-mariner-linux).
 In this specific case, no installation on the nodes is required, and we can only focus on the kubernetes part of creating our sandbox container.
 
-If we dive a littel deeper on our AKS architecture, we should remebmer that by default we have 1 node pool (a.k.a the default node pool). This node pool is by default (for now at least) an Ubuntu based node pool so no katacontainer there.
-Also, becaus eit's the default system node pool, it hosts all the AKS required pods for AKS to work. It's better to leave it alone, so we'll use additional node pool.
+If we dive a little deeper on our AKS architecture, we should remebmer that by default we have 1 node pool (a.k.a the default node pool). This node pool is by default (for now at least) an Ubuntu based node pool so no katacontainer there.
+Also, because it's the default system node pool, it hosts all the AKS required pods for AKS to work. It's better to leave it alone, so we'll use additional node pool.
 
-Regarding gvisor, it can be any node pool because this is selfmanaged sandbox software install, so we just need to add a node pool.
-To ensure that the 
+Regarding gvisor, it can be any node pool because this is self-managed sandbox software install, so there is no underlying architecture requirement.
+Adding a node pool is not too difficult if you're familiar with the concept.
+
+**tfcode sample**
+
+For katacontainer, we do have a requirement to use a Mariner node pool.
+It's important to remember that it is currently a preview, and as such it requires to be activate in the provider with the command `az feature register` command.
+
+```bash
+
+az feature register --namespace "Microsoft.ContainerService" --name "KataVMIsolationPreview"
+
+```
+
+Also, we have to specify the `--workload-runtime` to `KataMshvVmIsolation` so that the feature is activated on the node pool. Otherwise, the runtime class will not be available. More on that in the next part.
+
+```bash
+
+az aks nodepool add --cluster-name <AKS_Cluster_Name> --resource-group <AKS_Resource_Group> --name <Node_Pool_Name> --os-sku mariner --workload-runtime KataMshvVmIsolation --node-vm-size <VM_Size>
+
+```
+
+Interestingly enough, while there is a `workload_runtime` parameter in the terraform provider, it currently only support `OCIContainer` or `WasmWasi`. So we are stuck with either az cli or ARM.
+
+That's almost all on the node pool configuration. The last details are more in the kubernetes plane so we will have a look in the next part
+
 ## 3. Running Sandbox container in AKS
 
+### 3.1 sandbox with gvisor
+
+get labels on node and taints
+create ds with node selector
+create  runtime class
+create pod
+
+
+### 3.2. sanbox with katacontainer
+
+still get labels and taints
+get runtime class
+create pod
+
+check kernel
