@@ -71,7 +71,7 @@ If we consider an AKS cluster, we can use daemon sets along with taints on node 
 
 ![illustration5](/assets/katacontainer/sbxcontainer005.png)
 
-If we want to install gVisor on all the nodes of a specific node pool, we could rely on a daemonset which would deploy a pod with an elevated container. If this said container was configured to execute the installation of gVisor, then we could achieve our goal.
+If we want to install gVisor (or any binary as a matter of fact) on all the nodes of a specific node pool, we could rely on a daemonset which would deploy a pod with an elevated container. If this said container was configured to execute the installation of gVisor, then we could achieve our goal.
 
 **schema pod installing gvisor**
 
@@ -87,9 +87,10 @@ Another way for sandbox container, this time supported by Microsoft, is to rely 
 Luckily for us, this is the case for katacontainer and the node image based on [Mariner](https://microsoft.github.io/CBL-Mariner/docs/#cbl-mariner-linux).
 In this specific case, no installation on the nodes is required, and we can only focus on the kubernetes part of creating our sandbox container.
 
-## 3. Preparing AKs for sandbox container
+If we dive a littel deeper on our AKS architecture, we should remebmer that by default we have 1 node pool (a.k.a the default node pool). This node pool is by default (for now at least) an Ubuntu based node pool so no katacontainer there.
+Also, becaus eit's the default system node pool, it hosts all the AKS required pods for AKS to work. It's better to leave it alone, so we'll use additional node pool.
 
-### 3.1. Preparing for gvisor
+Regarding gvisor, it can be any node pool because this is selfmanaged sandbox software install, so we just need to add a node pool.
+To ensure that the 
+## 3. Running Sandbox container in AKS
 
-
-### 3.2. Preparing for Kata container
