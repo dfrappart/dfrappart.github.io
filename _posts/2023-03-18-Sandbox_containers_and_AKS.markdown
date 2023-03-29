@@ -89,9 +89,135 @@ If we dive a little deeper on our AKS architecture, we should remebmer that by d
 Also, because it's the default system node pool, it hosts all the AKS required pods for AKS to work. It's better to leave it alone, so we'll use additional node pool.
 
 Regarding gvisor, it can be any node pool because this is self-managed sandbox software install, so there is no underlying architecture requirement.
-Adding a node pool is not too difficult if you're familiar with the concept.
+Adding a node pool is not too difficult and can be done from the portal, az cli or some terraform configuration.
 
-**tfcode sample**
+```bash
+
+module "Nodepoolgvisor" {
+
+  for_each                              = var.TrainingConfig
+  source                                = "github.com/dfrappart/Terra-AZModuletest//Custom_Modules/IaaS_AKS_NodePool?ref=aksnpv1"
+
+  AKSSubnetId                           = azurerm_subnet.subnet[each.key].id
+  NPSuffix                              = "gvisor"
+  AKSClusterId                          = module.AKS[each.key].FullAKS.id
+  AKSNodeTaints                         = ["gvisor=true:NoSchedule"]
+
+}
+
+```
+
+```bash
+
+resource "azurerm_kubernetes_cluster_node_pool" "AKSNodePool" {
+
+    lifecycle {...}
+
+##############################################################
+# Basic configuration
+
+  name                                  = "np${var.NPSuffix}"
+  kubernetes_cluster_id                 = var.AKSClusterId
+  vm_size                               = var.AKSNodeInstanceType
+  zones                                 = var.AKSAZ
+  mode                                  = var.NPMode
+  orchestrator_version                  = var.KubeVersion
+  max_pods                              = var.AKSMaxPods
+  workload_runtime                      = var.WorkloadRuntimeType
+  message_of_the_day                    = var.MessageofTheDay 
+
+##############################################################
+# Security Parameters
+
+  custom_ca_trust_enabled               = var.IsCustomCATrustEnabled
+  enable_host_encryption                = var.EnableHostEncryption
+  fips_enabled                          = var.IsFipsEnabled
+
+##############################################################
+# Network configuration
+
+  enable_node_public_ip                 = var.EnableNodePublicIP 
+  vnet_subnet_id                        = var.AKSSubnetId
+  pod_subnet_id                         = var.PodSubnetId
+  node_network_profile {
+    node_public_ip_tags                 = var.NodePublicIpTags
+  }
+
+##############################################################
+# Autoscaling configuration
+
+  enable_auto_scaling                   = var.EnableAKSAutoScale 
+  max_count                             = var.MaxAutoScaleCount
+  min_count                             = var.MinAutoScaleCount
+  node_count                            = var.AKSNodeCount
+  scale_down_mode                       = var.ScaleDownMode
+
+##############################################################
+# OS related Configuration
+
+  os_sku                                = var.AKSNodeOSSku
+  os_type                               = var.AKSNodeOSType
+  os_disk_type                          = var.AKSNodeOSDiskType
+  os_disk_size_gb                       = var.AKSNodeOSDiskSize
+
+##############################################################
+# Nodes taints and Labels management
+
+  node_labels                           = var.AKSNodeLabels
+  node_taints                           = var.AKSNodeTaints  
+
+##############################################################
+# Node pool spot configuration
+
+  priority                              = var.AKSNPPriority
+  eviction_policy                       = var.EvictionPolicy
+  spot_max_price                        = var.SpotMaxPrice 
+
+##############################################################
+# Node pool reservation configuration  
+  
+  capacity_reservation_group_id         = var.CapacityReservationGroupId
+
+##############################################################
+# Host and prximity configuration
+
+  proximity_placement_group_id          = var.PlacementGroupId
+  host_group_id                         = var.HostGroupId 
+
+##############################################################
+# Kubelet configuration  
+
+  kubelet_disk_type                     = var.KubeletDiskType
+  kubelet_config {...}
+
+##############################################################
+# Linux OS configuration 
+
+  linux_os_config {...}
+
+##############################################################
+# Upgrade configuration
+  upgrade_settings {
+    max_surge                           = var.AKSMaxSurge
+  }
+
+##############################################################
+# Windows OS configuration 
+
+  dynamic "windows_profile" {...}
+
+
+
+##############################################################
+# Tags 
+
+  tags = merge(var.DefaultTags,var.ExtraTags,{"AKSClusterName"=split("/",var.AKSClusterId)[8]})
+
+
+
+}
+
+```
 
 For katacontainer, we do have a requirement to use a Mariner node pool.
 It's important to remember that it is currently a preview, and as such it requires to be activate in the provider with the command `az feature register` command.
@@ -114,7 +240,137 @@ Interestingly enough, while there is a `workload_runtime` parameter in the terra
 
 That's almost all on the node pool configuration. The last details are more in the kubernetes plane so we will have a look in the next part
 
-## 3. Running Sandbox container in AKS
+## 3. Running Sandbox container in AKS with gvisor
+
+first thing first, let's have a look on our nodes. With a custom columns selection, we can get the taints and labels. Note that we're selecting a specific label here: 
+
+```bash
+
+yumemaru@azure:~$ k get nodes -o custom-columns='NodeName:.metadata.name,LabelAgentPool:.metadata.labels.agentpool,NodeTaintsKey:.spec.taints[].key,NodeTaintsValue:.spec.taints[].key,NodeTaintsEffect:.spec.taints[].effect'
+NodeName                               LabelAgentPool   NodeTaintsKey        NodeTaintsValue   NodeTaintsEffect
+aks-aksnp0sbxcon-29325118-vmss00000m   aksnp0sbxcon     CriticalAddonsOnly   true              NoSchedule
+aks-aksnp0sbxcon-29325118-vmss00000n   aksnp0sbxcon     CriticalAddonsOnly   true              NoSchedule
+aks-aksnp0sbxcon-29325118-vmss00000o   aksnp0sbxcon     CriticalAddonsOnly   true              NoSchedule
+aks-npgvisor-28185204-vmss000009       npgvisor         gvisor               true              NoSchedule
+aks-npgvisor-28185204-vmss00000a       npgvisor         gvisor               true              NoSchedule
+aks-npkata-37278511-vmss000003         npkata           KataContainer        true              NoSchedule
+aks-npkata-37278511-vmss000004         npkata           KataContainer        true              NoSchedule
+aks-npkata-37278511-vmss000005         npkata           KataContainer        true              NoSchedule
+
+```
+
+With that, we can install gvisor with a daemonset: 
+
+```yaml
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: gvisor
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: gvisor
+  template:
+    metadata:
+      labels:
+        app: gvisor
+    spec:
+      hostPID: true
+      restartPolicy: Always
+      containers:
+      - image: docker.io/yumemaru1979/gvisor:latest
+        imagePullPolicy: Always
+        name: gvisor
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        securityContext:
+          privileged: true
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: k8s-node
+          mountPath: /k8s-node
+      volumes:
+      - name: k8s-node
+        hostPath:
+          path: /tmp/gvisor
+      tolerations:
+        - key: gvisor
+          operator: Exists
+          effect: NoSchedule
+      nodeSelector:
+        agentpool: npgvisor
+
+```
+
+The interesting part on a scheduling point of view here is the toleration which match the one from our node gvisor `gvisor=true:NoSchedule`.
+
+We are also using a `nodeSelector` to match the `agentpool: npgvisor` so that we are sure that the pods will only execute on this node pool.
+For the image and what it does, really, I took the information from [Daniel Neumann blog](https://www.danielstechblog.io/running-gvisor-on-azure-kubernetes-service-for-sandboxing-containers/) as mentionned earlier.
+
+With that we should see that we have as many pod as node in the node pool:
+
+```bash
+yumemaru@azure$ k get daemonsets.apps gvisor -n kube-system
+NAME     DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR        AGE
+gvisor   2         2         2       2            2           agentpool=npgvisor   34h
+
+```
+
+Checking on the portal, we can also see which pod run on which node:
+
+![illustration7](/assets/katacontainer/sbxcontainer007.png)
+
+With that ready, we need now to add a runtime class: 
+
+```yaml
+
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: gvisor
+handler: runsc
+scheduling:
+  nodeSelector:
+    agentpool: npgvisor
+
+```
+
+And last, we can schedule pods on the node pool. To use the runtime class and thus get a sandboxed container, we need to specify the `runtimeClassName`. We also specify the `NodeSelector` and the `tolerations` to ensure that the pod can run on the node pool that we want:
+
+```yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: gvisor
+  name: gvisortest
+  namespace: gvisordemo
+spec:
+  runtimeClassName: gvisor
+  nodeSelector:
+    agentpool: npgvisor  
+  tolerations:
+  - key: gvisor
+    operator: Exists
+    effect: NoSchedule
+  containers:
+  - image: nginx
+    name: gvisortest
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+```
+
+for comparison purpose, we can also add a 
 
 ### 3.1 sandbox with gvisor
 
