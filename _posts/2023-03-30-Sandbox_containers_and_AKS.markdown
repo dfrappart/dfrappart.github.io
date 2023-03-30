@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Sandbox containers and AKS"
-date:   2023-03-18 18:00:00 +0200
+date:   2023-03-30 23:00:00 +0200
 year: 2023
 categories: AKS Security
 ---
@@ -71,8 +71,6 @@ If we consider an AKS cluster, we can use daemon sets along with taints on node 
 
 If we want to install gVisor (or any binary as a matter of fact) on all the nodes of a specific node pool, we could rely on a daemonset which would deploy a pod with an elevated container. If this said container was configured to execute the installation of gVisor, then we could achieve our goal.
 
-**schema pod installing gvisor**
-
 There are a few watch points here however:
 
 - First, we need to have a pod with elevated access, in this case access to the node local storage at least, so that we could deploy sandboxed container.
@@ -91,134 +89,6 @@ Also, because it's the default system node pool, it hosts all the AKS required p
 Regarding gvisor, it can be any node pool because this is self-managed sandbox software install, so there is no underlying architecture requirement.
 Adding a node pool is not too difficult and can be done from the portal, az cli or some terraform configuration.
 
-```bash
-
-module "Nodepoolgvisor" {
-
-  for_each                              = var.TrainingConfig
-  source                                = "github.com/dfrappart/Terra-AZModuletest//Custom_Modules/IaaS_AKS_NodePool?ref=aksnpv1"
-
-  AKSSubnetId                           = azurerm_subnet.subnet[each.key].id
-  NPSuffix                              = "gvisor"
-  AKSClusterId                          = module.AKS[each.key].FullAKS.id
-  AKSNodeTaints                         = ["gvisor=true:NoSchedule"]
-
-}
-
-```
-
-```bash
-
-resource "azurerm_kubernetes_cluster_node_pool" "AKSNodePool" {
-
-    lifecycle {...}
-
-##############################################################
-# Basic configuration
-
-  name                                  = "np${var.NPSuffix}"
-  kubernetes_cluster_id                 = var.AKSClusterId
-  vm_size                               = var.AKSNodeInstanceType
-  zones                                 = var.AKSAZ
-  mode                                  = var.NPMode
-  orchestrator_version                  = var.KubeVersion
-  max_pods                              = var.AKSMaxPods
-  workload_runtime                      = var.WorkloadRuntimeType
-  message_of_the_day                    = var.MessageofTheDay 
-
-##############################################################
-# Security Parameters
-
-  custom_ca_trust_enabled               = var.IsCustomCATrustEnabled
-  enable_host_encryption                = var.EnableHostEncryption
-  fips_enabled                          = var.IsFipsEnabled
-
-##############################################################
-# Network configuration
-
-  enable_node_public_ip                 = var.EnableNodePublicIP 
-  vnet_subnet_id                        = var.AKSSubnetId
-  pod_subnet_id                         = var.PodSubnetId
-  node_network_profile {
-    node_public_ip_tags                 = var.NodePublicIpTags
-  }
-
-##############################################################
-# Autoscaling configuration
-
-  enable_auto_scaling                   = var.EnableAKSAutoScale 
-  max_count                             = var.MaxAutoScaleCount
-  min_count                             = var.MinAutoScaleCount
-  node_count                            = var.AKSNodeCount
-  scale_down_mode                       = var.ScaleDownMode
-
-##############################################################
-# OS related Configuration
-
-  os_sku                                = var.AKSNodeOSSku
-  os_type                               = var.AKSNodeOSType
-  os_disk_type                          = var.AKSNodeOSDiskType
-  os_disk_size_gb                       = var.AKSNodeOSDiskSize
-
-##############################################################
-# Nodes taints and Labels management
-
-  node_labels                           = var.AKSNodeLabels
-  node_taints                           = var.AKSNodeTaints  
-
-##############################################################
-# Node pool spot configuration
-
-  priority                              = var.AKSNPPriority
-  eviction_policy                       = var.EvictionPolicy
-  spot_max_price                        = var.SpotMaxPrice 
-
-##############################################################
-# Node pool reservation configuration  
-  
-  capacity_reservation_group_id         = var.CapacityReservationGroupId
-
-##############################################################
-# Host and prximity configuration
-
-  proximity_placement_group_id          = var.PlacementGroupId
-  host_group_id                         = var.HostGroupId 
-
-##############################################################
-# Kubelet configuration  
-
-  kubelet_disk_type                     = var.KubeletDiskType
-  kubelet_config {...}
-
-##############################################################
-# Linux OS configuration 
-
-  linux_os_config {...}
-
-##############################################################
-# Upgrade configuration
-  upgrade_settings {
-    max_surge                           = var.AKSMaxSurge
-  }
-
-##############################################################
-# Windows OS configuration 
-
-  dynamic "windows_profile" {...}
-
-
-
-##############################################################
-# Tags 
-
-  tags = merge(var.DefaultTags,var.ExtraTags,{"AKSClusterName"=split("/",var.AKSClusterId)[8]})
-
-
-
-}
-
-```
-
 For katacontainer, we do have a requirement to use a Mariner node pool.
 It's important to remember that it is currently a preview, and as such it requires to be activate in the provider with the command `az feature register` command.
 
@@ -236,7 +106,7 @@ az aks nodepool add --cluster-name <AKS_Cluster_Name> --resource-group <AKS_Reso
 
 ```
 
-Interestingly enough, while there is a `workload_runtime` parameter in the terraform provider, it currently only support `OCIContainer` or `WasmWasi`. So we are stuck with either az cli or ARM.
+Interestingly enough, while there is a `workload_runtime` parameter in the terraform provider, it currently only support `OCIContainer` or `WasmWasi`. So we are stuck with either az cli or ARM (or bicep).
 
 That's almost all on the node pool configuration. The last details are more in the kubernetes plane so we will have a look in the next part
 
@@ -246,16 +116,17 @@ first thing first, let's have a look on our nodes. With a custom columns selecti
 
 ```bash
 
-yumemaru@azure:~$ k get nodes -o custom-columns='NodeName:.metadata.name,LabelAgentPool:.metadata.labels.agentpool,NodeTaintsKey:.spec.taints[].key,NodeTaintsValue:.spec.taints[].key,NodeTaintsEffect:.spec.taints[].effect'
+yumemaru@azure$ k get nodes -o custom-columns='NodeName:.metadata.name,LabelAgentPool:.metadata.labels.agentpool,NodeTaintsKey:.spec.taints[].key,NodeTaintsValue:.spec.taints[].value,NodeTaintsEffect:.spec.taints[].effect'
 NodeName                               LabelAgentPool   NodeTaintsKey        NodeTaintsValue   NodeTaintsEffect
-aks-aksnp0sbxcon-29325118-vmss00000m   aksnp0sbxcon     CriticalAddonsOnly   true              NoSchedule
-aks-aksnp0sbxcon-29325118-vmss00000n   aksnp0sbxcon     CriticalAddonsOnly   true              NoSchedule
-aks-aksnp0sbxcon-29325118-vmss00000o   aksnp0sbxcon     CriticalAddonsOnly   true              NoSchedule
-aks-npgvisor-28185204-vmss000009       npgvisor         gvisor               true              NoSchedule
-aks-npgvisor-28185204-vmss00000a       npgvisor         gvisor               true              NoSchedule
-aks-npkata-37278511-vmss000003         npkata           KataContainer        true              NoSchedule
-aks-npkata-37278511-vmss000004         npkata           KataContainer        true              NoSchedule
-aks-npkata-37278511-vmss000005         npkata           KataContainer        true              NoSchedule
+aks-aksnp0sbxcon-29325118-vmss00000p   aksnp0sbxcon     CriticalAddonsOnly   true              NoSchedule
+aks-aksnp0sbxcon-29325118-vmss00000q   aksnp0sbxcon     CriticalAddonsOnly   true              NoSchedule
+aks-aksnp0sbxcon-29325118-vmss00000r   aksnp0sbxcon     CriticalAddonsOnly   true              NoSchedule
+aks-npgvisor-28185204-vmss00000b       npgvisor         gvisor               true              NoSchedule
+aks-npgvisor-28185204-vmss00000c       npgvisor         gvisor               true              NoSchedule
+aks-npkata-37278511-vmss000006         npkata           KataContainer        true              NoSchedule
+aks-npkata-37278511-vmss000007         npkata           KataContainer        true              NoSchedule
+aks-npkata-37278511-vmss000008         npkata           KataContainer        true              NoSchedule
+yumemaru@azure$ 
 
 ```
 
@@ -312,7 +183,9 @@ The interesting part on a scheduling point of view here is the toleration which 
 We are also using a `nodeSelector` to match the `agentpool: npgvisor` so that we are sure that the pods will only execute on this node pool.
 For the image and what it does, really, I took the information from [Daniel Neumann blog](https://www.danielstechblog.io/running-gvisor-on-azure-kubernetes-service-for-sandboxing-containers/) as mentionned earlier.
 
-With that we should see that we have as many pod as node in the node pool:
+To summarize, installing gvisor requires adding runsc on the node, and modifying containerd accordingly. The gvisor documentation details this in the [installation section](https://gvisor.dev/docs/user_guide/install/). 
+
+When the daemonset is scheduled, we should see something like that:
 
 ```bash
 yumemaru@azure$ k get daemonsets.apps gvisor -n kube-system
@@ -370,20 +243,154 @@ status: {}
 
 ```
 
-for comparison purpose, we can also add a 
+For comparison purpose, we can also add a not sandboxed pod:
 
-### 3.1 sandbox with gvisor
+```yaml
 
-get labels on node and taints
-create ds with node selector
-create  runtime class
-create pod
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: test
+  name: test
+  namespace: gvisordemo
+spec:
+  tolerations:
+  - key: gvisor
+    operator: Exists
+    effect: NoSchedule
+  containers:
+  - image: nginx
+    name: test
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+```
+
+Checking the pod kernel version gives us 2 differents versions: 
+
+```bash
+
+yumemaru@azure$ k exec -n gvisordemo test -- uname -r
+5.4.0-1103-azure
+
+yumemaru@azure$ k exec -n gvisordemo gvisortest -- uname -r
+4.4.0
+
+```
+
+Any other pod with the standard ubuntu node should have the same kernel version: 
+
+```bash
+
+yumemaru@azure$ k exec -n kube-system gvisor-nczx6 -- uname -r
+5.4.0-1103-azure
+
+```
+
+And that's it for gvisor sandbox container. Easyonce we have tackled the gvisor install, which is not so easy on AKS node.
+Let's move to katacontainer now.
+
+## 4. sanbox with katacontainer
+
+With katacontainer, it's way more managed.
+Since the Mariner nodes are already compatible with this sandbox technology, we just have to schedule a pod with the appropriate runtimclass.
+
+To be sure to get the appropriate one, we can use the following command: 
+
+```bash
+
+yumemaru@azure$ k get runtimeclasses.node.k8s.io 
+NAME                     HANDLER   AGE
+gvisor                   runsc     13s
+kata-mshv-vm-isolation   kata      11d
+runc                     runc      11d
+
+```
+
+The one that we want is `kata-mshv-vm-isolation`
+
+```yaml
+
+apiVersion: node.k8s.io/v1
+handler: kata
+kind: RuntimeClass
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"node.k8s.io/v1","handler":"kata","kind":"RuntimeClass","metadata":{"annotations":{},"labels":{"addonmanager.kubernetes.io/mode":"Reconcile","kubernetes.io/cluster-service":"true"},"name":"kata-mshv-vm-isolation"},"scheduling":{"nodeSelector":{"kubernetes.azure.com/kata-mshv-vm-isolation":"true"}}}
+  creationTimestamp: "2023-03-18T21:15:46Z"
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+    kubernetes.io/cluster-service: "true"
+  name: kata-mshv-vm-isolation
+  resourceVersion: "554541"
+  uid: a18f3303-4af5-4d6e-95f4-9e492c1c94a7
+scheduling:
+  nodeSelector:
+    kubernetes.azure.com/kata-mshv-vm-isolation: "true"
+
+```
+
+Now we can prepare a pod to use this runtime:
+
+```yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: katatest
+  name: katatest
+  namespace: katademo
+spec:
+  nodeSelector:
+    agentpool: npkata
+  runtimeClassName: kata-mshv-vm-isolation 
+  tolerations:
+  - key: KataContainer
+    operator: Exists
+    effect: NoSchedule
+  containers:
+  - image: nginx
+    name: katatest
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+```
+
+And again create another one with the default runc runtimeclass:
+
+```yaml
 
 
-### 3.2. sanbox with katacontainer
+```
 
-still get labels and taints
-get runtime class
-create pod
+If we check the kernel of those 2 pods, we can see different version for the kernel, while all other pods (on this node pool) have the same version:
 
-check kernel
+```bash
+
+yumemaru@azure$ k exec -n katademo katatest -- uname -r
+5.15.48.1-9.cm2
+yumemaru@azure$ k exec -n katademo test2 -- uname -r
+5.15.92.mshv1-hvl1.m2
+yumemaru@azure$ k exec -n katademo test3 -- uname -r
+5.15.92.mshv1-hvl1.m2
+
+```
+
+And with that we are finished.
+
+## 5. To conclude
+
+So the good news is that sandbox containers are now officially supported thanks to the katacontainer support on Mariner nodes.
+The manual install through a daemonset is still possible but not supported from an Azure plane point of view. 
+
+Note that for now, there are some limitation with sandbox container with katacontainer, notably no support for CSI drivers.
+
+That will be all for today. See you soon!
