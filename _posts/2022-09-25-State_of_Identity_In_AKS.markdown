@@ -787,10 +787,10 @@ One big advantage versus Pod Identity is the capability to be used on Kubernetes
 
 This excellent [article](https://blog.baeke.info/2022/01/31/kubernetes-workload-identity-with-aks/) from Geert Baeke explains the concepts quite deeply.
 
-In my opinion, there is still one big lack with workload identity whic is the non support for managed identities.
-This make the solution very efficient for all Kubernetes cluster except AKS which would probably be better with managed identity support ^^.
-Also currently, I've seen only Key Vault CSI Secret store refering to an implementation in tis documentation.  
-So let's be patient...
+At first, Workload Identity was available only for Service Principals, which made it a little les good than its ppredecessor which worked solely for Managed Identities.
+This has been changed an dnow it is possible to use both Service principals oor Managed Identities depending on the scenario.
+Which mean that it's perfect for workload authentication in AKS or any other Kubernetes.
+Also the adoption seems to be growing since it islately available not only on Key Vault Secret Store but also on Azure Service Operator.
 
 ## 5. to summarize
 
@@ -811,6 +811,6 @@ A few reco that I developped over the years:
   - Identify managed identity for Kubelent and add-on and configure activity log alerts
 - For workloads in Kubernetes
   - Adopt workload identity for new applications development
-  - When possible, leverage either Pod Identity or workload Identity, with a preference for the later
+  - When possible, leverage workload Identity
 
 And with that said, see you next time ^^
