@@ -22,12 +22,12 @@ That being said, let's step back a little and try to understand the need behind 
 
 If we consider microservices, there are usually interaction, even if in a loose coupled configuration, between the differents part of an application (a.k.a microservices). At some point, to have a secured application, we would like to have each service proving who it said it is, which is the process of authentication. And to have a working environment, the authenticated service should have authorizations defined.
 
-**schemaauthenticatedservices**
+![illustration1](/assets/workloadid/workloadidentityauthsvc.png)
 
 Now let's consider Azure. 
 In the Azure plane, we have a way to authenticate and authorize a service to do things in Azure, or in an Azure AD integrated Azure service with managed Identity.
 
-**managed identity shema**
+![illustration2](/assets/workloadid/workloadidentityuai.png)
 
 And it works fine. No creds to manage, so in theory no risk of finding a connection string or a secret hardcoded in the application code.
 
@@ -38,18 +38,16 @@ Well, first, we must remember that container are, by design, isolated processes,
 The first answer to this property of the container / pod which was in this case an issue was something called pod identity.
 With pod identity, we introduced in AKS a corresponding objet in the Kubernetes plane to an Azure managed identity in the Azure plane.
 
-**schema juxta managed identityazure/k8s**
+![illustration3](/assets/workloadid/workloadidentitypodid.png)
 
 A custom resource definition allowed us to  create a managed identity object in the kubernetes plane and was associated to a pod through a managed identity binding. You know, kind of the same way as for services and labels, but for identities.
 A daemonset ensured that a pod was running at all time on each node to intercept the Authentication request, and talked with another set of ppods organized in a deployement that itself was checking Azure AD for authentication, and authorization.
-
-**AADPodIdentity schema**
 
 While looking elegant in terms of Kubernetes approach (you know, because everybody does CRDs ^^), the underlying architecture was limited in many aspect, and it was not developed to a v2 version.
 
 Instead, pod identity v2 was redevelopped, and called workload identity. 
 
-## 2. Workload IDentity concepts
+## 2. Workload Identity concepts
 
 Now that the little history is reminded, let's focus on how workload identity works.
 A better explanation should be to look at the scope of workload identity.
@@ -69,4 +67,4 @@ The beauty of it?
 No need to share a secret or a certificate for external system & application registration scenario.
 And definitely not for Managed identity, as it should be.
 
-**schema federated worklod identity**
+![illustration5](/assets/workloadid/workloadidentityfederation.png)
