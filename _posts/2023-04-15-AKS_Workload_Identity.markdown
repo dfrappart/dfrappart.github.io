@@ -41,9 +41,9 @@ With pod identity, we introduced in AKS a corresponding objet in the Kubernetes 
 ![illustration3](/assets/workloadid/workloadidentitypodid.png)
 
 A custom resource definition allowed us to  create a managed identity object in the kubernetes plane and was associated to a pod through a managed identity binding. You know, kind of the same way as for services and labels, but for identities.
-A daemonset ensured that a pod was running at all time on each node to intercept the Authentication request, and talked with another set of ppods organized in a deployement that itself was checking Azure AD for authentication, and authorization.
+A daemonset ensured that a pod was running at all time on each node to intercept the Authentication request, and talked with another set of pods organized in a deployement that itself was checking Azure AD for authentication, and authorization.
 
-While looking elegant in terms of Kubernetes approach (you know, because everybody does CRDs ^^), the underlying architecture was limited in many aspect, and it was not developed to a v2 version.
+While looking elegant in terms of Kubernetes approach (you know, because everybody does CRDs ^^), the underlying architecture was limited in many aspects, and it was not developed to a v2 version.
 
 Instead, pod identity v2 was redevelopped, and called workload identity. 
 
@@ -59,12 +59,28 @@ It describes the different kind of eligible principals in Azure AD that can be u
 - Application registrations
 
 And also the concept of workload identity federation. 
+
 That's right, this is really about federating and Identity provider and Azure AD through either an application registration or a managed identity.
 Obviously managed identities only work in an Azure context, and non-Azure environment must relies on Application registration.
 But here's the interesting part.
 By establishing a workload identity federation, we configure the Azure AD security principals to trust token issued from an external IdP.
 The beauty of it? 
 No need to share a secret or a certificate for external system & application registration scenario.
-And definitely not for Managed identity, as it should be.
+As described roughmly on the schema below, an application, called a workload in this case, check with a local idp to get a token.
+This token is known only from the local idp though, and the workload then send this token to the little part of AAD that is federated which is the secrity principal, an app reg or a managed identity. However, since this identity is federated with the local idp, it checks this local idp for verification of the token. 
+If said token is true, then we can move on the authorization part, in which we rely on the role assignment associated to the AAD security principal. That means the security principal in AAD should have the corresponding authorization of the said workload. If not, when sending back the request access token to the workload, it wouldn't grant any permissions. The nice part in that as anyone can see is the granularity of this federation, scope on one security principal only.
 
 ![illustration5](/assets/workloadid/workloadidentityfederation.png)
+
+That's it for the concepts onf workload identity. Now let's translate that in an AKS (and really a kubernetes) point of view.
+
+## 3. Implementing Workload Identity in AKS
+
+If we take the previous schema in a Kubernetes context, we roughly get this:
+
+![illustration6](/assets/workloadid/workloadidentityfederationk8s.png)
+
+Kubernetes comes with an OIDC url since version `1.20`. Which means that kubetnetes is the de-facto oidc provider acting kind of like the we are refering to in our schema.
+Then we have the workload in itself, which is composed of a pod (or rather pods in any kind of desired controller, beut let's keep it simple for now ^^) and a service account associated to this pod.
+The service account is the part that get the token and that will allow the request token in Azure AD to be used for access required by the pod.
+On the overview, it's way more simple (and way more elegant, even for CRDs lovers) than the previous pod identity. Indeed, only basic kubernetes objects are required.
