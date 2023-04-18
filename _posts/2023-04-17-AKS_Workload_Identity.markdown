@@ -295,7 +295,7 @@ spec:
 ```
 
 There's not much in terms of configuration change. Instead of using a `useVMManagedIdentity` and `userAssignedIdentityID`, we specify a `clientID` in which we specify the Managed Identity with federated credential. And that's about all on the Secret store side.
-Remember, we talk about a service account when we created the fedrated credential. That's why we need to define a service account.
+Remember, we talked about a service account when we created the federated credential. That's why we need to define a service account.
 
 ```yaml
 
@@ -311,10 +311,10 @@ metadata:
 
 ```
 
-The name of our namespace **must** be the same defined in the ferated credential. We can check our identity and the federated credential as follow.
+The name of our namespace **must** be the same defined in the federated credential. We can check our identity and the federated credential as follow.
 In this sample, the namespace is `nsworkloadidentitydemo` and the service account is `saworkloadidentitydemo`.
 Note the label `azure.workload.identity/use: "true"` which validate that the service account is used for worklad identity.
-Additional annotations and labels information are available on the github doc
+Additional annotations and labels information are available on the [github doc](https://azure.github.io/azure-workload-identity/docs/topics/service-account-labels-and-annotations.html)
 
 
 
@@ -464,7 +464,7 @@ yumemaru@azure$ k get pod -n nsworkloadidentitydemo deployment-kvcsiaks7w2k-64b7
 
 ```
 
-The secret defined in the secret store is available on the pods, with a grnaular access granted with the managed identity on the Azure side and the service account on the kubernetes side:
+The secret defined in the secret store is available on the pods, with a granular access granted with the managed identity on the Azure side and the service account on the kubernetes side:
 
 ```bash
 
