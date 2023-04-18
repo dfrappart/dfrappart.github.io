@@ -17,7 +17,7 @@ The agenda:
 
 ## 1. Before Workload Identity
 
-So, workload Identity have been around for quite some time now, but is still currently in preview. It was planned to go on GA in early april, but was finally pushed away to later in the month.
+So, workload Identity have been around for quite some time now, but is still currently in preview. It was planned to go on GA in early april, but was finally pushed away to later in the month (and it may be GA when I'll publish this ^^).
 That being said, let's step back a little and try to understand the need behind the solution.
 
 If we consider microservices, there are usually interaction, even if in a loose coupled configuration, between the differents part of an application (a.k.a microservices). At some point, to have a secured application, we would like to have each service proving who it said it is, which is the process of authentication. And to have a working environment, the authenticated service should have authorizations defined.
@@ -60,19 +60,19 @@ It describes the different kind of eligible principals in Azure AD that can be u
 
 And also the concept of workload identity federation. 
 
-That's right, this is really about federating and Identity provider and Azure AD through either an application registration or a managed identity.
+That's right, this is really about federating an Identity provider and Azure AD through either an application registration or a managed identity.
 Obviously managed identities only work in an Azure context, and non-Azure environment must relies on Application registration.
 But here's the interesting part.
 By establishing a workload identity federation, we configure the Azure AD security principals to trust token issued from an external IdP.
 The beauty of it? 
 No need to share a secret or a certificate for external system & application registration scenario.
-As described roughmly on the schema below, an application, called a workload in this case, check with a local idp to get a token.
-This token is known only from the local idp though, and the workload then send this token to the little part of AAD that is federated which is the secrity principal, an app reg or a managed identity. However, since this identity is federated with the local idp, it checks this local idp for verification of the token. 
-If said token is true, then we can move on the authorization part, in which we rely on the role assignment associated to the AAD security principal. That means the security principal in AAD should have the corresponding authorization of the said workload. If not, when sending back the request access token to the workload, it wouldn't grant any permissions. The nice part in that as anyone can see is the granularity of this federation, scope on one security principal only.
+As described roughly on the schema below, an application, called a workload in this case, check with a local idp to get a token.
+This token is known only from the local idp though, and the workload then send this token to the little part of AAD that is federated which is the security principal, an app reg or a managed identity. However, since this identity is federated with the local idp, it checks this local idp for verification of the token. 
+If said token is true, then we can move on the authorization part, in which we rely on the role assignment associated to the AAD security principal. That means the security principal in AAD should have the corresponding authorization of the said workload. If not, when sending back the request access token to the workload, it wouldn't grant any permissions. The nice part is the granularity of this federation, scope on one security principal only.
 
 ![illustration5](/assets/workloadid/workloadidentityfederation.png)
 
-That's it for the concepts onf workload identity. Now let's translate that in an AKS (and really a kubernetes) point of view.
+That's it for the concepts on workload identity. Now let's translate that in an AKS (and really a kubernetes) point of view.
 
 ## 3. Workload Identity in AKS
 
@@ -83,7 +83,7 @@ If we take the previous schema in a Kubernetes context, we roughly get this:
 ![illustration6](/assets/workloadid/workloadidentityfederationk8s.png)
 
 Kubernetes comes with an OIDC url since version `1.20`. Which means that kubetnetes is the de-facto oidc provider acting kind of like the we are refering to in our schema.
-Then we have the workload in itself, which is composed of a pod (or rather pods in any kind of desired controller, beut let's keep it simple for now ^^) and a service account associated to this pod.
+Then we have the workload in itself, which is composed of a pod (or rather pods in any kind of desired controller, but let's keep it simple for now ^^) and a service account associated to this pod.
 The service account is the part that get the token and that will allow the request token in Azure AD to be used for access required by the pod.
 On the overview, it's way more simple (and way more elegant, even for CRDs lovers) than the previous pod identity. Indeed, only basic kubernetes objects are required.
 
@@ -139,7 +139,7 @@ resource "azurerm_federated_identity_credential" "UaiCsiFederated" {
 It's not that difficult to create an Identity as shown in the sample above. The federated credential for the identity however requires a bit of planning.
 As per [Microsoft Entra Workload Identities documentation](https://learn.microsoft.com/en-us/azure/active-directory/workload-identities/workload-identity-federation-create-trust?pivots=identity-wif-apps-methods-azp), the `issuer` and `subject` are the informations that establish the relationship with the external provider.
 
-In AKS case (or other kubernetes cluster as a matter of fact), the oidc issuer url is the issuer value, since it represents the external identity provider, while the subjet is a kubernetes service account, referenced with the namespace in which it is located `system:serviceaccount:<service_account_namespace>:<service_account_name>`
+In AKS case (or other kubernetes cluster for that matter), the oidc issuer url is the issuer value, since it represents the external identity provider, while the subject is a kubernetes service account, referenced with the namespace in which it is located `system:serviceaccount:<service_account_namespace>:<service_account_name>`
 
 ```bash
 
@@ -152,8 +152,8 @@ yumemaru@azure$ az aks list | jq .[].oidcIssuerProfile
 
 ```
 
-The `audience` recomended value is `api://AzureADTokenExchange`. One would note that whil refereneced as `audience`, we have a list defined as the value in our sample. Again the Entra documentation gives highligh, since it reference not `audience` but `audiences` and define it as the list of audiences that can appear in the external token.
-In our sample, because it comes from the terrafomr provider, we also have `parent_id` which match the Azure AD principal on which the federated credentials are established.
+The `audience` recomended value is `api://AzureADTokenExchange`. One would note that while referenced as `audience`, we have a list defined as the value in our sample. Again the Entra documentation gives highligh, since it reference not `audience` but `audiences` and define it as the list of audiences that can appear in the external token.
+In our sample, because it comes from the terraform provider, we also have `parent_id` which match the Azure AD principal on which the federated credentials are established.
 
 
 Now there are other things under the hood that makes everything works. Checking at the cluster, we can see that there is a deployment refering to workload identity in the `kube-system` namespace:
@@ -263,7 +263,7 @@ And now we can try this out.
 To get a pragmatic understanding of workload identity, we will try it out on the Azure Key Vault CSI Secret provider.
 
 There's a reason for that. First, using the secret provider, we can avoid using kubernetes secret and mount in the workload the secret directly as CSI volume.
-Second, the secret provider is quite easy to use and does not require us to use samples of authenticating library. Useful when you're on the infra side rther than the dev side.
+Second, the secret provider is quite easy to use and does not require us to use samples of authenticating library. Useful when you're on the infra side rather than the dev side.
 
 As a reminder, the Key Vault CSI provider is available as an AKS add-on, which ease really the installation. By default however, it deploys a managed identity which is associated to the cluster and is not as granular as we would like, hence the use of workload identity instead of the simple managed identity.
 
@@ -313,7 +313,7 @@ metadata:
 
 The name of our namespace **must** be the same defined in the ferated credential. We can check our identity and the federated credential as follow.
 In this sample, the namespace is `nsworkloadidentitydemo` and the service account is `saworkloadidentitydemo`.
-Noyte the label `azure.workload.identity/use: "true"` which validate that the service account is used for worklad identity.
+Note the label `azure.workload.identity/use: "true"` which validate that the service account is used for worklad identity.
 Additional annotations and labels information are available on the github doc
 
 
@@ -464,7 +464,7 @@ yumemaru@azure$ k get pod -n nsworkloadidentitydemo deployment-kvcsiaks7w2k-64b7
 
 ```
 
-The secret defined in the secret store is availabl eon the pods, with a grnaular access granted with the managed identity on the Azure side and the service account on the kubernetes side:
+The secret defined in the secret store is available on the pods, with a grnaular access granted with the managed identity on the Azure side and the service account on the kubernetes side:
 
 ```bash
 
@@ -479,5 +479,5 @@ Thisisasecretdemo
 ## To conclude
 
 Following the pod identity v1 project, Workload Identity is going further in the capabilitiy of being granular on the pod authorization.
-The configuration on the kubernetes side is more classical with only the use of service account, while hte configuration on the Azure side takes 2 steps, the managed identity (or app registration) and the federated credential.
+The configuration on the kubernetes side is more classical with only the use of service account, while the configuration on the Azure side takes 2 steps, the managed identity (or app registration) and the federated credential.
 Because it's finally an Azure AD feature, all the Azure AD security is available with conditional access or access review which allows again more control, not only on the kubernetes / Azure side but definitely on the Azure AD Idp side.
