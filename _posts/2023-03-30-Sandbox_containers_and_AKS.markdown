@@ -368,6 +368,27 @@ And again create another one with the default runc runtimeclass:
 
 ```yaml
 
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: katatest
+  name: test2
+  namespace: katademo
+spec:
+  nodeSelector:
+    agentpool: npkata
+  tolerations:
+  - key: KataContainer
+    operator: Exists
+    effect: NoSchedule
+  containers:
+  - image: nginx
+    name: katatest
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
 
 ```
 
