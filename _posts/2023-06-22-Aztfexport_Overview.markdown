@@ -200,7 +200,9 @@ And this one when the initialization is completed:
 
 We have the possibility to scroll on each resource listed and use the options displayed on the bottom of the screen. Using the `r` option, we can see that the proposed resource is in this case an `azurerm_dns_zone`
 
-```bash   Microsoft Azure Export for Terraform 
+```bash   
+
+Microsoft Azure Export for Terraform 
   
      rg-dns   Possible resource type(s): azurerm_dns_zone                                                                                   
                                                                                                                                             
@@ -208,8 +210,6 @@ We have the possibility to scroll on each resource listed and use the options di
                                                                                     
   │ 💡/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/rg-dns/providers/Microsoft.Network/dnsZones/aks.teknews.cloud      
   │ azurerm_dns_zone.res-1
-
-
 
 ```
 
