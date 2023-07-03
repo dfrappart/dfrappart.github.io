@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Aztfexport - A tool to export existing Azure resource to terraform configuration"
+title:  "Aztfexport - A tool to export existing Azure resources to terraform configuration"
 date:   2023-06-22 18:00:00 +0200
 year: 2023
 categories: Azure Terraform
