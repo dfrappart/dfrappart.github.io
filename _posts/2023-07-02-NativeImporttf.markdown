@@ -141,7 +141,7 @@ A word of caution here, be sure that the case is as expected by terraform. Somet
 
 At this point we have prepared the resources to be imported. We want to generate the configuration, so wewill use the argument `-generate-config-out` with `terraform plan`
 
-``bash
+```bash
 
 yumemaru@azure$ terraform plan -generate-config-out=generatedresources.tf
 azurerm_dns_zone.AKSTeknews: Preparing import... [id=/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-dns/providers/Microsoft.Network/dnsZones/aks.teknews.cloud]
