@@ -70,8 +70,8 @@
     },
     {
       "type": "text",
-      "version": 357,
-      "versionNonce": 449235386,
+      "version": 358,
+      "versionNonce": 1394801310,
       "isDeleted": false,
       "id": "grXA5L3x_lo3-57I5sRma",
       "fillStyle": "hachure",
@@ -90,7 +90,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108021,
+      "updated": 1688120993938,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -101,7 +101,7 @@
       "containerId": "4RztHa0Qj_Iw27jTbybaS",
       "originalText": "Identify created resource in Azure and get resource id",
       "lineHeight": 1.25,
-      "baseline": 67
+      "baseline": 68
     },
     {
       "type": "rectangle",
@@ -138,8 +138,8 @@
     },
     {
       "type": "text",
-      "version": 482,
-      "versionNonce": 1898923750,
+      "version": 483,
+      "versionNonce": 546702914,
       "isDeleted": false,
       "id": "4vFZhld8CVrziaXJ0qzEO",
       "fillStyle": "hachure",
@@ -158,7 +158,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108022,
+      "updated": 1688120993939,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -169,7 +169,7 @@
       "containerId": "YPf6tPstcFvko5aTujGtF",
       "originalText": "Write resource block in terraform config corresponding to existing resources",
       "lineHeight": 1.25,
-      "baseline": 92
+      "baseline": 93
     },
     {
       "type": "rectangle",
@@ -218,8 +218,8 @@
     },
     {
       "type": "text",
-      "version": 507,
-      "versionNonce": 1903788666,
+      "version": 508,
+      "versionNonce": 1617295070,
       "isDeleted": false,
       "id": "bgmowdUUTlspBgMucaaD6",
       "fillStyle": "hachure",
@@ -238,7 +238,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108022,
+      "updated": 1688120993939,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -249,7 +249,7 @@
       "containerId": "w2S4NYN-34-j_MqPqVlKt",
       "originalText": "Run terraform plan",
       "lineHeight": 1.25,
-      "baseline": 17
+      "baseline": 18
     },
     {
       "type": "rectangle",
@@ -298,8 +298,8 @@
     },
     {
       "type": "text",
-      "version": 664,
-      "versionNonce": 514947622,
+      "version": 665,
+      "versionNonce": 977268226,
       "isDeleted": false,
       "id": "MR-q4WqoDRffzpCujgMJU",
       "fillStyle": "hachure",
@@ -318,7 +318,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108023,
+      "updated": 1688120993939,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -329,7 +329,7 @@
       "containerId": "twwhjXC8m-wpH4LrlSKyK",
       "originalText": "Change detected?",
       "lineHeight": 1.25,
-      "baseline": 17
+      "baseline": 18
     },
     {
       "type": "arrow",
@@ -487,8 +487,8 @@
     },
     {
       "type": "text",
-      "version": 7,
-      "versionNonce": 2060919610,
+      "version": 8,
+      "versionNonce": 2088725278,
       "isDeleted": false,
       "id": "X4d-93f1tAnKA8OldBU3r",
       "fillStyle": "hachure",
@@ -507,7 +507,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108024,
+      "updated": 1688120993940,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -518,7 +518,7 @@
       "containerId": "dc_o8ckvK5gAbO_WMs_J0",
       "originalText": "No",
       "lineHeight": 1.25,
-      "baseline": 17
+      "baseline": 18
     },
     {
       "type": "rectangle",
@@ -559,8 +559,8 @@
     },
     {
       "type": "text",
-      "version": 664,
-      "versionNonce": 470500710,
+      "version": 665,
+      "versionNonce": 500620738,
       "isDeleted": false,
       "id": "wQISwkEsK8WrRQF5pTDnM",
       "fillStyle": "hachure",
@@ -579,7 +579,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108024,
+      "updated": 1688120993940,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -590,7 +590,7 @@
       "containerId": "w6dwh-hhWZciZ7a3t16QP",
       "originalText": "Apply configuration",
       "lineHeight": 1.25,
-      "baseline": 17
+      "baseline": 18
     },
     {
       "type": "rectangle",
@@ -635,8 +635,8 @@
     },
     {
       "type": "text",
-      "version": 676,
-      "versionNonce": 1900194810,
+      "version": 677,
+      "versionNonce": 1977636702,
       "isDeleted": false,
       "id": "aXgX0mGYOMWCkDAU87k8e",
       "fillStyle": "hachure",
@@ -655,7 +655,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108024,
+      "updated": 1688120993940,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -666,7 +666,7 @@
       "containerId": "vVayFsOEWPB4uBwslX-0L",
       "originalText": "Add configuration",
       "lineHeight": 1.25,
-      "baseline": 17
+      "baseline": 18
     },
     {
       "type": "arrow",
@@ -730,8 +730,8 @@
     },
     {
       "type": "text",
-      "version": 7,
-      "versionNonce": 982100134,
+      "version": 8,
+      "versionNonce": 410637698,
       "isDeleted": false,
       "id": "dL1QylgqiMMsNbYkpyAZe",
       "fillStyle": "hachure",
@@ -750,7 +750,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108025,
+      "updated": 1688120993940,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -761,7 +761,7 @@
       "containerId": "FoJU_8Wt7fzkfeIxG_6yR",
       "originalText": "Yes",
       "lineHeight": 1.25,
-      "baseline": 17
+      "baseline": 18
     },
     {
       "type": "arrow",
@@ -853,8 +853,8 @@
     },
     {
       "type": "text",
-      "version": 228,
-      "versionNonce": 1254038714,
+      "version": 229,
+      "versionNonce": 618249118,
       "isDeleted": false,
       "id": "TSX-TtJtYRl-0J58mTg8x",
       "fillStyle": "hachure",
@@ -873,7 +873,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108025,
+      "updated": 1688120993941,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -884,7 +884,7 @@
       "containerId": "tYzm3K9JdMm-EJ-D2dJ1d",
       "originalText": "Importing resource",
       "lineHeight": 1.25,
-      "baseline": 42
+      "baseline": 43
     },
     {
       "type": "rectangle",
@@ -925,8 +925,8 @@
     },
     {
       "type": "text",
-      "version": 798,
-      "versionNonce": 433693670,
+      "version": 799,
+      "versionNonce": 2070402370,
       "isDeleted": false,
       "id": "xOtRQJJLrUUrJDVhDRjXZ",
       "fillStyle": "hachure",
@@ -945,7 +945,7 @@
       "groupIds": [],
       "roundness": null,
       "boundElements": [],
-      "updated": 1687328108025,
+      "updated": 1688120993941,
       "link": null,
       "locked": false,
       "fontSize": 20,
@@ -956,7 +956,7 @@
       "containerId": "VYXp9Q-8MiODAW9eNy6UO",
       "originalText": "Import resource in state",
       "lineHeight": 1.25,
-      "baseline": 42
+      "baseline": 43
     },
     {
       "type": "arrow",
