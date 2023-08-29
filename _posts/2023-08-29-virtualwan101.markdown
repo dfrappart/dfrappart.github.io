@@ -1,0 +1,719 @@
+---
+layout: post
+title:  "Azure Virtual WAN 101"
+date:   2023-08-29 18:00:00 +0200
+year: 2023
+categories: Azure Network
+---
+
+Hi everyone!
+
+Lately, I've been  working with Azure Virtual WAN and I thought that going back on its concepts and why we should use it versus the standard Hub & Spoke with Virtual Network only was a good topic of discussion.
+
+There are a lot of things to consider with Virtual WAN, so there's a chance that It will be a serie rather than a standalone article :grin:.
+
+In this article, as, the title imply, we are just getting started so we will have a look at: 
+
+- Discovering Azure Virtual WAN
+- Deploying a basic Hub and Spokes topology with Virtual WAN
+- Comparing a Hub & Spoke vith Virtual WAN and the standard Hub & Spoke with VNet only
+
+
+And that's already quite some stuffs to see so It will all :laughing:
+
+1. Discovering Azure Virtual WAN
+
+So, behind the name Virtual WAN, what Microsoft is proposing is actually a network service that regroups a lot of things, including: 
+
+- Interconnectivity with remote (meaning not in Azure) sites, using either S2S VPN or ExpressRoute, but also with some partner SD-WAN solution
+- obvioulsy, Hub & spoke connectivity (and we'll have a look at that in this article) inside Azure regions
+- Routing management
+- Firewalling options
+
+The service is evolving constantly and new features can be added over time. There's actually an [RSS feed](https://azure.microsoft.com/updates/?category=networking&query=Virtual%20WAN) that can be used, or the [what's new?](https://learn.microsoft.com/en-us/azure/virtual-wan/whats-new) page in the Azure Documentation.
+
+
+To get started, we need to create a Virtual WAN. Looking at the [az cli documentation](https://learn.microsoft.com/en-us/cli/azure/network/vwan?view=azure-cli-latest#az-network-vwan-create), or the terraform [AzureRM provider](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/virtual_wan), we can see that we don't need much in terms of parameters. 
+
+| Required parameters | Optional parameters |
+|-|-|
+| Name, <br/> Resource Group Name| Location, <br/> Type, <br/> VPN encryption, <br/>Office 365 local breakout category, <br/> Security Provider name, <br/> Branch to branch traffic, <br/> Tags| 
+
+```bash
+
+az network vwan create --name
+                       --resource-group
+                       [--branch-to-branch-traffic {false, true}]
+                       [--disable-vpn-encryption {false, true}]
+                       [--location]
+                       [--office365-category]
+                       [--security-provider-name]
+                       [--tags]
+                       [--type {Basic, Standard}]
+
+```
+
+![illustration1](/assets/vwan/vwan001.png)
+
+Apart from the required parameter, the `location` also should be specified to deploy in the targeted region. In az cli, if not specified, the location default to the resource group's one.<br/>
+The parameter for the `type` allows to choose the sku, which is either `Basic` or `Standard`.<br/>
+The difference is quite relevant between the 2 skus. With Basic, the sole available connectivity option is S2S VPN. <br/>
+Also, the Firewall options are not available in the basic tier. <br/>.
+Without specification, the Virtual WAN is of type `Standard`
+
+Regarding the routing management, this feature is only available with the addition of a virtual hub in the virtual WAN.
+
+Last, while there is a parameter for the security provider in the az cli command, there is no equivalent in the terraform provider. Now about what this parameter, there is not that much information about it, except reference to the available security partner for the virtual hub. For now, we'll just ignore it and come to this later.
+
+Let's create a Virtual WAN now.
+
+```bash
+
+yumemaru@azure:~$ az group create -n rg-vwan -l eastus 
+{
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan",
+  "location": "eastus",
+  "managedBy": null,
+  "name": "rg-vwan",
+  "properties": {
+    "provisioningState": "Succeeded"
+  },
+  "tags": null,
+  "type": "Microsoft.Resources/resourceGroups"
+}
+                 
+yumemaru@azure:~$ az network vwan create -n vwan01 -g rg-vwan -l eastus --type Standard 
+{
+  "allowBranchToBranchTraffic": true,
+  "allowVnetToVnetTraffic": null,
+  "disableVpnEncryption": false,
+  "etag": "W/\"b777db56-4f32-4f00-94fd-f6fec4d9fbd6\"",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualWans/vwan01",
+  "location": "eastus",
+  "name": "vwan01",
+  "office365LocalBreakoutCategory": "None",
+  "provisioningState": "Succeeded",
+  "resourceGroup": "rg-vwan",
+  "tags": null,
+  "type": "Microsoft.Network/virtualWans",
+  "typePropertiesType": "Standard",
+  "virtualHubs": null,
+  "vpnSites": null
+}
+
+```
+After provisioning is completed, we get something similar to the screen below:
+
+![illustration2](/assets/vwan/vwan002.png)
+
+At this point, we have an empty Virtual WAN. To have a look at the routing, we will need a virtual hub. So let's have a look at this.
+
+To deploy a virtual hub, by refering to the az cli documentation, we can quickly identify the required parameters for the virtual hub. On this topic, while the az cli seems to indicate that we need only a name and a resource group, doing so will result in an error. 
+
+```bash
+
+az network vhub create --name
+                       --resource-group
+                       [--address-prefix]
+                       [--allow-b2b-traffic {0, 1, f, false, n, no, t, true, y, yes}]
+                       [--asn]
+                       [--auto-scale-config]
+                       [--hub-routing-preference {ASPath, ExpressRoute, VpnGateway}]
+                       [--location]
+                       [--no-wait {0, 1, f, false, n, no, t, true, y, yes}]
+                       [--sku]
+                       [--tags]
+                       [--vwan]
+
+```
+
+```bash
+
+yumemaru@azure:~$ az network vhub create -n vwan01-vhub01 -g rg-vwan
+(RouteServerShouldBeStandard) Route Server vwan01-vhub01 should be of Standard SKU.
+Code: RouteServerShouldBeStandard
+Message: Route Server vwan01-vhub01 should be of Standard SKU.
+
+
+```
+
+Referencing the target Virtual WAN and the address prefix which seem to be additional required parameters.
+
+```bash
+
+yumemaru@azure:~$ az network vhub create -n vwan01-vhub01 -g rg-vwan --address-prefix 172.31.254.0/23 --vwan vwan01
+{
+  "addressPrefix": "172.31.254.0/23",
+  "allowBranchToBranchTraffic": false,
+  "etag": "W/\"90ba7149-6ad1-4d1b-93aa-b3d0a836a778\"",
+  "hubRoutingPreference": "ExpressRoute",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01",
+  "location": "eastus",
+  "name": "vwan01-vhub01",
+  "provisioningState": "Succeeded",
+  "resourceGroup": "rg-vwan",
+  "routeTable": {
+    "routes": []
+  },
+  "routingState": "Provisioning",
+  "type": "Microsoft.Network/virtualHubs",
+  "virtualHubRouteTableV2s": [],
+  "virtualRouterAsn": 65515,
+  "virtualRouterAutoScaleConfiguration": {
+    "minCapacity": 2
+  },
+  "virtualRouterIps": [],
+  "virtualWan": {
+    "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualWans/vwan01",
+    "resourceGroup": "rg-vwan"
+  }
+}
+
+```
+
+It may be interesting to note that the location is not a required parameter. It will default to the Virtual WAN region if not specified.
+
+Another interesting point is visible in the output: 
+
+```json
+
+yumemaru@azure:~$ az network vhub list | jq '.[0].routingState, .[0].virtualRouterIps'
+"Provisioning"
+[]
+
+
+```
+
+While the cli (or the portal for that matter) indicate the provisoning completed, there is still a provisioning running under the hood for the routing related resources.
+This resource is an Azure Route server, managed inside the virtual hub. That takes some time to be deployed and we need to wait for it before playing with the route.
+
+![illustration3](/assets/vwan/vwan003.png)
+
+After a while, we should see the IPs for the route server.
+
+```json
+
+yumemaru@azure:~$ az network vhub list | jq '.[0].routingState, .[0].virtualRouterIps'
+"Provisioned"
+[
+  "172.31.254.69",
+  "172.31.254.68"
+]
+
+
+```
+Before plying a little more with the Hub & Spoke and the routing options, let's have a look at the resource in the terraform provider: 
+
+![illustration4](/assets/vwan/vwan004.png)
+
+While what we identified as the required arguments seems to correspond, we can see that there are also other parameters that are not available either on the terraform provider or the az cli
+
+| Arguments in the az cli only | Arguments in terraform only |
+|-|-|
+| `--allow-b2b-traffic` | `route` |
+
+Again, as for the security provider argument, we'll come to that later. For now, let's move forward and look at a hub and spokes topology and some basic routing.
+
+2. Deploying a basic Hub and Spokes topology with Virtual WAN
+
+As we discussed in introduction, one aim of Virtual WAN is to propose another way of doing Hub & Spokes. As could be expected, the virtual network playing the role of Hub is replaced by the virtual hub.
+As opposite to the Virtual Network, because it's more *managed*, we don't have a lot of thing to do on the virtual hub, apart from selecting the ip range.
+On the other hand, there is not as much leeway to put things in this managed hub, while any IaaS available appliance could be deployed in a virtual network.
+On the other hand, the Virtual WAN is designed with the scalability in mind and it's quite easy to add another Virtual Hub in the Virtual WAN, in another region. By design the hubs are automatically connected.
+
+Let's add another virtual hb for the purpose of illustration: 
+
+```bash
+
+yumemaru@azure:~$ az network vhub create -n vwan01-vhub02 -g rg-vwan --address-prefix 172.31.252.0/23 --vwan vwan01 --location westeurope
+{
+  "addressPrefix": "172.31.252.0/23",
+  "allowBranchToBranchTraffic": false,
+  "etag": "W/\"e0c0f3b2-511f-404c-ad7f-4dd9023c46fc\"",
+  "hubRoutingPreference": "ExpressRoute",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02",
+  "location": "westeurope",
+  "name": "vwan01-vhub02",
+  "provisioningState": "Succeeded",
+  "resourceGroup": "rg-vwan",
+  "routeTable": {
+    "routes": []
+  },
+  "routingState": "Provisioned",
+  "type": "Microsoft.Network/virtualHubs",
+  "virtualHubRouteTableV2s": [],
+  "virtualRouterAsn": 65515,
+  "virtualRouterAutoScaleConfiguration": {
+    "minCapacity": 2
+  },
+  "virtualRouterIps": [
+    "172.31.252.68",
+    "172.31.252.69"
+  ],
+  "virtualWan": {
+    "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualWans/vwan01",
+    "resourceGroup": "rg-vwan"
+  }
+}
+
+```
+
+You may notice that for both virtual hub, we took a /23 CIDR. The minimum recommanded CIDR is /24. IPs are consummed for the router, and potential security appliance that may be deployed in the virtual hub.
+
+![illustration5](/assets/vwan/vwan005.png)
+
+There is a view for the topology inthe portal. For now, we can only see our 2 virtual hub.
+
+![illustration6](/assets/vwan/vwan006.png)
+
+Let's add some actual spokes now. 
+
+```bash
+
+yumemaru@azure:~$ az network vnet create -n spoke01 -g rg-vwan --address-prefixes 172.16.0.0/24 --subnet-name subnet1 --subnet-prefixes 172.16.0.0/26
+{
+  "newVNet": {
+    "addressSpace": {
+      "addressPrefixes": [
+        "172.16.0.0/24"
+      ]
+    },
+    "enableDdosProtection": false,
+    "etag": "W/\"17590751-0a05-4cd0-aec4-d981d543bc68\"",
+    "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke01",
+    "location": "eastus",
+    "name": "spoke01",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "rg-vwan",
+    "resourceGuid": "16133ce5-cb16-4934-aff8-a1cee3754a6d",
+    "subnets": [
+      {
+        "addressPrefix": "172.16.0.0/26",
+        "delegations": [],
+        "etag": "W/\"17590751-0a05-4cd0-aec4-d981d543bc68\"",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke01/subnets/subnet1",
+        "name": "subnet1",
+        "privateEndpointNetworkPolicies": "Disabled",
+        "privateLinkServiceNetworkPolicies": "Enabled",
+        "provisioningState": "Succeeded",
+        "resourceGroup": "rg-vwan",
+        "type": "Microsoft.Network/virtualNetworks/subnets"
+      }
+    ],
+    "type": "Microsoft.Network/virtualNetworks",
+    "virtualNetworkPeerings": []
+  }
+}
+
+yumemaru@azure:~$ az network vnet create -n spoke02 -g rg-vwan --address-prefixes 172.16.1.0/24 --subnet-name subnet1 --subnet-prefixes 172.16.1.0/26
+{
+  "newVNet": {
+    "addressSpace": {
+      "addressPrefixes": [
+        "172.16.1.0/24"
+      ]
+    },
+    "enableDdosProtection": false,
+    "etag": "W/\"39b6284c-1fa3-4d27-a753-591643fc8991\"",
+    "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke02",
+    "location": "eastus",
+    "name": "spoke02",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "rg-vwan",
+    "resourceGuid": "916766f1-1b36-4dbb-9394-b9059e6c4da2",
+    "subnets": [
+      {
+        "addressPrefix": "172.16.1.0/26",
+        "delegations": [],
+        "etag": "W/\"39b6284c-1fa3-4d27-a753-591643fc8991\"",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke02/subnets/subnet1",
+        "name": "subnet1",
+        "privateEndpointNetworkPolicies": "Disabled",
+        "privateLinkServiceNetworkPolicies": "Enabled",
+        "provisioningState": "Succeeded",
+        "resourceGroup": "rg-vwan",
+        "type": "Microsoft.Network/virtualNetworks/subnets"
+      }
+    ],
+    "type": "Microsoft.Network/virtualNetworks",
+    "virtualNetworkPeerings": []
+  }
+}
+
+
+yumemaru@azure:~$ az network vnet create -n spoke03 -g rg-vwan --address-prefixes 172.16.2.0/24 --subnet-name subnet1 --subnet-prefixes 172.16.2.0/26 -l westeurope
+{
+  "newVNet": {
+    "addressSpace": {
+      "addressPrefixes": [
+        "172.16.2.0/24"
+      ]
+    },
+    "enableDdosProtection": false,
+    "etag": "W/\"8d4c268d-cb82-4fb5-a943-a75acdebfc38\"",
+    "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke03",
+    "location": "westeurope",
+    "name": "spoke03",
+    "provisioningState": "Succeeded",
+    "resourceGroup": "rg-vwan",
+    "resourceGuid": "bd83ffc5-0f98-4631-aa9c-c717fd81f2b0",
+    "subnets": [
+      {
+        "addressPrefix": "172.16.2.0/26",
+        "delegations": [],
+        "etag": "W/\"8d4c268d-cb82-4fb5-a943-a75acdebfc38\"",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke03/subnets/subnet1",
+        "name": "subnet1",
+        "privateEndpointNetworkPolicies": "Disabled",
+        "privateLinkServiceNetworkPolicies": "Enabled",
+        "provisioningState": "Succeeded",
+        "resourceGroup": "rg-vwan",
+        "type": "Microsoft.Network/virtualNetworks/subnets"
+      }
+    ],
+    "type": "Microsoft.Network/virtualNetworks",
+    "virtualNetworkPeerings": []
+  }
+}
+
+
+```
+
+Now we want to connect those spokes to the virtual WAN and one of our virtual hub. The connection is similar to a Network peering, but it's called from a different command than the peering, because it's specific to the Virtual WAN and the virtual hub:
+
+```bash
+
+az network vhub connection create --name
+                                  --remote-vnet
+                                  --resource-group
+                                  --vhub-name
+                                  [--address-prefixes]
+                                  [--associated]
+                                  [--associated-inbound-routemap]
+                                  [--associated-outbound-routemap]
+                                  [--internet-security {0, 1, f, false, n, no, t, true, y, yes}]
+                                  [--labels]
+                                  [--next-hop]
+                                  [--no-wait {0, 1, f, false, n, no, t, true, y, yes}]
+                                  [--propagated]
+                                  [--remote-vnet-transit {0, 1, f, false, n, no, t, true, y, yes}]
+                                  [--route-name]
+                                  [--use-hub-vnet-gateways {0, 1, f, false, n, no, t, true, y, yes}]
+
+```
+
+To connect our spokes we use this command as below: 
+
+```bash
+
+yumemaru@azure:~$ az network vhub connection create --name peer-spoke1-vhub1 --remote-vnet /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke01 --resource-group rg-vwan --vhub-name vwan01-vhub01
+{
+  "allowHubToRemoteVnetTransit": true,
+  "allowRemoteVnetToUseHubVnetGateways": true,
+  "enableInternetSecurity": true,
+  "etag": "W/\"3be3da13-4f24-42fe-9115-0e4a5ce99632\"",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubVirtualNetworkConnections/peer-spoke1-vhub1",
+  "name": "peer-spoke1-vhub1",
+  "provisioningState": "Succeeded",
+  "remoteVirtualNetwork": {
+    "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke01",
+    "resourceGroup": "rg-vwan"
+  },
+  "resourceGroup": "rg-vwan",
+  "routingConfiguration": {
+    "associatedRouteTable": {
+      "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubRouteTables/defaultRouteTable",
+      "resourceGroup": "rg-vwan"
+    },
+    "inboundRouteMap": null,
+    "outboundRouteMap": null,
+    "propagatedRouteTables": {
+      "ids": [
+        {
+          "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubRouteTables/defaultRouteTable",
+          "resourceGroup": "rg-vwan"
+        }
+      ],
+      "labels": [
+        "default"
+      ]
+    },
+    "vnetRoutes": {
+      "bgpConnections": null,
+      "staticRoutes": [],
+      "staticRoutesConfig": {
+        "propagateStaticRoutes": true,
+        "vnetLocalRouteOverrideCriteria": "Contains"
+      }
+    }
+  },
+  "type": "Microsoft.Network/virtualHubs/hubVirtualNetworkConnections"
+}
+
+
+
+```
+
+We connect in the same way `spoke02` to `vwan01-vhub01` ans `spoke03` to `vwan01-vhub02`
+
+We can now see in the vWAN menu the Network connections:
+
+![illustration7](/assets/vwan/vwan007.png)
+
+Taking a look at the spoke networks, we can see the peering in the properties: 
+
+```bash
+
+yumemaru@azure:~$ az network vnet list | jq .[0].virtualNetworkPeerings[0].id
+"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke01/virtualNetworkPeerings/RemoteVnetToHubPeering_b048b7f9-5e54-46f6-b431-9ff392bcbe43"
+
+
+```
+
+![illustration7](/assets/vwan/vwan008.png)
+
+Because the peering is managed through the virtual hub, it differs from a standard peering. Its name does not reflect the name from the network connection, neither is it in a user owned subscription.
+
+```bash
+
+yumemaru@azure:~$ az network vnet list | jq .[0].virtualNetworkPeerings[0].remoteVirtualNetwork
+{
+  "id": "/subscriptions/207734fd-f8f6-4464-9e2c-94d212c9973d/resourceGroups/RG_vwan01-vhub01_719fb388-fbd4-40b6-bc39-3f7f04379a20/providers/Microsoft.Network/virtualNetworks/HV_vwan01-vhub01_97fe1ffd-eae1-46d6-8771-efffdb23ed83",
+  "resourceGroup": "RG_vwan01-vhub01_719fb388-fbd4-40b6-bc39-3f7f04379a20"
+}
+
+
+```
+
+With those connections added, we can check the updated topology which reflect the added spokes:
+
+![illustration9](/assets/vwan/vwan009.png)
+
+To get a better understanding of the network topology, we should start looking at the routes.
+
+```bash
+
+yumemaru@azure:~$ az network vhub route-table list --vhub-name vwan01-vhub01 --resource-group rg-vwan | jq .[].name
+"defaultRouteTable"
+"noneRouteTable"
+yumemaru@azure:~$ az network vhub route-table list --vhub-name vwan01-vhub01 --resource-group rg-vwan | jq .[0]
+{
+  "associatedConnections": [
+    "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubVirtualNetworkConnections/peer-spoke1-vhub1",
+    "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubVirtualNetworkConnections/peer-spoke2-vhub1"
+  ],
+  "etag": "W/\"532c571a-4032-4182-a3cc-4f63651692f0\"",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubRouteTables/defaultRouteTable",
+  "labels": [
+    "default"
+  ],
+  "name": "defaultRouteTable",
+  "propagatingConnections": [
+    "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubVirtualNetworkConnections/peer-spoke1-vhub1",
+    "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubVirtualNetworkConnections/peer-spoke2-vhub1"
+  ],
+  "provisioningState": "Succeeded",
+  "resourceGroup": "rg-vwan",
+  "routes": [],
+  "type": "Microsoft.Network/virtualHubs/hubRouteTables"
+}
+
+
+```
+
+We can see that the default route table was automatically populated with the network connections. Through this, the virtual hub and its peers can get the route between them.
+We can also notice that we can only see 2 network connections for the selected hub. That's because the 3rd connection is connected to the 2nd virtual hub.
+We can check that easily: 
+
+```bash
+
+df@df2204lts:~$ az network vhub route-table list --vhub-name vwan01-vhub02 --resource-group rg-vwan | jq .[0]
+{
+  "associatedConnections": [
+    "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02/hubVirtualNetworkConnections/peer-spoke3-vhub2"
+  ],
+  "etag": "W/\"978adbef-ee5a-4920-a5c0-e22c7d4be5f4\"",
+  "id": "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02/hubRouteTables/defaultRouteTable",
+  "labels": [
+    "default"
+  ],
+  "name": "defaultRouteTable",
+  "propagatingConnections": [
+    "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02/hubVirtualNetworkConnections/peer-spoke3-vhub2"
+  ],
+  "provisioningState": "Succeeded",
+  "resourceGroup": "rg-vwan",
+  "routes": [],
+  "type": "Microsoft.Network/virtualHubs/hubRouteTables"
+}
+
+
+```
+
+From the portal, we can get the effective routes which are a little bit more helpful: 
+
+![illustration10](/assets/vwan/vwan010.png)
+
+There is apparently a available command in az cli, but I was not able to make it work for now: 
+
+```bash
+
+df@df2204lts:~$ az network vhub get-effective-routes --resource-type Routetable --resource-id  subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubRouteTables/defaultRouteTable -g rg-vwan -n vwan01-vhub01
+{
+  "value": []
+}
+
+
+```
+
+Ok, Let's go deeper on the routes by aading 3 VMs, in each spokes
+```bash
+
+df@df2204lts:~$ az vm list | jq '.[].name, .[].resourceGroup'
+"vm01"
+"vm02"
+"vm03"
+"RG-VWAN"
+"RG-VWAN"
+"RG-VWAN"
+
+df@df2204lts:~$ az network nic list --resource-group rg-vwan | jq .[].ipConfigurations[].subnet.id
+"/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke01/subnets/subnet1"
+"/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke02/subnets/subnet1"
+"/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke03/subnets/subnet1"
+
+
+df@df2204lts:~$ az network nic list --resource-group rg-vwan | jq .[].ipConfigurations[].privateIPAddress
+"172.16.0.4"
+"172.16.1.4"
+"172.16.2.4"
+
+```
+
+Now that we have this, we can use Network Watcher to get the nexthop and check the effective route from the Nic: 
+
+![illustration11](/assets/vwan/vwan011.png)
+
+![illustration12](/assets/vwan/vwan012.png)
+
+Note that there are also az cli command available for this: 
+
+```bash
+
+df@df2204lts:~/SSHKeys$ az network watcher show-next-hop --vm vm01 --source-ip 172.16.0.4 --dest-ip 172.16.1.4 -g rg-vwan
+{
+  "nextHopIpAddress": "20.72.188.148",
+  "nextHopType": "VirtualNetworkGateway",
+  "routeTableId": "Gateway Route"
+}
+
+
+df@df2204lts:~$ az network nic show-effective-route-table --resource-group rg-vwan --name vm01336_z1
+{
+  "value": [
+    {
+      "addressPrefix": [
+        "172.16.0.0/24"
+      ],
+      "disableBgpRoutePropagation": false,
+      "nextHopIpAddress": [],
+      "nextHopType": "VnetLocal",
+      "source": "Default",
+      "state": "Active"
+    },
+    {
+      "addressPrefix": [
+        "172.31.254.0/23"
+      ],
+      "disableBgpRoutePropagation": false,
+      "nextHopIpAddress": [],
+      "nextHopType": "VNetPeering",
+      "source": "Default",
+      "state": "Active"
+    },
+    {
+      "addressPrefix": [
+        "172.16.1.0/24"
+      ],
+      "disableBgpRoutePropagation": false,
+      "nextHopIpAddress": [
+        "20.72.188.148"
+      ],
+      "nextHopType": "VirtualNetworkGateway",
+      "source": "VirtualNetworkGateway",
+      "state": "Active"
+    },
+    {...},
+    {
+      "addressPrefix": [
+        "0.0.0.0/0"
+      ],
+      "disableBgpRoutePropagation": false,
+      "nextHopIpAddress": [],
+      "nextHopType": "Internet",
+      "source": "Default",
+      "state": "Active"
+    },
+    {
+      "addressPrefix": [
+        "10.0.0.0/8"
+      ],
+      "disableBgpRoutePropagation": false,
+      "nextHopIpAddress": [],
+      "nextHopType": "None",
+      "source": "Default",
+      "state": "Active"
+    },
+======================truncated======================
+    {...},
+    {
+    "addressPrefix": [
+      "20.35.252.0/22"
+    ],
+    "disableBgpRoutePropagation": false,
+    "nextHopIpAddress": [],
+    "nextHopType": "None",
+    "source": "Default",
+    "state": "Active"
+    }
+  ]
+}
+
+```
+
+We get additional information that we did not have from the vhub.
+First we have an IP for the next hop between each spoke. This is the public IP `20.72.188.148` in this case, which is tagged as `virtualNetworkGateway`.
+We can also see that to reach the IP range of the vhub `172.31.254.0/23` we have a `nextHopType` of the kind `VNetPeering`.
+The intersting point here is how we get the route spokes through the vhub. We hva a managed gateway by default which allows the network routing between those 2 spokes.
+That could means that the peering has not changed in its property, hich is that it's not transitive.
+Indeed, in Hub & Spokes with VNet only, we need a Gateway to act as,well , a gateway between the spokes that are connected through the same virtual network hub.
+
+Here, we have a managed virtual hub, with also  a gateway. The main difference is that we don't need to add thisgateway nor manage it ourselves.
+
+Ok enough of this for now, let's wrap it with a little comparison between classic hub & spokes.
+
+3. Comparing a Hub & Spoke vith Virtual WAN and the standard Hub & Spoke with VNet
+
+Until now wa have deployed the following topology: 
+
+![illustration13](/assets/vwan/vwanbasics.png)
+
+If we compare with a classic Hub & Spokes, we would have this: 
+
+![illustration14](/assets/vwan/hubandspoke.png)
+
+First thing noticeable, if we want another hub in another region, we have to manage ourselves the peering between those. Not a big deal, but still, more action than we have with the vhub which is really quite easy to create.
+Second, the routing configuration is centrally managed from the vhub while we need to have additional routes configured on **each subnets** in each spokes for the classic hub & spokes.
+Last, we have to add ourselve a gateway in the hub, either a virtual network gateway, or an Azure Firewall. Those are additional steps for the deployment.
+Last, regarding the connectivity between 2 spokes connected on differents hub, we have to consider the additional hop with the additional hub. Is it possible to make it works ? Well most certainly, but with the additional complexity inheent to an NVA.
+
+Now we have mostly highlighted the differene in a good way for Virtual WAN and its vhubs. But there are also others concepts or requirements that may change the deal. But that will be for another time. For now let's summarize with the table below: 
+
+| | Network configuration for the hub| Spokes connection with the hub | Hub connection with other hub | Spoke connection with other spokes through the hub | Spoke connections with other spokes connected to other hub | Routing management |
+|-|-|-|-|-|-|-|
+| Virtual hub in Virtual Wan | Only specify the range | performed from the virtual hub in a similar way to the standard peering | Automatic at the creation of a new virtual hub | Relies on an Azure managed Gateway automatically deployed at the vhub creation | Relies on an Azure managed Gateway automatically deployed at the vhub creation | Centrally managed from the virtual hub
+| Hub & spoke with Virtual Network | Specify the range and define the subneting | confugired through the vnet properties | requires an additiona peering between spokes | Require an additional network resource to act as a gateway and allow the connectivity | Require an additional network resource to act as a gateway and allow the connectivity. May add complexity due to the additional hop | Require a routing management at the spokes subnet level |
+
+
+And with that we are done with our discovry of the vwan.
+In a future article, we'll have a llok at what Microsoft calls the Secured Hub. Until then, have fun ^^
