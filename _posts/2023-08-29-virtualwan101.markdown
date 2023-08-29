@@ -527,19 +527,19 @@ We can check that easily:
 
 ```bash
 
-df@df2204lts:~$ az network vhub route-table list --vhub-name vwan01-vhub02 --resource-group rg-vwan | jq .[0]
+yumemaru@azure:~$ az network vhub route-table list --vhub-name vwan01-vhub02 --resource-group rg-vwan | jq .[0]
 {
   "associatedConnections": [
-    "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02/hubVirtualNetworkConnections/peer-spoke3-vhub2"
+    "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02/hubVirtualNetworkConnections/peer-spoke3-vhub2"
   ],
   "etag": "W/\"978adbef-ee5a-4920-a5c0-e22c7d4be5f4\"",
-  "id": "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02/hubRouteTables/defaultRouteTable",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02/hubRouteTables/defaultRouteTable",
   "labels": [
     "default"
   ],
   "name": "defaultRouteTable",
   "propagatingConnections": [
-    "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02/hubVirtualNetworkConnections/peer-spoke3-vhub2"
+    "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub02/hubVirtualNetworkConnections/peer-spoke3-vhub2"
   ],
   "provisioningState": "Succeeded",
   "resourceGroup": "rg-vwan",
@@ -558,7 +558,7 @@ There is apparently a available command in az cli, but I was not able to make it
 
 ```bash
 
-df@df2204lts:~$ az network vhub get-effective-routes --resource-type Routetable --resource-id  subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubRouteTables/defaultRouteTable -g rg-vwan -n vwan01-vhub01
+yumemaru@azure:~$ az network vhub get-effective-routes --resource-type Routetable --resource-id  subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualHubs/vwan01-vhub01/hubRouteTables/defaultRouteTable -g rg-vwan -n vwan01-vhub01
 {
   "value": []
 }
@@ -569,7 +569,7 @@ df@df2204lts:~$ az network vhub get-effective-routes --resource-type Routetable 
 Ok, Let's go deeper on the routes by aading 3 VMs, in each spokes
 ```bash
 
-df@df2204lts:~$ az vm list | jq '.[].name, .[].resourceGroup'
+yumemaru@azure:~$ az vm list | jq '.[].name, .[].resourceGroup'
 "vm01"
 "vm02"
 "vm03"
@@ -577,13 +577,13 @@ df@df2204lts:~$ az vm list | jq '.[].name, .[].resourceGroup'
 "RG-VWAN"
 "RG-VWAN"
 
-df@df2204lts:~$ az network nic list --resource-group rg-vwan | jq .[].ipConfigurations[].subnet.id
-"/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke01/subnets/subnet1"
-"/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke02/subnets/subnet1"
-"/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke03/subnets/subnet1"
+yumemaru@azure:~$ az network nic list --resource-group rg-vwan | jq .[].ipConfigurations[].subnet.id
+"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke01/subnets/subnet1"
+"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke02/subnets/subnet1"
+"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-vwan/providers/Microsoft.Network/virtualNetworks/spoke03/subnets/subnet1"
 
 
-df@df2204lts:~$ az network nic list --resource-group rg-vwan | jq .[].ipConfigurations[].privateIPAddress
+yumemaru@azure:~$ az network nic list --resource-group rg-vwan | jq .[].ipConfigurations[].privateIPAddress
 "172.16.0.4"
 "172.16.1.4"
 "172.16.2.4"
@@ -600,7 +600,7 @@ Note that there are also az cli command available for this:
 
 ```bash
 
-df@df2204lts:~/SSHKeys$ az network watcher show-next-hop --vm vm01 --source-ip 172.16.0.4 --dest-ip 172.16.1.4 -g rg-vwan
+yumemaru@azure:~/SSHKeys$ az network watcher show-next-hop --vm vm01 --source-ip 172.16.0.4 --dest-ip 172.16.1.4 -g rg-vwan
 {
   "nextHopIpAddress": "20.72.188.148",
   "nextHopType": "VirtualNetworkGateway",
@@ -608,7 +608,7 @@ df@df2204lts:~/SSHKeys$ az network watcher show-next-hop --vm vm01 --source-ip 1
 }
 
 
-df@df2204lts:~$ az network nic show-effective-route-table --resource-group rg-vwan --name vm01336_z1
+yumemaru@azure:~$ az network nic show-effective-route-table --resource-group rg-vwan --name vm01336_z1
 {
   "value": [
     {
