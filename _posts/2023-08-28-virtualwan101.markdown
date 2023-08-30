@@ -8,9 +8,10 @@ categories: Azure Network
 
 Hi everyone!
 
-Lately, I've been  working with Azure Virtual WAN and I thought that going back on its concepts and why we should use it versus the standard Hub & Spoke with Virtual Network only was a good topic of discussion.
+Lately, I've been  working with Azure Virtual WAN. 
+I thought that going back on its concepts and why we should use it versus the standard Hub & Spoke with Virtual Network only was a good topic of discussion.
 
-There are a lot of things to consider with Virtual WAN, so there's a chance that It will be a serie rather than a standalone article :grin:.
+There are a lot of things to consider with Virtual WAN, so there's a chance that It will be a serie rather than a standalone article ^^.
 
 In this article, as, the title imply, we are just getting started so we will have a look at: 
 
@@ -19,7 +20,7 @@ In this article, as, the title imply, we are just getting started so we will hav
 - Comparing a Hub & Spoke vith Virtual WAN and the standard Hub & Spoke with VNet only
 
 
-And that's already quite some stuffs to see so It will all :laughing:
+And that's already quite some stuffs to see so It will all!
 
 1. Discovering Azure Virtual WAN
 
@@ -55,15 +56,15 @@ az network vwan create --name
 
 ![illustration1](/assets/vwan/vwan001.png)
 
-Apart from the required parameter, the `location` also should be specified to deploy in the targeted region. In az cli, if not specified, the location default to the resource group's one.<br/>
+Apart from the required parameters, the `location` also should be specified to deploy in the targeted region. In az cli, if not specified, the location default to the resource group's one.<br/>
 The parameter for the `type` allows to choose the sku, which is either `Basic` or `Standard`.<br/>
-The difference is quite relevant between the 2 skus. With Basic, the sole available connectivity option is S2S VPN. <br/>
+The difference is quite relevant between the 2 skus. With Basic, the only available connectivity option is S2S VPN. <br/>
 Also, the Firewall options are not available in the basic tier. <br/>.
 Without specification, the Virtual WAN is of type `Standard`
 
 Regarding the routing management, this feature is only available with the addition of a virtual hub in the virtual WAN.
 
-Last, while there is a parameter for the security provider in the az cli command, there is no equivalent in the terraform provider. Now about what this parameter, there is not that much information about it, except reference to the available security partner for the virtual hub. For now, we'll just ignore it and come to this later.
+Last, while there is a parameter for the security provider in the az cli command, there is no equivalent in the terraform provider. There is not that much information about it, except references to the available security partners for the virtual hub. For now, we'll just ignore it and come to this later.
 
 Let's create a Virtual WAN now.
 
@@ -202,26 +203,27 @@ yumemaru@azure:~$ az network vhub list | jq '.[0].routingState, .[0].virtualRout
 
 
 ```
-Before plying a little more with the Hub & Spoke and the routing options, let's have a look at the resource in the terraform provider: 
+Before playing a little more with the Hub & Spoke and the routing options, let's have a look at the resource in the terraform provider: 
 
 ![illustration4](/assets/vwan/vwan004.png)
 
-While what we identified as the required arguments seems to correspond, we can see that there are also other parameters that are not available either on the terraform provider or the az cli
+While what we identified as the required arguments seems to correspond to what is written in the documentation, we can also see that there are other parameters we did not see earlier, or some missing.
 
 | Arguments in the az cli only | Arguments in terraform only |
 |-|-|
 | `--allow-b2b-traffic` | `route` |
 
-Again, as for the security provider argument, we'll come to that later. For now, let's move forward and look at a hub and spokes topology and some basic routing.
+Interesting, but for now, let's ignore it move forward to look at a hub and spokes topology and some basic routing.
 
 2. Deploying a basic Hub and Spokes topology with Virtual WAN
 
 As we discussed in introduction, one aim of Virtual WAN is to propose another way of doing Hub & Spokes. As could be expected, the virtual network playing the role of Hub is replaced by the virtual hub.
+
 As opposite to the Virtual Network, because it's more *managed*, we don't have a lot of thing to do on the virtual hub, apart from selecting the ip range.
-On the other hand, there is not as much leeway to put things in this managed hub, while any IaaS available appliance could be deployed in a virtual network.
+Because of this managed nature, there is not as much leeway to put things in this virtual hub, while any IaaS available appliance could be deployed in a virtual network.
 On the other hand, the Virtual WAN is designed with the scalability in mind and it's quite easy to add another Virtual Hub in the Virtual WAN, in another region. By design the hubs are automatically connected.
 
-Let's add another virtual hb for the purpose of illustration: 
+Let's add another virtual hub for the purpose of illustration: 
 
 ```bash
 
@@ -454,13 +456,13 @@ yumemaru@azure:~$ az network vhub connection create --name peer-spoke1-vhub1 --r
 
 ```
 
-We connect in the same way `spoke02` to `vwan01-vhub01` ans `spoke03` to `vwan01-vhub02`
+We connect in the same way `spoke02` to `vwan01-vhub01` and `spoke03` to `vwan01-vhub02`
 
 We can now see in the vWAN menu the Network connections:
 
 ![illustration7](/assets/vwan/vwan007.png)
 
-Taking a look at the spoke networks, we can see the peering in the properties: 
+Taking a look at the spoke networks, we can also see the peering in the properties: 
 
 ```bash
 
@@ -521,9 +523,8 @@ yumemaru@azure:~$ az network vhub route-table list --vhub-name vwan01-vhub01 --r
 
 ```
 
-We can see that the default route table was automatically populated with the network connections. Through this, the virtual hub and its peers can get the route between them.
-We can also notice that we can only see 2 network connections for the selected hub. That's because the 3rd connection is connected to the 2nd virtual hub.
-We can check that easily: 
+The default route table was automatically populated with the network connections. Through this, the virtual hub and its peers can get the routes between them.
+Only see 2 network connections are visible from for the selected hub. That's because the 3rd connection is connected to the 2nd virtual hub: 
 
 ```bash
 
@@ -550,7 +551,7 @@ yumemaru@azure:~$ az network vhub route-table list --vhub-name vwan01-vhub02 --r
 
 ```
 
-From the portal, we can get the effective routes which are a little bit more helpful: 
+The effective routes from the portal display something like this: 
 
 ![illustration10](/assets/vwan/vwan010.png)
 
@@ -566,7 +567,8 @@ yumemaru@azure:~$ az network vhub get-effective-routes --resource-type Routetabl
 
 ```
 
-Ok, Let's go deeper on the routes by aading 3 VMs, in each spokes
+Ok, Let's go deeper on the routes by adding VMs in each spokes.
+
 ```bash
 
 yumemaru@azure:~$ az vm list | jq '.[].name, .[].resourceGroup'
@@ -590,9 +592,11 @@ yumemaru@azure:~$ az network nic list --resource-group rg-vwan | jq .[].ipConfig
 
 ```
 
-Now that we have this, we can use Network Watcher to get the nexthop and check the effective route from the Nic: 
+NNetwork Watcher tools to get the nexthop displays the follogin: 
 
 ![illustration11](/assets/vwan/vwan011.png)
+
+The effective route from the VM's NIC displays the following:
 
 ![illustration12](/assets/vwan/vwan012.png)
 
@@ -681,14 +685,61 @@ yumemaru@azure:~$ az network nic show-effective-route-table --resource-group rg-
 
 ```
 
-We get additional information that we did not have from the vhub.
-First we have an IP for the next hop between each spoke. This is the public IP `20.72.188.148` in this case, which is tagged as `virtualNetworkGateway`.
-We can also see that to reach the IP range of the vhub `172.31.254.0/23` we have a `nextHopType` of the kind `VNetPeering`.
-The intersting point here is how we get the route spokes through the vhub. We hva a managed gateway by default which allows the network routing between those 2 spokes.
-That could means that the peering has not changed in its property, hich is that it's not transitive.
-Indeed, in Hub & Spokes with VNet only, we need a Gateway to act as,well , a gateway between the spokes that are connected through the same virtual network hub.
+From this we can identify the IP for the next hop between each spoke:
+The public IP `20.72.188.148` which is tagged as `virtualNetworkGateway`.
 
-Here, we have a managed virtual hub, with also  a gateway. The main difference is that we don't need to add thisgateway nor manage it ourselves.
+Also, to reach the IP range of the vhub `172.31.254.0/23`, the `nextHopType` is of the kind `VNetPeering`.
+
+The intersting point here is the managed gateway which allows the network routing between those 2 spokes. Is this Gateway dependant of the Virtual WAN or the Virtual Hub?
+A good way to answer this is to look at the next hop between `Spoke03` and `Spoke02`. Remember, `Spoke03` was connected to the Virtual Hub `vwan-01-vhub02`
+
+The effective routes for `vm03` nic gives us the `4.175.160.48` as the IP of the Gateway:
+
+
+```bash
+
+df@df2204lts:~/Documents/dfrappart.github.io$ az network nic show-effective-route-table --resource-group rg-vwan --name vm03979_z1
+{
+  "value": [
+    {
+      "addressPrefix": [
+        "172.16.2.0/24"
+      ],
+      "disableBgpRoutePropagation": false,
+      "nextHopIpAddress": [],
+      "nextHopType": "VnetLocal",
+      "source": "Default",
+      "state": "Active"
+    },
+    {
+      "addressPrefix": [
+        "172.31.252.0/23"
+      ],
+      "disableBgpRoutePropagation": false,
+      "nextHopIpAddress": [],
+      "nextHopType": "VNetPeering",
+      "source": "Default",
+      "state": "Active"
+    },
+    {
+      "addressPrefix": [
+        "172.16.0.0/24"
+      ],
+      "disableBgpRoutePropagation": false,
+      "nextHopIpAddress": [
+        "4.175.160.48"
+      ],
+      "nextHopType": "VirtualNetworkGateway",
+      "source": "VirtualNetworkGateway",
+      "state": "Active"
+    },
+======================truncated======================
+
+
+```
+
+
+From that, we can conclude that there is a Virtual Network Gateway in each Virtual Hub.
 
 Ok enough of this for now, let's wrap it with a little comparison between classic hub & spokes.
 
