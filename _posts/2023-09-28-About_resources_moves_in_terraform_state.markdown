@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "About resources move in terraform state"
+title:  "About resources moves in terraform state"
 date:   2023-09-28 18:00:00 +0200
 year: 2023
 categories: Azure Terraform
@@ -22,7 +22,7 @@ Our agenda will be as below:
 
 And then we'll conclude ^^
 
-## 1. Terraform resource moves basics
+## 1. Terraform resources moves basics
 
 Before looking at how to move resources, let's redefine some basics.
 
