@@ -98,7 +98,7 @@ In this present case, terraform is able to move automatically a single resource 
 
 However, that's the only case that I know of, where it's that simple. For more complex refactoring, we'll need another way. One of which is the moved block.
 
-## 3. The moved blocked, a declarative approach to move resources
+## 3. The moved block, a declarative approach to move resources
 
 This time, we will go a little further. Let's take a scenario in which we have differents resources groups.
 Those resources groups, for a reason or another, are configured as repeated resources blocks:
