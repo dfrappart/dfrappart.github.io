@@ -9,7 +9,7 @@ categories: Azure Terraform
 Hi!
 
 In previous articles, we explored different ways to import existing (Azure) resources in the state, and how to generate the terraform configuration associated.
-While quite useful, we came to the conclusion that the need to modify the configuration generated.
+While quite useful, we came to the conclusion that we needed to modify the configuration generated.
 
 In this article, we'll look at just that and detail different scenarios and methods to manage resources.
 
@@ -48,9 +48,9 @@ Until now, nothing new or complicated.
 However, changing the name `RgDemo` to something else, like `OtherRg`, well terraform will understand it as a new resource, try to destroy the resource `azurerm_resource_group.RgDemo` and create the resource `azurerm_resource_group.OtherRg`.
 Let's just say that it may cause probleme for many reasons.
 
-If we want the move to occur correctly, meaning without destruction of resources, then we have to to it differently.
-There is a way by manipulating the state, through terraform cli. We'll see that in details in the last part of the article. 
-There is also another way more on the declarative side, with terraform move block, which are very similar to import blocks that we discuss in a [previous article](https://blog.teknews.cloud/azure/terraform/2023/07/02/NativeImporttf.html).
+If we want the move to occur correctly, meaning without destruction of resources, then we have to do it differently.
+There is a way, by manipulating the state, through terraform cli. We'll see that in details in the last part of the article. 
+There is also another way, more on the declarative side, with terraform moved block, which are very similar to import blocks that we discuss in a [previous article](https://blog.teknews.cloud/azure/terraform/2023/07/02/NativeImporttf.html).
 However, sometimes, terraform can detect and understand on his own that the resource just move. And we'll start with that.
 
 Note that we do not mention the way of managing the state directly from the file, which is something that we should NEVER do! That being said, let's move on.
@@ -96,12 +96,12 @@ We can note that terraform mention a move.
 Remember that a resource in Terraform changes when we have a count (or for_each) statement. Instead of being a simple object, it becomes a list of previous object.
 In this present case, terraform is able to move automatically a single resource to a list of one resource. 
 
-However, that's the only case that I know of here it's that simple. For more complex refactoring, we'll need another way. One of which is the moved block.
+However, that's the only case that I know of, where it's that simple. For more complex refactoring, we'll need another way. One of which is the moved block.
 
-## 3. The move blocked, a declarative approach to move resources
+## 3. The moved blocked, a declarative approach to move resources
 
 This time, we will go a little further. Let's take a scenario in which we have differents resources groups.
-Those resources groups, for a reason or another, are configred as repeated resources blocks:
+Those resources groups, for a reason or another, are configured as repeated resources blocks:
 
 ```go
 
@@ -241,7 +241,7 @@ Note: You didn't use the -out option to save this plan, so Terraform can't guara
 
 ```
 
-And now we have what we wanted to have. With the moved block, we just move the resource from one place to another in the state, and we can even keep track of the change in the configuration, similarly to the import block, so everything seems nice. Let's apply those changes.
+And now we have what we wanted. With the moved block, we just move the resource from one place to another in the state, and we can even keep track of the change in the configuration, similarly to the import block, so everything seems nice. Let's apply those changes.
 
 Now, if we refer at the documentation, we can read that the moved block can also be used to rename resources in the terraform configuration (meaning not in the cloud provider, where the name is usually synonym of new resource).
 An attentive reader will have noticed that the resource group block is called `RGMonitor` but is supposed to contain a list of our resource groups. So it does not work like that. We should rename it. 
@@ -452,7 +452,7 @@ resource "azurerm_resource_group" "RgDns" {
 
 ```
 
-The only trouble that I'll get is not related to the moved block but to the way I defined my configuration. 
+The only trouble that I'll get is not related to the moved block, but to the way I defined my configuration. 
 
 Indeed, with the count, I only iterate the same configuration, but all parameters should be the sames (except the name).
 But with the resource group `RGKeyVault`, I come accross an issue because it's in another region.
@@ -514,7 +514,7 @@ resource "azurerm_resource_group" "RG" {
 
 ```
 Instead of a count, I have now a for_each and I'm able to specify 
-There are potential dependencies to modify, which, once solved, alllow us to get the below plan:
+There are potential dependencies to modify, which, once solved, allow us to get the below plan:
 
 ```bash
 
@@ -626,14 +626,14 @@ And with that we have seen a lot about moved block. We could probably do other t
 
 ## 4. Using Terraform cli for resources moves
 
-The moved block can cover many refactoring scenario, as we've seen earlier. It also has the benefit to allow to keep a visaul track of the move in the configuration which is good.
-However, in some case, it may be difficult to perform all the refactoring through only those blocks. Fortunately, there are command in the terraform cli that are useful.
+The moved block can cover many refactoring scenario, as we've seen earlier. It also has the benefit to allow keeping a visual track of the move in the configuration which is good.
+However, in some cases, it may be difficult to perform all the refactoring through only those blocks. Fortunately, there are command in the terraform cli that are useful.
 I used 2 of those previously:
 
 - `terraform state list` which list all the content of the state
 - `terraform state show` which show a specific terraform item in the state.
 
-Notice that I used item, rather than resource. That's because, we may find either real resources, or data or resource created through module.
+Notice that I used item, rather than resource. That's because, we may find either real resources, or data, or resource created through module.
 Anyway, let's take the follwoing scenario to illustrate our purpose. This is extracted from a [previous talk](https://github.com/dfrappart/tfstatemanip/tree/main/Terraformconfig/02_Move) that I made a few years back. 
 
 In this scenario, we manage an Azure Database for MySQL server, with database in a single module
@@ -679,7 +679,7 @@ module "MySQLDBs" {
 
 ```
 
-If we had the new module to the configuration and run a plan we get something like this:
+If we add the new module to the configuration and run a plan we get something like this:
 
 ```bash
 
@@ -767,10 +767,10 @@ Would move "module.MySQL.azurerm_mysql_database.MySQLDB[0]" to "module.MySQLDBs.
 
 ```
 
-After oving the resources (without the `-dry-run`), we should get a proper plan where no resources are added or destroy. Before that there is most certainly some twikking to do, such as variables to chang or parameters in module to modify.
-But taht's all.
+After oving the resources (without the `-dry-run`), we should get a proper plan where no resources are added or destroyed. Before that there is most certainly some tweaking to do, such as variables to change, or parameters in the module to modify.
+But that's all.
 
-Now, just to be clear, whil ebefore moving resources between module was not supported, last versions of terraform allow such moves with block similar to this
+Now, just to be clear, while before moving resources between module was not supported, last versions of terraform allow such moves with block similar to this
 
 ```go
 
@@ -789,8 +789,8 @@ Ok time to wrap this up
 
 ## 5. Before living
 
-So we reviewed what possibilities we had to managed rssources move and thus allow either configuration refactoring or resources lifecycle changes.
-Hashicorp has a clear objective which can be summarize as `everything as code`. Meaning that the move are also written in the configuration, as for the import. There are still imperative way to do it but since they diverge from the declarative approach proned by terraform, it just seem logical to see always new features for the declarative aproach.
+So we reviewed what possibilities we had to managed ressource moves and thus allow either configuration refactoring, or resources lifecycle changes.
+Hashicorp has a clear objective which can be summarize as `everything as code`. Meaning that the move are also written in the configuration, as for the import. There are still imperative way to do it but since they diverge from the declarative approach proned by terraform, it just seem logical to see always new features for the declarative approach.
 
 That's all for today. I hope you had fun reading this.
 
