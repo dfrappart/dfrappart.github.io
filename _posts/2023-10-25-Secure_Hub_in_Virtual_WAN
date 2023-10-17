@@ -1,0 +1,15 @@
+---
+layout: post
+title:  "Secure Hub in Azure Virtual WAN"
+date:   2023-10-25 18:00:00 +0200
+year: 2023
+categories: Azure Network
+---
+
+Hi all!
+
+This is the 2nd article about Azure Virtual WAN. 
+This time we're going to look at the Secure Hub concepts, what it is about and what it brings to the table.
+As for last time, we'll take a pragmatic approach and build our environment iteratively to illustrate the concepts.
+
+Hope you'll enjoy it
