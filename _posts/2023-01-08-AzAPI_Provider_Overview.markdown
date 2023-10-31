@@ -3,7 +3,7 @@ layout: post
 title:  "Overview of the AzAPI Terraform provider"
 date:   2023-01-08 00:00:00 +0200
 year: 2023
-categories: Azure Terraform AKS
+categories: Azure Terraform
 ---
 
 Hello!

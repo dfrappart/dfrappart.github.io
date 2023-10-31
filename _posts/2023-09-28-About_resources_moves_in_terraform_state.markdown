@@ -787,7 +787,7 @@ A couple of `terraform state rm` and correctly placed `/*` `*/` would allow this
 
 Ok time to wrap this up
 
-## 5. Before living
+## 5. Before leaving
 
 So we reviewed what possibilities we had to managed ressource moves and thus allow either configuration refactoring, or resources lifecycle changes.
 Hashicorp has a clear objective which can be summarize as `everything as code`. Meaning that the move are also written in the configuration, as for the import. There are still imperative way to do it but since they diverge from the declarative approach proned by terraform, it just seem logical to see always new features for the declarative approach.
