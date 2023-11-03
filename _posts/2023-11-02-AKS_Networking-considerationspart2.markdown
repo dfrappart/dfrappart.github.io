@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "AKS Networking considerations - part 1"
+title:  "AKS Networking considerations - part 2"
 date:   2023-11-02 18:00:00 +0200
 year: 2023
 categories: AKS Network
