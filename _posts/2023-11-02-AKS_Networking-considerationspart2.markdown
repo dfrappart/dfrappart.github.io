@@ -95,7 +95,7 @@ In this case the pods are using another subnet than the nodes. Subnets should be
 
 ```bash
 
-df@df2204lts:~$ az network vnet create -n aks-vnet2 -g aksntwdemo 
+yumemaru@azure:~$ az network vnet create -n aks-vnet2 -g aksntwdemo 
 {
   "newVNet": {
     "addressSpace": {
@@ -105,7 +105,7 @@ df@df2204lts:~$ az network vnet create -n aks-vnet2 -g aksntwdemo
     },
     "enableDdosProtection": false,
     "etag": "W/\"e8b27507-8277-4c4f-8488-5d75153d6de3\"",
-    "id": "/subscriptions/00000000-0000-0000-0000-000000000000resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2",
+    "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2",
     "location": "eastus",
     "name": "aks-vnet2",
     "provisioningState": "Succeeded",
@@ -117,12 +117,12 @@ df@df2204lts:~$ az network vnet create -n aks-vnet2 -g aksntwdemo
   }
 }
 
-df@df2204lts:~$ az network vnet subnet create -n subnet-aks -g aksntwdemo --address-prefixes 10.0.0.0/24 --vnet-name aks-vnet2
+yumemaru@azure:~$ az network vnet subnet create -n subnet-aks -g aksntwdemo --address-prefixes 10.0.0.0/24 --vnet-name aks-vnet2
 {
   "addressPrefix": "10.0.0.0/24",
   "delegations": [],
   "etag": "W/\"9c35d528-88ff-427c-b95a-771b915210f0\"",
-  "id": "/subscriptions/00000000-0000-0000-0000-000000000000resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-aks",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-aks",
   "name": "subnet-aks",
   "privateEndpointNetworkPolicies": "Disabled",
   "privateLinkServiceNetworkPolicies": "Enabled",
@@ -131,12 +131,12 @@ df@df2204lts:~$ az network vnet subnet create -n subnet-aks -g aksntwdemo --addr
   "type": "Microsoft.Network/virtualNetworks/subnets"
 }
 
-df@df2204lts:~$ az network vnet subnet create -n subnet-pods -g aksntwdemo --address-prefixes 10.0.2.0/23 --vnet-name aks-vnet2
+yumemaru@azure:~$ az network vnet subnet create -n subnet-pods -g aksntwdemo --address-prefixes 10.0.2.0/23 --vnet-name aks-vnet2
 {
   "addressPrefix": "10.0.2.0/23",
   "delegations": [],
   "etag": "W/\"51ede150-fe87-4228-b766-4b51ff810949\"",
-  "id": "/subscriptions/00000000-0000-0000-0000-000000000000resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-pods",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-pods",
   "name": "subnet-pods",
   "privateEndpointNetworkPolicies": "Disabled",
   "privateLinkServiceNetworkPolicies": "Enabled",
@@ -146,16 +146,16 @@ df@df2204lts:~$ az network vnet subnet create -n subnet-pods -g aksntwdemo --add
 }
 
 
-df@df2204lts:~$ az aks create -n aks-ntwdemo10 -g aksntwdemo --vnet-subnet-id /subscriptions/00000000-0000-0000-0000-000000000000resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-aks --pod-subnet-id /subscriptions/00000000-0000-0000-0000-000000000000resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-pods --network-plugin azure --service-cidr 10.1.0.0/16 --dns-service-ip 10.1.0.10
+yumemaru@azure:~$ az aks create -n aks-ntwdemo10 -g aksntwdemo --vnet-subnet-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-aks --pod-subnet-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-pods --network-plugin azure --service-cidr 10.1.0.0/16 --dns-service-ip 10.1.0.10
 
-df@df2204lts:~$ az network vnet subnet show --vnet-name aks-vnet2 --name subnet-pods -g aksntwdemo | jq .delegations
+yumemaru@azure:~$ az network vnet subnet show --vnet-name aks-vnet2 --name subnet-pods -g aksntwdemo | jq .delegations
 [
   {
     "actions": [
       "Microsoft.Network/virtualNetworks/subnets/join/action"
     ],
     "etag": "W/\"acadaa68-1a02-4481-aae7-08d468a6ddd3\"",
-    "id": "/subscriptions/00000000-0000-0000-0000-000000000000resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-pods/delegations/aks-delegation",
+    "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet2/subnets/subnet-pods/delegations/aks-delegation",
     "name": "aks-delegation",
     "provisioningState": "Succeeded",
     "resourceGroup": "aksntwdemo",
@@ -196,7 +196,7 @@ Another kind of doped kubenet is Azure CNI powered by Cilium. It is supposed to 
 From a cluster point of view, we don't get to see a lot of differences. However checking the pods in kube-system, we can see a deployment refering to Cilium.
 
 ```bash
-df@df2204lts:~$ k describe deployments.apps -n kube-system cilium-operator 
+yumemaru@azure:~$ k describe deployments.apps -n kube-system cilium-operator 
 
 Name:                   cilium-operator
 Namespace:              kube-system
@@ -276,7 +276,7 @@ Checking the nodes, we will see that there are in a `NotReady` State, waiting to
 
 ```bash
 
-df@df2204lts:~$ k get no
+yumemaru@azure:~$ k get no
 NAME                                STATUS     ROLES   AGE    VERSION
 aks-nodepool1-24351847-vmss000001   NotReady   agent   140m   v1.26.6
 
@@ -305,7 +305,7 @@ A few thing to take into consideration:
 
 ```bash
 
-df@df2204lts:~$ az network vnet create -n aks-vnet3 -g aksntwdemo --address-prefixes 172.20.0.0/24 
+yumemaru@azure:~$ az network vnet create -n aks-vnet3 -g aksntwdemo --address-prefixes 172.20.0.0/24 
 {
   "newVNet": {
     "addressSpace": {
@@ -315,7 +315,7 @@ df@df2204lts:~$ az network vnet create -n aks-vnet3 -g aksntwdemo --address-pref
     },
     "enableDdosProtection": false,
     "etag": "W/\"df04b35c-803d-412d-b0b0-fa045e091b62\"",
-    "id": "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3",
+    "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3",
     "location": "eastus",
     "name": "aks-vnet3",
     "provisioningState": "Succeeded",
@@ -326,12 +326,12 @@ df@df2204lts:~$ az network vnet create -n aks-vnet3 -g aksntwdemo --address-pref
     "virtualNetworkPeerings": []
   }
 }
-df@df2204lts:~$ az network vnet subnet create -n aks-subnet -g aksntwdemo --vnet-name aks-vnet3 --address-prefixes 172.20.0.0/26
+yumemaru@azure:~$ az network vnet subnet create -n aks-subnet -g aksntwdemo --vnet-name aks-vnet3 --address-prefixes 172.20.0.0/26
 {
   "addressPrefix": "172.20.0.0/26",
   "delegations": [],
   "etag": "W/\"04beae60-ba2f-43bb-8f32-0e4b234d6407\"",
-  "id": "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/aks-subnet",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/aks-subnet",
   "name": "aks-subnet",
   "privateEndpointNetworkPolicies": "Disabled",
   "privateLinkServiceNetworkPolicies": "Enabled",
@@ -339,12 +339,12 @@ df@df2204lts:~$ az network vnet subnet create -n aks-subnet -g aksntwdemo --vnet
   "resourceGroup": "aksntwdemo",
   "type": "Microsoft.Network/virtualNetworks/subnets"
 }
-df@df2204lts:~$ az network vnet subnet create -n np-subnet -g aksntwdemo --vnet-name aks-vnet3 --address-prefixes 172.20.0.64/26
+yumemaru@azure:~$ az network vnet subnet create -n np-subnet -g aksntwdemo --vnet-name aks-vnet3 --address-prefixes 172.20.0.64/26
 {
   "addressPrefix": "172.20.0.64/26",
   "delegations": [],
   "etag": "W/\"beba6d57-5497-4b5c-a910-0b1f02d7e6db\"",
-  "id": "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/np-subnet",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/np-subnet",
   "name": "np-subnet",
   "privateEndpointNetworkPolicies": "Disabled",
   "privateLinkServiceNetworkPolicies": "Enabled",
@@ -352,7 +352,7 @@ df@df2204lts:~$ az network vnet subnet create -n np-subnet -g aksntwdemo --vnet-
   "resourceGroup": "aksntwdemo",
   "type": "Microsoft.Network/virtualNetworks/subnets"
 }
-df@df2204lts:~$ az aks create -n aks-ntwdemo12 -g aksntwdemo --vnet-subnet-id /subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/aks-subnet --network-plugin kubenet
+yumemaru@azure:~$ az aks create -n aks-ntwdemo12 -g aksntwdemo --vnet-subnet-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/aks-subnet --network-plugin kubenet
 
 
 ```
@@ -361,7 +361,7 @@ After that we can add a node pool and specify the subnet:
 
 ```bash
 
-df@df2204lts:~$ az aks nodepool add --cluster-name aks-ntwdemo12 -g aksntwdemo -n aksnp02 --vnet-subnet-id /subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/np-subnet --node-count 1
+yumemaru@azure:~$ az aks nodepool add --cluster-name aks-ntwdemo12 -g aksntwdemo -n aksnp02 --vnet-subnet-id /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/np-subnet --node-count 1
 
 
 ```
@@ -417,12 +417,12 @@ status: {}
 As mentionned, we want to use another subnet for the Internal Load Balancer: 
 
 ```bash
-df@df2204lts:~$ az network vnet subnet create -n ilb-subnet -g aksntwdemo --vnet-name aks-vnet3 --address-prefixes 172.20.0.128/26
+yumemaru@azure:~$ az network vnet subnet create -n ilb-subnet -g aksntwdemo --vnet-name aks-vnet3 --address-prefixes 172.20.0.128/26
 {
   "addressPrefix": "172.20.0.128/26",
   "delegations": [],
   "etag": "W/\"d029c31e-9fde-441e-808d-b72b246dc617\"",
-  "id": "/subscriptions/16e85b36-5c9d-48cc-a45d-c672a4393c36/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/ilb-subnet",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/aksntwdemo/providers/Microsoft.Network/virtualNetworks/aks-vnet3/subnets/ilb-subnet",
   "name": "ilb-subnet",
   "privateEndpointNetworkPolicies": "Disabled",
   "privateLinkServiceNetworkPolicies": "Enabled",
@@ -463,7 +463,7 @@ Upon creation, we should see the service on the kubernetes side with a private I
 
 ```bash
 
-df@df2204lts:~$ k get svc -n testns 
+yumemaru@azure:~$ k get svc -n testns 
 NAME         TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)        AGE
 testdeploy   LoadBalancer   10.0.175.119   172.20.0.132   80:32709/TCP   44s
 
