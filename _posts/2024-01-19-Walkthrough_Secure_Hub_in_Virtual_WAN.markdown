@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Walkthrough Secure Hub in Azure Virtual WAN"
+title:  "Walkthrough - Secure Hub in Azure Virtual WAN"
 date:   2024-01-19 18:00:00 +0200
 year: 2024
 categories: Azure Network Terraform
@@ -30,7 +30,7 @@ With that being said, let's get started.
 
 ## 1. From Virtual Hub to Secure Hub
 
-If you read the [Azure documentation about Virtual WAN](https://learn.microsoft.com/en-us/azure/virtual-wan/), or my l[ast article on this topic](https://blog.teknews.cloud/azure/network/2023/08/28/virtualwan101.html), you'll know that in a Virtual WAN based topology, we deploy inside (or is it on top 🤔) one or more virtual Hub. You probabply also now that a virtual Hub is a good solution to ease the East-West connectivity between Spokes thanks to the managed virtual routers that take care of route propagation in the vHub. All of this without using UDRs for routing, inside of spokes.
+If you read the [Azure documentation about Virtual WAN](https://learn.microsoft.com/en-us/azure/virtual-wan/), or my l[ast article on this topic](https://blog.teknews.cloud/azure/network/2023/08/28/virtualwan101.html), you'll know that in a Virtual WAN based topology, we deploy inside (or is it on top 🤔) one or more virtual Hub. You probably also now that a virtual Hub is a good solution to ease the East-West connectivity between Spokes thanks to the managed virtual routers that take care of route propagation in the vHub. All of this without using UDRs for routing, inside of spokes.
 
 However, in this simple, yet efficient scenario, we lack option to filter traffic between those spokes, or from those spokes to other places which are not virtual network in Azure. Indeed, we can leverage Network Security Groups, but limitations do exist such as rules limited to L4, or Application Security Group only valid for intra spoke filtering. I wrote another article about NSGs in the past that you can find [here](https://blog.teknews.cloud/network/2022/03/01/Back_to_basics_About_Network_Security_Groups.html)
 
@@ -61,7 +61,7 @@ Azure Firewall is a managed, zone redundant, appliance which can bring the filte
 One of those could be the Internet Ingress traffic, which is not a primary objective for Azure Firewall, except if coupled with an Azure WAF solution.
 
 If some configuration are lacking, then it is possible to look at a 3rd party provider, as documented on the [Azure documentation](https://learn.microsoft.com/en-us/azure/virtual-wan/about-nva-hub#partners).
-Currently, Security partner includes [CheckPoint](https://www.checkpoint.com/cloudguard/microsoft-azure-security/wan/) and [Fortigate](https://www.fortinet.com/products/next-generation-firewall) only. Other partners can be found but more on the SD WAN integration than the Firewalling options.
+Currently, Security partner includes [CheckPoint](https://www.checkpoint.com/cloudguard/microsoft-azure-security/wan/) and [Fortigate](https://www.fortinet.com/products/next-generation-firewall), and also [Palo Alto(https://azure.microsoft.com/en-us/updates/public-preview-palo-alto-networks-saas-cloud-ngfw-integration-with-virtual-wan/)] as a SaaS offer in public preview. Other partners can be found but more on the SD WAN integration than the Firewalling options.
 
 For now, we'll stop here on the concept and get practical.
 
@@ -287,7 +287,7 @@ resource "azurerm_virtual_hub_connection" "peering_spoke4" {
 
 ```
 
-We'll notice the parameter `internet_security_enabled` which can e set to false or true. More on that later.
+We'll notice the parameter `internet_security_enabled` which can be set to false or true. More on that later.
 In the `routing` block, we can see the `associated_route_table_id` set to the custom route table that we juste created.
 In the `propagated_route_table` block, we set the propagation to the `noneRouteTable` which is a way to not propagate the range from the connected network. The default configuration propagate those ranges and allows a simple routing configuration. 
 Since we want to move to a Secure Hub, we said goodbye to the simple configuration ^^.
