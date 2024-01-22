@@ -61,7 +61,7 @@ Azure Firewall is a managed, zone redundant, appliance which can bring the filte
 One of those could be the Internet Ingress traffic, which is not a primary objective for Azure Firewall, except if coupled with an Azure WAF solution.
 
 If some configuration are lacking, then it is possible to look at a 3rd party provider, as documented on the [Azure documentation](https://learn.microsoft.com/en-us/azure/virtual-wan/about-nva-hub#partners).
-Currently, Security partner includes [CheckPoint](https://www.checkpoint.com/cloudguard/microsoft-azure-security/wan/) and [Fortigate](https://www.fortinet.com/products/next-generation-firewall), and also [Palo Alto(https://azure.microsoft.com/en-us/updates/public-preview-palo-alto-networks-saas-cloud-ngfw-integration-with-virtual-wan/)] as a SaaS offer in public preview. Other partners can be found but more on the SD WAN integration than the Firewalling options.
+Currently, Security partner includes [CheckPoint](https://www.checkpoint.com/cloudguard/microsoft-azure-security/wan/) and [Fortigate](https://www.fortinet.com/products/next-generation-firewall), and also [Palo Alto](https://azure.microsoft.com/en-us/updates/public-preview-palo-alto-networks-saas-cloud-ngfw-integration-with-virtual-wan/) as a SaaS offer in public preview. Other partners can be found but more on the SD WAN integration than the Firewalling options.
 
 For now, we'll stop here on the concept and get practical.
 
