@@ -19,6 +19,7 @@ Let's get started!
 ## 1. Review of Azure Network filtering options
 
 Depending on the objective, we may use differents solutions for Network filtering in Azure:
+
 - locally to a virtual network, we usually rely on Network Security Groups. If you're familiar with this service, you probably know that it's perfect to secure flows between workload inside Azure subnet in a granular way, as long as the requirement is on the layer 4.
 - In a Hub & Spoke scenario, with virtual Network or Virtual WAN and Virtual Hub, we rely on a central Firewall that can be used to filter interspoke traffic, egress traffic to Internet, and in some scenario (but with additional services) Internet exposure. This Hub Firewall can be an Azure Firewall, or a 3rd party appliance. However, We'll focus on Azure Firewall here, because we are interested in Azure Native observability options
 
@@ -39,6 +40,7 @@ As for most of Aure managed services, we have [Azure Resources Logs](https://lea
 ![illustration1](/assets/fwobs/nsgdiagsettings.png)
 
 As displayed on the picture, there are 2 available categories: 
+
 - `Network Security Group Event`
 - `Network Security Group Rule Counter`
 
