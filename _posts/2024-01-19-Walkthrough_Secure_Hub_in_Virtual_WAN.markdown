@@ -3,7 +3,7 @@ layout: post
 title:  "Walkthrough - Secure Hub in Azure Virtual WAN"
 date:   2024-01-19 18:00:00 +0200
 year: 2024
-categories: Azure Network Terraform
+categories: Network Security Terraform
 ---
 
 Hi all!
