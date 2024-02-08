@@ -144,7 +144,8 @@ AzureNetworkAnalytics_CL
 
 ![Illustration 16](/assets/fwobs/flowlog10.png)
 
-Again, similarly to Diagnostic Settings logs, we can get information on the rule generating the log with the parameter `NSGRule_s`, `NSGRuleType_s` adn to some extent `NSGRules_s`.
+Again, similarly to Diagnostic Settings logs, we can get informations on the rule generating the log with the parameter `NSGRule_s`, `NSGRuleType_s` adn to some extent `NSGRules_s`.
+
 It's also possible to identify if a flow was allowed or denied with the argument `FlowStatus_s`
 
 ```bash
@@ -188,7 +189,7 @@ Last but not least, there are arguments to identify source and destination IPs, 
 - `SrcPublicIPs_s`
 - `PublicIPs_s`
 
-There is one trick though, all IP related argument are not necessarily filled, depending on the flow type. So we still need to search a little bit to get the information that we want.
+There is one trick though, all IP related arguments are not necessarily filled, depending on the flow type. So we still need to search a little bit to get the information that we want.
 
 The query below can be used to get a summary of the flow logs:
 
@@ -264,8 +265,7 @@ AzureNetworkAnalytics_CL
 | where SubType_s == 'FlowLog'
 | where TimeGenerated >= ago(7d)
 | where FlowDirection_s == 'I'
-//| where VM_s contains 'spoke11-vm1'
-| where FlowType_s contains 'VNet' //or FlowType_s == 'IntraVnet'
+| where FlowType_s contains 'VNet'
 | summarize count() by DestIP_s, SrcIP_s, L4Protocol_s, L7Protocol_s, FlowStatus_s, FlowType_s
 | render piechart  
 
@@ -275,8 +275,8 @@ AzureNetworkAnalytics_CL
 
 ![Illustration 23](/assets/fwobs/flowlog18.png)
 
-Ok, now we know how to get rreal network infoirmation. But not everyone is able to access a log analytics workspace, or have the knowledge to query the logs. So what can we do?
-What about some dashboard? Let's see this.
+Ok, now we know how to get real network information. But not everyone is able to access a log analytics workspace, or have the knowledge to query the logs. So what can we do?
+What about some dashboards? Let's see this.
 
 ## 3. What about some dashboard?
 
@@ -383,7 +383,7 @@ This gives us a json similar to this :
 
 ```
 
-Keeping only the part between the `properties {}`, we can leverage a small terraform configuration to recreate the dashboard anywhere
+Keeping only the part between the `properties {}`, we can leverage a small terraform configuration to recreate the dashboard anywhere.
 
 ```go
 
@@ -473,13 +473,13 @@ Ok time to wrap this up!
 
 ## 4. Wrapping it up
 
-So now we do have an idea on how to get infiormaiton on our flows.
+So now we do have an idea on how to get information on our flows.
 
 The first thing to know is that everything is about logs. In this case, Flow logs, rather thatn diagnostic settings logs, even if we can get a bunch of nice informations with those.
 
 Second, we need to know and have access to a log analytics workspace (or another log sink on which the flow logs are sent, in thise case, we have to find another way of querying the logs and everything I showed is false ^^).
 
-Graphical report and dashboard can be generated with Azure Monitor dashboards and Workbooks. Generating those dashboardcan however be cumbersome. Hopefully, there are some resources on the community to help us getting started.
+Graphical reports and dashboards can be generated with Azure Monitor dashboards and Workbooks. Generating those dashboards/workbooks can however be cumbersome. Hopefully, there are some resources on the community to help us getting started.
 
 Now, since part 1 of the article, I mentionned also Azure Firewall, but it was already too much for this one so I'll talk about that antoehr time.
 
