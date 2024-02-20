@@ -690,7 +690,7 @@ The public IP `20.72.188.148` which is tagged as `virtualNetworkGateway`.
 
 Also, to reach the IP range of the vhub `172.31.254.0/23`, the `nextHopType` is of the kind `VNetPeering`.
 
-The intersting point here is the managed gateway which allows the network routing between those 2 spokes. Is this Gateway dependant of the Virtual WAN or the Virtual Hub?
+The interesting point here is the managed gateway which allows the network routing between those 2 spokes. Is this Gateway dependant of the Virtual WAN or the Virtual Hub?
 A good way to answer this is to look at the next hop between `Spoke03` and `Spoke02`. Remember, `Spoke03` was connected to the Virtual Hub `vwan-01-vhub02`
 
 The effective routes for `vm03` nic gives us the `4.175.160.48` as the IP of the Gateway:
