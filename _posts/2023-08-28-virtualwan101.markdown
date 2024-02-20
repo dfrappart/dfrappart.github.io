@@ -592,7 +592,7 @@ yumemaru@azure:~$ az network nic list --resource-group rg-vwan | jq .[].ipConfig
 
 ```
 
-NNetwork Watcher tools to get the nexthop displays the follogin: 
+Network Watcher tools to get the nexthop displays the follogin: 
 
 ![illustration11](/assets/vwan/vwan011.png)
 
@@ -763,8 +763,8 @@ Now we have mostly highlighted the differene in a good way for Virtual WAN and i
 | | Network configuration for the hub| Spokes connection with the hub | Hub connection with other hub | Spoke connection with other spokes through the hub | Spoke connections with other spokes connected to other hub | Routing management |
 |-|-|-|-|-|-|-|
 | Virtual hub in Virtual Wan | Only specify the range | performed from the virtual hub in a similar way to the standard peering | Automatic at the creation of a new virtual hub | Relies on an Azure managed Gateway automatically deployed at the vhub creation | Relies on an Azure managed Gateway automatically deployed at the vhub creation | Centrally managed from the virtual hub
-| Hub & spoke with Virtual Network | Specify the range and define the subneting | confugired through the vnet properties | requires an additiona peering between spokes | Require an additional network resource to act as a gateway and allow the connectivity | Require an additional network resource to act as a gateway and allow the connectivity. May add complexity due to the additional hop | Require a routing management at the spokes subnet level |
+| Hub & spoke with Virtual Network | Specify the range and define the subneting | configured through the vnet properties | requires an additional peering between spokes | Require an additional network resource to act as a gateway and allow the connectivity | Require an additional network resource to act as a gateway and allow the connectivity. May add complexity due to the additional hop | Require a routing management at the spokes subnet level |
 
 
-And with that we are done with our discovry of the vwan.
-In a future article, we'll have a llok at what Microsoft calls the Secured Hub. Until then, have fun ^^
+And with that we are done with our discovery of the vwan.
+In a future article, we'll have a look at what Microsoft calls the Secured Hub. Until then, have fun ^^
