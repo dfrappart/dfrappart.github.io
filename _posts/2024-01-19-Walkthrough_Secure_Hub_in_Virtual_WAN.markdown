@@ -726,7 +726,9 @@ While for the spoke with `internet_security_enabled` set to `true`, the next hop
 
 ![illustration15](/assets/securehub/EgressRouteSecurityEnabled.png)
 
-Interestingly enough, the `internet_security_enabled` parameter is set to true by default when the network connection is created from the portal.
+Interestingly enough, the `internet_security_enabled` parameter is set to true by default when the network connection is created from the portal. It have a totally different name, by the way. You won't find `internet_security_enabled` on the portal but rather `Propagate Default Route`:
+
+![illustration20](/assets/securehub/internetsecuritygui.png)
 
 
 #### 2.4.2. Ingress flows from Internet for SecurityEnabled Spoke
@@ -923,17 +925,17 @@ Apart from the necessity of having a Firewall, we also need to configure the rou
 - The network connection to the hub with its routing parameter
 - Additional routes in the default route table if we want to allow routing between public and private spokes
 
-Also, we obviously need to configure rules on the firewall. We could spend more time just on that, but we've seen the basics with NEtwork rules and Applications rules.
+Also, we obviously need to configure rules on the firewall. We could spend more time just on that, but we've seen the basics with Network rules and Applications rules.
 We did it leveraging the IP Groups, Azure resources dedicated to Firewall policies.
 
-We also checked the `internet_security_enabled` parameter on the network connection and what it means to set it to true or false:
-- true means egress traffic goes through the Firewall, breaking at the same time direct public access from the spokes
+We also checked the `internet_security_enabled` parameter on the network connection and what it means to set it to `true` or `false`:
+- `true` means egress traffic goes through the Firewall, breaking at the same time direct public access from the spokes
 - `false` means that egress traffic is still using the default route table of the Vnet, thus **not** going to the Azure Firewall.
 
 There are still things that we should have a look at:
 - We did not look **at all** to the logs that we can get on either the Azure Firewall or the NSGs
-- Following the evolution of th eVirtual WAN, we did not eithe rlook at the routing intents
+- Following the evolution of the Virtual WAN, we did not either look at the routing intents
 
-Which means that I'll probablyu come back for more Network stuff ^^
+Which means that I'll probably come back for more Network stuff ^^
 
-That being said, see you next time
+That being said, see you next time!
