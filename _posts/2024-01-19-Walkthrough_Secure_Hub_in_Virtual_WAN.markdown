@@ -523,12 +523,13 @@ Reflecting on that we could also write the rules using the `cidrs` properties of
     rule {
       name                  = "AllowICMPToSpoke4"
       protocols             = ["ICMP"]
-      source_ip_groups      = module.testvnet2.VnetIpGroup.cidrs
-      destination_ip_groups = module.testvnet4.VnetIpGroup.cidrs
+      source_addresses      = module.testvnet2.VnetIpGroup.cidrs
+      destination_addresses = module.testvnet4.VnetIpGroup.cidrs
       destination_ports     = ["*"]
     }
 
 ```
+
 However, the rules created with the IP Groups Ids are displayed with the name of the IP group on the portal, while thos ecreated with the IP Groups cidrs are showing the cidr, whic is less user friendly.
 
 ![illustration14](/assets/securehub/ruledisplayed.png)
