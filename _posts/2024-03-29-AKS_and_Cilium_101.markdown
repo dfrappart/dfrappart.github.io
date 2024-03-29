@@ -93,13 +93,13 @@ To illustrate the interest of Cilium community or enterprise version versus the 
 | Container Networking (CNI) |<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
 |Kubernetes Network Policy & Services |<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
 | Collaborative Support Agreement |<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| Advanced Network Policy & Encryption (DNS, L7, TLS/SNI, …) |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| Ingress, Gateway API, & Service Mesh |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| Multi-Cluster, Egress Gateway, BGP, Non-Kubernetes Workloads |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| Hubble Network Observability (Metrics, Logs, Prometheus, Grafana, OpenTelemetry) |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| SIEM Integration & Timescape Observability Storage |:x:|:x:|<h2>&#x2705;</h2>|
-|Tetragon Runtime Security |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-|Enterprise-hardened Cilium Distribution, Training, 24×7 Enterprise Grade Support |:x:|:x:|<h2>&#x2705;</h2>|
+| Advanced Network Policy & Encryption (DNS, L7, TLS/SNI, …) |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| Ingress, Gateway API, & Service Mesh |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| Multi-Cluster, Egress Gateway, BGP, Non-Kubernetes Workloads |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| Hubble Network Observability (Metrics, Logs, Prometheus, Grafana, OpenTelemetry) |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| SIEM Integration & Timescape Observability Storage |&#x274C;|&#x274C;|<h2>&#x2705;</h2>|
+|Tetragon Runtime Security |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+|Enterprise-hardened Cilium Distribution, Training, 24×7 Enterprise Grade Support |&#x274C;|&#x274C;|<h2>&#x2705;</h2>|
 
 For further details, we can check the [Isovalent page](https://isovalent.com/product/) comparing Enterprise vs Open Source.
 
