@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "AKS and Cilium 101"
-date:   2024-03-10 18:00:00 +0200
+date:   2024-03-29 18:00:00 +0200
 year: 2024
 categories: AKS Network
 ---
