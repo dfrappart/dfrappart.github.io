@@ -123,7 +123,7 @@ yumemaru@azure:~$ az aks create -n aks-cnicilium -g rsg-ciliumlab -l eastus --ne
 
 ```
 
-Once the cluster is deployed, we can get the cluster credentials and have a look at Cilium status. We need cilium cli btw, which installation is documented here. 
+Once the cluster is deployed, we can get the cluster credentials and have a look at Cilium status. We need cilium cli btw, which binary are available [here](https://github.com/cilium/cilium-cli#helm-installation-mode). 
 
 ```bash
 
