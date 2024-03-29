@@ -166,7 +166,7 @@ aks-nodepool1-30325416-vmss000002   NotReady   agent   19m   v1.28.5
 
 ```
 
-We do need to install cilium, with the following paramters for the helm chart: 
+We do need to install cilium, with the following paramaters for the helm chart: 
 
 ```go
 
