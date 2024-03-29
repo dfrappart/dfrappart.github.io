@@ -90,16 +90,16 @@ To illustrate the interest of Cilium community or enterprise version versus the 
 
 | Features | Azure CNI Powered by Cilium | Cilium  Open Source | Isovalent Enterprise for Cilium |
 |-|:-:|:-:|:-:|
-| Container Networking (CNI) |:white_check_mark:|:white_check_mark:|:white_check_mark:|
-|Kubernetes Network Policy & Services |:white_check_mark:|:white_check_mark:|:white_check_mark:|
-| Collaborative Support Agreement |:white_check_mark:|:white_check_mark:|:white_check_mark:|
-| Advanced Network Policy & Encryption (DNS, L7, TLS/SNI, …) |:x:|:white_check_mark:|:white_check_mark:|
-| Ingress, Gateway API, & Service Mesh |:x:|:white_check_mark:|:white_check_mark:|
-| Multi-Cluster, Egress Gateway, BGP, Non-Kubernetes Workloads |:x:|:white_check_mark:|:white_check_mark:|
-| Hubble Network Observability (Metrics, Logs, Prometheus, Grafana, OpenTelemetry) |:x:|:white_check_mark:|:white_check_mark:|
-| SIEM Integration & Timescape Observability Storage |:x:|:x:|:white_check_mark:|
-|Tetragon Runtime Security |:x:|:white_check_mark:|:white_check_mark:|
-|Enterprise-hardened Cilium Distribution, Training, 24×7 Enterprise Grade Support |:x:|:x:|:white_check_mark:|
+| Container Networking (CNI) |<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+|Kubernetes Network Policy & Services |<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| Collaborative Support Agreement |<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| Advanced Network Policy & Encryption (DNS, L7, TLS/SNI, …) |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| Ingress, Gateway API, & Service Mesh |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| Multi-Cluster, Egress Gateway, BGP, Non-Kubernetes Workloads |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| Hubble Network Observability (Metrics, Logs, Prometheus, Grafana, OpenTelemetry) |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+| SIEM Integration & Timescape Observability Storage |:x:|:x:|<h2>&#x2705;</h2>|
+|Tetragon Runtime Security |:x:|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
+|Enterprise-hardened Cilium Distribution, Training, 24×7 Enterprise Grade Support |:x:|:x:|<h2>&#x2705;</h2>|
 
 For further details, we can check the [Isovalent page](https://isovalent.com/product/) comparing Enterprise vs Open Source.
 
