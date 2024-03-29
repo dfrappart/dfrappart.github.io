@@ -90,16 +90,16 @@ To illustrate the interest of Cilium community or enterprise version versus the 
 
 | Features | Azure CNI Powered by Cilium | Cilium  Open Source | Isovalent Enterprise for Cilium |
 |-|:-:|:-:|:-:|
-| Container Networking (CNI) |<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-|Kubernetes Network Policy & Services |<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| Collaborative Support Agreement |<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| Advanced Network Policy & Encryption (DNS, L7, TLS/SNI, …) |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| Ingress, Gateway API, & Service Mesh |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| Multi-Cluster, Egress Gateway, BGP, Non-Kubernetes Workloads |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| Hubble Network Observability (Metrics, Logs, Prometheus, Grafana, OpenTelemetry) |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-| SIEM Integration & Timescape Observability Storage |&#x274C;|&#x274C;|<h2>&#x2705;</h2>|
-|Tetragon Runtime Security |&#x274C;|<h2>&#x2705;</h2>|<h2>&#x2705;</h2>|
-|Enterprise-hardened Cilium Distribution, Training, 24×7 Enterprise Grade Support |&#x274C;|&#x274C;|<h2>&#x2705;</h2>|
+| Container Networking (CNI) |&#x2705;|&#x2705;|&#x2705;|
+|Kubernetes Network Policy & Services |&#x2705;|&#x2705;|&#x2705;|
+| Collaborative Support Agreement |&#x2705;|&#x2705;|&#x2705;|
+| Advanced Network Policy & Encryption (DNS, L7, TLS/SNI, …) |&#x274C;|&#x2705;|&#x2705;|
+| Ingress, Gateway API, & Service Mesh |&#x274C;|&#x2705;|&#x2705;|
+| Multi-Cluster, Egress Gateway, BGP, Non-Kubernetes Workloads |&#x274C;|&#x2705;|&#x2705;|
+| Hubble Network Observability (Metrics, Logs, Prometheus, Grafana, OpenTelemetry) |&#x274C;|&#x2705;|&#x2705;|
+| SIEM Integration & Timescape Observability Storage |&#x274C;|&#x274C;|&#x2705;|
+|Tetragon Runtime Security |&#x274C;|&#x2705;|&#x2705;|
+|Enterprise-hardened Cilium Distribution, Training, 24×7 Enterprise Grade Support |&#x274C;|&#x274C;|&#x2705;|
 
 For further details, we can check the [Isovalent page](https://isovalent.com/product/) comparing Enterprise vs Open Source.
 
