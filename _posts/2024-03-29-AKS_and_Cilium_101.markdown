@@ -346,7 +346,7 @@ And a list of the flows:
 
 ![illustration6](/assets/akscilium/akscilium004.png)
 
-If we add a new pod, and use it to test access on the deployment
+If we add a new pod, and use it to test access on the deployment, we see the traffic rendered in the hubble UI.
 
 ```bash
 
