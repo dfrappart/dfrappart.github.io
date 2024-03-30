@@ -46,7 +46,7 @@ Now, the idea for today is not to go deep into the CNI specs, because, it would 
 For now let's just list a few well known CNI such as:
 
 - [Calico](https://docs.tigera.io/calico/latest/about/)
-- [Azure](https://github.com/Azure/azure-container-networking) (well we do talk about AKS after all :grin:)
+- [Azure](https://github.com/Azure/azure-container-networking) (well we do talk about AKS after all &#x1F606;	)
 - and of course [Cilium](https://docs.cilium.io/en/stable/overview/intro/)
 
 Now that we've prepared the basics, what about Cilium?
@@ -113,7 +113,7 @@ Considering the az cli arguments, we need to use with the `az aks create` comman
 
 | AKS byo cni parameters​ | AKS Azure CNI powered by cilium parameters |
 |-|-|
-| `--network-plugin none` | `--network-plugin azure` </br> `--network-plugin-mode overlay` </br> `--network-dataplane cilium` </br> |
+| `--network-plugin none` | `--network-plugin azure` <br> `--network-plugin-mode overlay` <br> `--network-dataplane cilium` <br> |
 
 Creating an Azure CNI powered by Cilium cluster is done with a command looking like this:
 
