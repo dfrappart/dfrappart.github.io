@@ -63,7 +63,7 @@ Which means that we can control the access of an Internet client from the public
 Interestingly, it could be possible to have a public IP to allow the access from the Virtual network hosted client but it would require to take into account the nature of egress traffic from a virtual network.
 Remember, without any need for additional configuration, an Azure virtual machine can go on the Internet. But in this case, it uses a public IP taken in a regional pool. 
 Let's say it's not really ideal to add a full region pool of IPs to allow traffic. 
-So the other option is be to ensure that the vm get on the Interne twith a know public IP. For that we have options such as Azure NAT Gateway, or Azure Firewall. But again,not our topic today. Finally, service endpoints allow, when they are available, to keep the path more private than through a public IP so why bother?
+So the other option is be to ensure that the vm get on the Internet with a know public IP. For that we have options such as Azure NAT Gateway, or Azure Firewall. But again,not our topic today. Finally, service endpoints allow, when they are available, to keep the path more private than through a public IP so why bother?
 
 Moving on, usually, accept lists are not considered secure enough. And service endpoints bring other limitations, including that the PaaS instance is still connected to the Azure Public namespace. To answer the need for private PaaS, Microsoft designed the Private link solution and specifically for PaaS, Private endpoint.
 
@@ -105,8 +105,7 @@ Address: 52.226.4.150
 
 ```
 
-This cluster is configured with a publicly accessible API server as shown on the printscreen
-Using az cli, we'll have a look at the API server profile in the cluster:
+This cluster is configured with a publicly accessible API server as shown on the printscreen:
 
 ![illustration6](/assets/aksntwconsiderations/apipublic001.png)
 
