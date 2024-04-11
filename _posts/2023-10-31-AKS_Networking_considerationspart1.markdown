@@ -202,10 +202,10 @@ Logically, the routing changes and we secure the access to the API cluster becau
 In AKS, we have no less than 3 differents way to tackle the private cluster.
 In the first option, we bring our own private DNS zone and we tell the cluster, at the creation time, that we want it to be private and to use the DNS zone that we specify.
 Because the DNS needs to be created beforehand, there is more planning to do, but it also ensure that we can resolve our clusters names in hybrid environment, because all requests can be forwarded to this zone.
-In the second option, we let the cluste rcreate its own Private DNS zone. The private endpoint is registered on this zone in the same way as the first option. However, hybrid scenario are much more complicated (if not impossible) because we have 1 zone per cluster and no way to forward requests to all those zones. It ideal for environments in which the cluster access can be local to the virtual network only.
+In the second option, we let the cluster create its own Private DNS zone. The private endpoint is registered on this zone in the same way as the first option. However, hybrid scenarios are much more complicated (if not impossible) because we have 1 zone per cluster and no way to forward requests to all those zones. It ideal for environments in which the cluster access can be local to the virtual network only.
 
-Ok that makes 2, what about the 3rd?  Well, it's a kind of hybrid private cluster (toally personal naming here, don't use it ^^).
-The idea, with this third proposal, i that it's the DNS that is a pain to managed.
+Ok that makes 2, what about the 3rd?  Well, it's a kind of hybrid private cluster (totally personal naming here, don't use it ^^).
+The idea, with this third proposal, is that it's the DNS that is a pain to managed.
 So instead of managing DNS zone, we configure our private cluster but let the DNS resolution be managed in Microsoft managed DNS zone.
 
 Last but not least, we don't manage private endpoint the same way as for others PaaS. AKS control plane manages the creation on its own (with some consequences if we consider the BYO DNS...)
@@ -264,7 +264,7 @@ yumemaru@azure:~$ az aks create -n aks-ntwdemo11 -g aksntwdemo  --enable-private
 
 ```
 
-To detect if the DNS zone ismanaged by the cluster, look in the associated resource group that is shown in the properties section:
+To detect if the DNS zone is managed by the cluster, look in the associated resource group that is shown in the properties section:
 
 ![illustration9](/assets/aksntwconsiderations/privatecluster002.png)
 
@@ -304,7 +304,7 @@ Looking at the DNS zone, we can see the record for the cluster's API server:
 
 ![illustration10](/assets/aksntwconsiderations/privatecluster003.png)
 
-To managed that through terraform, have a look at this [older article]() on my blog ^^
+To managed that through terraform, have a look at this [older article](https://blog.teknews.cloud/aks/security/terraform/2022/07/07/AKS_private_cluster_through_the_terraform_lens.html) on my blog ^^
 
 Ok, that's it for the private cluster. Let's look at the last network configuration option for the API server.
 
