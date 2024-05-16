@@ -19,8 +19,8 @@ Let's get started
 
 When talking about Kubernetes, we have to consider how the pods are talking to each other, or to the outside world. 
 
-That's where comes the CNI topic. CNI stands for Container Network Interface and is the part which allos for different providers (Network providers) to developpe their solution and plug it to Kubernetes.
-There are a lot of CNI solutions, in the Kubernetes project. But from an AKSpoint of view, for a long time, we had only 2 options: 
+That's where comes the CNI topic. CNI stands for Container Network Interface and is the part which allows for different providers (Network providers) to developpe their solution and plug it to Kubernetes.
+There are a lot of CNI solutions, in the Kubernetes project. But from an AKS point of view, for a long time, we had only 2 options: 
 
 - Kubenet
 - Azure CNI
@@ -45,7 +45,7 @@ A cluster with kubenet will display kubenet in the network plugin value and a va
 
 ![illustration2](/assets/aksntwconsiderations/kubenet002.png)
 
-Note that tose range are privae from an Azure standpoint. Which means tht we can re-use those on other clusters. 
+Note that those range are private from an Azure standpoint. Which means tht we can re-use those on other clusters. 
 
 Now let's talk about limitations. Not all feature for AKS are available with kubenet, even if it got better with time. It is not possible to mutualized the AKS subnet for multiple clusters with kubenet. The rule is One cluster / 1 subnet
 Second, and maybe the most important point, there is an the added latency due to the additional hop for flows when reaching a workload inside the cluster. This additioal latency is not easy to evaluate but seems sufficiant so that Microsoft does not recommand kubenet for production environment.
@@ -60,7 +60,7 @@ Let's note also the non-compatibility of kubenet with Windows Node pools. IMHO, 
 
 If we want better performances or Windows container, then we need to consider Azure CNI.
 
-### 3.2. Azure CNI
+### 1.2. Azure CNI
 
 A cluster configured with Azure CNI will **NOT** display a range for the pod CIDR.
 
@@ -75,7 +75,7 @@ There is no NAT so no additional hop, which means performance similar to VM to V
 It' also possible to have Windows node pools or [virtual nodes](https://learn.microsoft.com/en-us/azure/aks/virtual-nodes).
 
 On the less good, we have to plan the virtual network range, since the pods will consume IPs also. 
-As described in the [documentation](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overview#plan-ip-addressing-for-your-cluster), we need to plan for the upgade time when new nodes are created.
+As described in the [documentation](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overview#plan-ip-addressing-for-your-cluster), we need to plan for the upgrade time when new nodes are created.
 Also, the max number of pods per node has to be taken into consideration. For an Azure CNI cluster, the default value is 30 pods per nodes. 
 
 The formula `(number of nodes + 1) + ((number of nodes + 1) * maximum pods per node that you configure)` from the documentation can be used to plan the requirement in terms of network range on the subnet hosting the cluster. 
@@ -171,8 +171,8 @@ Still, a overlay would be good, so are there options available?
 
 ### 1.3. Azure CNI with overlay
 
-Tjat's the part that i prefer with AKS, the product team really seems to follow Microsoft clients need. There is now apossibility to avoid IP exhaustion with Azure CNI with overlay. 
-This is kind of a doped kubenet. We could say that the idea is to get the best of both Azure CNI and Nubebet. The [documentation](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay) described that each node gets assigned a /24 CIDR, much like in kubenet. But there are less limitations, such as more nodes (1000 vs 400), performance on par with Azure CNI and no need for UDRs, and compatibility with both Windows and Linux nodes.
+That's the part that i prefer with AKS, the product team really seems to follow Microsoft clients need. There is now a possibility to avoid IP exhaustion with Azure CNI with overlay. 
+This is kind of a doped kubenet. We could say that the idea is to get the best of both Azure CNI and Kubebet. The [documentation](https://learn.microsoft.com/en-us/azure/aks/azure-cni-overlay) described that each node gets assigned a /24 CIDR, much like in kubenet. But there are less limitations, such as more nodes (1000 vs 400), performance on par with Azure CNI and no need for UDRs, and compatibility with both Windows and Linux nodes.
 Because the overlay traffic isn't encapsulated, we need to beware of NSG filtering on the subnet, which must allow traffic as follow, in addition to [egress traffic requirements](https://learn.microsoft.com/en-us/azure/aks/outbound-rules-control-egress):
 
 - Traffic from the node CIDR to the node CIDR on all ports and protocols
@@ -282,7 +282,7 @@ aks-nodepool1-24351847-vmss000001   NotReady   agent   140m   v1.26.6
 
 ```
 
-We could deploy any CNI with the associated documentation. Again, let's stop it here for now. Because Cilium has such taction lately, there's a chance that another article about this will come around anyway.
+We could deploy any CNI with the associated documentation. Again, let's stop it here for now. Because Cilium has such traction lately, there's a chance that another article about this will come around anyway.
 
 For now, we've seen eveything we had to see regarding the network plugin options. Let's take a step back andd look at the Virtual NEtwork again.
 
