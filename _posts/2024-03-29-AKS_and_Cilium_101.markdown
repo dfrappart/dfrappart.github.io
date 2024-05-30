@@ -55,7 +55,10 @@ So Cilium is bringing a new approach to network in Kubernetes because it relies 
 
 eBPF in itself is the game changer, because it allows to run sandboxed programs within the operating system. 
 With the aid of a Just-In-Time compiler and verification engine, the OS is able to guarantees safety and execution, as if those programs were natively compiled.
-eBPF is used for many sue case, including networking, observability and security functionnality, which means, most of Cilium topics ^^
+eBPF is used for many use case, including networking, observability and security functionnality, which means, most of Cilium topics ^^
+
+![illustration0](/assets/akscilium/ebpfschema.png)
+
 Now that we've talked a little bit about Cilium, let's focus on what we can do on Azure with this CNI.
 
 
