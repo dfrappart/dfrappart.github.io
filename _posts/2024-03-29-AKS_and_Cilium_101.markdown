@@ -398,7 +398,7 @@ Mar 29 20:13:27.362: default/testpod:43414 (ID:2615) -> basics/basicdeploy-65ff8
 
 ```
 
-Now let's see if we can identify traffic depending on the verdict. For that, we'll add network policies to filter traffic, and since Cilium also gives us some interesting options regzrding this component, we'll have a look at our second feature of the CNI.
+Now let's see if we can identify traffic depending on the verdict. For that, we'll add network policies to filter traffic, and since Cilium also gives us some interesting options regarding this component, we'll have a look at our second feature of the CNI.
 
 A native kubernetes network policy to block all traffic on a namespace would look like this:
 
@@ -417,7 +417,7 @@ spec:
 
 The `podSelector` configured with `{}` means that we select all pods in the namespace, and the `ingress` with the `[]` means that we allow no Ingress traffic.
 
-We could use thenative policy with Cilium, but let's have a look at the Cilium-specific one:
+We could use the native policy with Cilium, but let's have a look at the Cilium-specific one:
 
 ```yaml
 
@@ -683,7 +683,7 @@ Ok time to wrap this up!
 
 We've seen quite a lot of stuff here:
 
-- What and why Cilium is such a hot topic with its eBPF based archiecture
+- What and why Cilium is such a hot topic with its eBPF based architecture
 - cilium in an Azure landscape
 
 And a few features:
