@@ -83,7 +83,7 @@ Two of those mark an interest because of the potential additional feature:
 The first option, as the name imply, is an Azure CNI that bring hypothetically the power of Cilium.
 Unfortunately, in its current state, we do not get some of the interesting features such as L7 network policies or Hubble, as describe in the [Azure documentation](https://learn.microsoft.com/en-us/azure/aks/azure-cni-powered-by-cilium#limitations). We'll get more to those feature in the last part of this article, and probably in other article, because, there's a lot to see and test.
 
-The second option is not specifically dedicated to Cilium, but since we can choose whatever CNI we want, Cilium becomes a possiblechoice. We do have to install it ourselve though, and thus become responsible of its state and update, and all the nice stuff that you have to do when you managed your own kubernetes. This will be our choice for the remaining parts of this article.
+The second option is not specifically dedicated to Cilium, but since we can choose whatever CNI we want, Cilium becomes a possible choice. We do have to install it ourselve though, and thus become responsible of its state and update, and all the nice stuff that you have to do when you managed your own kubernetes. This will be our choice for the remaining parts of this article.
 
 Last, because there's always another option, is the Cilium Enterprise proposed by Isovalent. It's quite well documented on  a [Isovalent blog post](https://isovalent.com/blog/post/isovalent-aks/) and remove the issue of managing Cilium without support. There is of course a cost to consider, and to balance between the skill set of the platform engineering team, and the benefit of an available support.
 
