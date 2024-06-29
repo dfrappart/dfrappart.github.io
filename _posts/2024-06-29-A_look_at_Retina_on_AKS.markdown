@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "A look at Retina on AKS"
-date:   2024-06-20 18:00:00 +0200
+date:   2024-06-29 18:00:00 +0200
 year: 2024
 categories: AKS Network
 ---
