@@ -366,9 +366,7 @@ There is also metrics for dropped packet, but currently, it does not seem to rep
 
 ### 3.2. Retina capture
 
-The other interesting feature is the network capture. This is the typical network capture that sysadmin/network people are used to, and exploit with tools such as wireshark. It's interesting to compare this feature to the Azure native capture tool available on Network watcher.
-
-**captureinntwwatcher**
+The other interesting feature is the network capture. This is the typical network capture that sysadmin/network people are used to, and exploit with tools such as wireshark.
 
 Using capture in retina is either done through the retina cli, that we install previously, or through a CRD.
 The cli is quite well documentated in the documentation. In our case, we are Azure people (aren't we? &#x1F92D;) so we'll configure the capture to be recorded on a storage account. 
