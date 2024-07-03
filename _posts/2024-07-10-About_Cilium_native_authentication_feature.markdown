@@ -20,6 +20,8 @@ Let's get started!
 
 ## 1. Cilium authentication feature
 
+In the many available feature of Cilium, we find a Service mesh
+
 
 ## 2. Trying Cilium authentication
 
