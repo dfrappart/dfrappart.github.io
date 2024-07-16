@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Not Getting lost in the Service mesh and GAMMA initiative stuff in the k8s landscape"
-date:   2024-07-10 18:00:00 +0200
+date:   2024-07-29 18:00:00 +0200
 year: 2024
 categories: AKS Security Network
 ---
@@ -44,7 +44,7 @@ But what about the operations on this distributed model? I could tell you that w
 
 ![illustration2](/assets/servicemesh/smesh003.png)
 
-Let's add some additional complxities and introduce kubernetes in the equation &#129299;.
+Let's add some additional complexities and introduce kubernetes in the equation &#129299;.
 
 ![illustration3](/assets/servicemesh/smesh004.png)
 
@@ -52,7 +52,7 @@ If we take the asumption that the non-kubernetes landscape is totally under cont
 
 Enter the Service Mesh.
 
-Considering the needs
+Considering the needs:
 
 ```
 
@@ -60,7 +60,7 @@ Maintain segmentation and visibility of said segmentation even in kubernetes env
 
 ```
 
-and the service mesh definition mentioned earlier
+and the service mesh definition mentioned earlier:
 
 ```
 
@@ -158,7 +158,7 @@ While the initial focus of Gateway API was always ingress (north-south) traffic,
 
 Which explains why the service mesh interface is now archived. 
 
-There is another kubernetes project inside the Gateway API project that work on defining how Gateway API can be used for service mesh.
+There is another kubernetes project inside the Gateway API project, the [GAMMA Initiative](https://gateway-api.sigs.k8s.io/mesh/gamma/), that works on defining how Gateway API can be used for service mesh.
 
 
 
@@ -171,9 +171,7 @@ We also have service mesh, sometimes well established, or simply not necessarily
 
 We also have multi-feature one in all approach with some CNI (Did I already talked about [Cilium](https://docs.cilium.io/en/stable/)?&#129300;)
 
-**schemacurrentmesh**
-
-It's still difficult to adopt fully a kubernetes approach now with all those evolution. In my humble opinion, the best way is still the iterative way. We probably do not need all the features from the begining so it's ok to not choose a service mesh-ish implementation (and it may never be the case depending on the hosting governance). It's not ok to not keep up at least with the new concepts that will impact the hosting choice, or the operating model or... whatever your humble tech guy may not think about now.
+It's still difficult to adopt fully a kubernetes approach now with all those evolutions. In my humble opinion, the best way is still the iterative way. We probably do not need all the features from the begining so it's ok to not choose a service mesh-ish implementation (and it may never be the case depending on the hosting governance). It's not ok to not keep up at least with the new concepts that will impact the hosting choice, or the operating model or... whatever your humble tech guy may not think about now.
 
 So what's next? From my side, more exploration of tech feature that may be useful in the environment I interact with. At my level, that's the most I can do ^^
 
