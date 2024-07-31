@@ -8,7 +8,7 @@ categories: AKS Security Network
 
 Hello all!
 
-This article initiative is the result of me, looking at some nice tech stuff in k8s/AKS stuff and getting a little lost between all the differents initiatives, names, stuff... about microsgmentation, mesh and nort-south/east-west traffic management.
+This article initiative is the result of me, looking at some nice tech stuff in k8s/AKS stuff and getting a little lost between all the differents initiatives, names, stuff... about microsgmentation, mesh and north-south/east-west traffic management.
 It will probably be a little bit theoretical but I'll need that as a basis for carrying on the other tech stuff explorations, so please deal with me ^^
 
 We'll have two part in this session:

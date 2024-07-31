@@ -1,9 +1,9 @@
 ---
 layout: post
 title:  "About Cilium native authentication feature"
-date:   2024-07-31 18:00:00 +0200
+date:   2024-07-30 18:00:00 +0200
 year: 2024
-categories: AKS Security
+categories: AKS Security Network
 ---
 
 Hi there!
