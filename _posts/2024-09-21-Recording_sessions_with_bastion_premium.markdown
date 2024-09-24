@@ -21,7 +21,7 @@ Let's get started!
 ## 1. A rapid review of Azure Bastion concepts
 
 As its name implies, Azure bastion is... a managed bastion service.
-The idea is to provide amean to access Azure virtual machines on SSH or RDP, without requiring an direct exposure on the Internet with a public IP.
+The idea is to provide a mean to access Azure virtual machines on SSH or RDP, without requiring an direct exposure on the Internet with a public IP.
 Without Azure Bastion, either a VM with a public IP and required flows configured on NSG are required, of a VPN connection is needed to provide access inside the Virtual Network.
 
 ![illustration1](/assets/bastionpremium/nobastion.png)
@@ -110,7 +110,7 @@ It does seems that the API is not ready yet, as we can see on the [Azure Resourc
 
 ![illustration3](/assets/bastionpremium/bastionsku.png)
 
-So for now, we are indeed stuck with a portal only deployment.
+So for now, we are indeed stuck with a **portal-only deployment**.
 It's easily done once we located the proper section on the bastion host.
 Notice however that we cannot keep the native client with the session recording session. That's a bit of a let down but not totally a surprise.
 
@@ -166,7 +166,7 @@ resource "azapi_update_resource" "storageupdate" {
 
 ```
 
-Fun fact, the cors properties do not work taht much if youtry to configure it through the azurerm terraform provider &#128541;.
+Fun fact, the CORS properties do not work that much if youtry to configure it through the azurerm terraform provider &#128541;.
 
 We also specify a shared access signature on a designated storage container, which will be the repository of our records. We can do this either on the portal or through cli
 
@@ -200,7 +200,7 @@ And after doing some stuff on a server through the Bastion host, we can view the
 
 ## 4. Summary
 
-So, at last, ession recoridng is available in bastion premium.
+So, at last, session recording is available in bastion premium.
 
 Currently, the feature remains in preview, making automation a bit less fluid.
 Also, we have to choose between session recording and native client. 
