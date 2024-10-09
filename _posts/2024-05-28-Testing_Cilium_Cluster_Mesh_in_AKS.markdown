@@ -32,7 +32,7 @@ Use cases  could be:
 - Shared services
 - Splitting services by kind
 
-That seems nice. 
+That seems nice.  
 
 Features listed as available in the cluster mesh pattern are
 
@@ -43,38 +43,33 @@ Features listed as available in the cluster mesh pattern are
 
 If we want to try this out, we need to not at least the following prerequisites:
 
-- Cluster worker nodes should have connectivity between clusters. 
+- Cluster worker nodes should have connectivity between clusters.  
 - Pod Cidr cannot overlap between clusters.
 
-Now, considering Cilium, it's also important to note the available option for routing. 
+Now, considering Cilium, it's also important to note the available option for routing.  
 This will be important because we want to enable communication between pods accross clusters.
 How one pod find a route to another is important.
 
 The default configuration uses encapsulation. As described in Cilium [documentation](https://docs.cilium.io/en/stable/network/concepts/routing/), all cluster nodes form a mesh of tunnel using UDP-based encapsulation. That's probably one of the firewall configuration that we may need:
 
-
 | Encapsulation Mode | Port Range / Protocol |
 |-|-|
 | VXLAN (Default) | 8472/UDP |
 | Geneve | 6081/UDP |
-
-
-
+  
 The main advantage of this configuration is the simplicity (which is probably why this is the default mode), and the main limitation is the impact on the MTU overhead. We'll note that while this can easily be mitigated in a standard network, it's a little bit more tricky in Azure. Indeed, the default MTU is 1500, and the modification, if done, should be done on the [NIC](https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-tcpip-performance-tuning) level. If we're talking about AKS clusters, which nodes are Virtual machine scale sets managed on the Kubernetes plane, we would have to modify the MTU properties throuhg some command line each time a new node was provisioned.
 
 ![illustration2](/assets/clustermesh/clustermesh002.png)
 
-Another routing mode available is the native routing. In this configuration, to be clear, the network of the nodes needs to be able to route the network of the pods. Which is similar to not have an overlay. If it worked on an Azure environment, it would also imply that the network planning should be done in a similar way to the planning for Azure CNI (without overlay). 
+Another routing mode available is the native routing. In this configuration, to be clear, the network of the nodes needs to be able to route the network of the pods. Which is similar to not have an overlay. If it worked on an Azure environment, it would also imply that the network planning should be done in a similar way to the planning for Azure CNI (without overlay).  
 
-Other configuration are listed in the documentation, but those are more cloud platform specific. 
+Other configuration are listed in the documentation, but those are more cloud platform specific.  
 
 The helm chart parameter for the routing configuration is `routingMode` with a default value to `tunnel`
 
 That would be all for our view around the concepts. Let's play a bit now.
 
-
 ## 2. Preparing the lab
-
 
 We want to try cluster mesh in an Azure environment, meaning with AKS clusters.
 
@@ -104,7 +99,7 @@ az aks update --resource-group <resourceGroup> --name <clusterName> --kube-proxy
 
 ```
 
-The kube-proxy.json file is the repository for the kube-proxy configuration. In our case, we simply want this configuration to disable kube-proxy, so the file would look like this: 
+The kube-proxy.json file is the repository for the kube-proxy configuration. In our case, we simply want this configuration to disable kube-proxy, so the file would look like this:  
 
 ```json
 
@@ -189,7 +184,7 @@ As mentionned, Cilium need to be installed, the required arguments in our case w
 
 The four first argument are basic cilium configuration. Those needed for the cluster mesh are the argument 8 to 11. In between, the argument 5 to 7 are set to configure the kube-proxy replacement.
 The `ipam.operator.clusterPoolIPv4PodCIDRList` allows to change the default value for the pod cidr. We match the value here to the value specified on the AKS cluster for the pod cidr.
-The arguments `cluster.name` and `cluster.id` are both required for the cluster mesh configuration. 
+The arguments `cluster.name` and `cluster.id` are both required for the cluster mesh configuration.  
 The `azure.resourceGroup` is the resource group in which the AKS cluster (not its associated resources) lives.
 
 With Cilium installed on each clusters, we can now check the status with the `cilium status` command.
@@ -224,9 +219,10 @@ Image versions         cilium-operator          quay.io/cilium/operator-generic:
                        cilium                   quay.io/cilium/cilium:v1.15.5@sha256:4ce1666a73815101ec9a4d360af6c5b7f1193ab00d89b7124f8505dee147ca40: 4
 
 ```
+
 There is a note about the Certificate Authority in the [cluster mesh configiguration documentation](https://docs.cilium.io/en/latest/network/clustermesh/clustermesh/).
 
-We need to propagate the certificate accross the cluster. So as explained, we have to remove  Cilium secret for the CA in all but one of our cluster and delete it:
+We need to propagate the certificate accross the clusters. So as explained, we have to remove  Cilium secret for the CA in all but one of our clusters and delete it:
 
 ```bash
 
@@ -234,7 +230,7 @@ kubectl -delete secret -n kube-system cilium-ca -o yaml --context <clustername>
 
 ```
 
-And then propagate the secret 
+And then propagate the secret  
 
 ```bash
 
@@ -254,7 +250,7 @@ azureuser@vm1:~$ cilium clustermesh enable
 
 ```
 
-Checking the cluster, we can find a service for the cluster mesh, as expecxted after the previous command:
+Checking the cluster, we can find a service for the cluster mesh, as expected after the previous command:
 
 ```bash
 
@@ -272,7 +268,8 @@ metrics-server                     ClusterIP      100.69.196.87    <none>       
 
 ```
 
-If we check in the AKS managed resource group, we will find an internal load balancer which IP match the external IP of the cilium `clustermesh-apiserver` service
+If we check in the AKS managed resource group, we will find an internal load balancer which IP match the external IP of the cilium `clustermesh-apiserver` service.
+
 ```bash
 
 azureuser@vm1:~$ az network lb show -n kubernetes-internal -g rsg-aksobjectsciliumlab3 | jq . | grep -i privateIPAddress
@@ -326,7 +323,7 @@ azureuser@vm1:~$ cilium clustermesh status
 
 ```
 
-Now all we have to do is to connect the clusters together with the `cilium clustermesh connect` command. We have to specify the target cluster with the argument `--destination-context`. 
+Now all we have to do is to connect the clusters together with the `cilium clustermesh connect` command. We have to specify the target cluster with the argument `--destination-context`.  
 
 ```bash
 
@@ -350,7 +347,7 @@ Repeting that on our other clusters, we get a 3 clusters mesh. We can now test t
 
 ## 3. Testing cluster mesh
 
-The first thing we want to test in the service discovery accross the cluster. For that we will create a bunch of application. For the purpose of not doing exactly the same way as in the cilium tutorials, let's create an deployment based on an AKS demo app on each cluster.
+The first thing we want to test is the service discovery accross the clusters. For that we will create a bunch of application. For the purpose of not doing exactly the same way as in the cilium tutorials, let's create an deployment based on an AKS demo app on each cluster.
 
 ```yaml
 
@@ -416,7 +413,7 @@ CURRENT   NAME             CLUSTER          AUTHINFO                            
 
 ```
 
-It's not fun to just curl the application to validate its global status, so we'll add a client application based on a firefox container: 
+It's not fun to just curl the application to validate its global status, so we'll add a client application based on a firefox container:  
 
 ```yaml
 
@@ -543,14 +540,13 @@ Connecting to Hubble, we can see the following:
 
 ![illustration7](/assets/clustermesh/clustermesh007.png)
 
+Now that we have global service, we can have a look at the annotation `service.cilium.io/shared`. If set to `"true"`, the global service is shared, and thus accessible accross all the clusters. If set to `"false"`, the service on the cluster is only accessible locally.  
 
-Now that we have global service, we can have a look at the annotation `service.cilium.io/shared`. If set to `"true"`, the global service is shared, and thus accessible accross all the clusters. If set to `"false"`, the service on the cluster is only accessible locally. 
+We have another annotation available to manage the affinity of a service. `service.cilium.io/affinity` can be set to `"local|remote|none"`.  
 
-We have another annotation available to manage the affinity of a service. `service.cilium.io/affinity` can be set to `"local|remote|none"`. 
+Let's try to illustrate this.  
 
-Let's try to illustrate this. 
-
-On cluster 1, we will set the annotation `service.cilium.io/shared` to `"false"`. On cluster 2, we will set the `service.cilium.io/affinity` to `"remote"`. Because the cluster1 service is not shared anymore, we should answer mostly from cluster 3.
+On cluster 1, we will set the annotation `service.cilium.io/shared` to `"false"`. On cluster 2, we will set the `service.cilium.io/affinity` to `"remote"`. Because the cluster1 service is not shared anymore, we should get answer mostly from cluster 3.
 
 ```bash
 
@@ -592,10 +588,8 @@ Connection: keep-alive
 
 Ok, time to wrap up!
 
-
 ## 4. Summary
 
 In this article, we explored the cluster mesh with Cilium, from the prerequisite, the set up and some basic testing.
 There are additional thing to do, such as testing network policies in the mesh context, or testing the encryption. But then, the article would get too long, so we'll stop here for now.
-See you soon hopefully &#x1F913;	
-
+See you soon hopefully &#x1F913;

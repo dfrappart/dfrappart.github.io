@@ -10,7 +10,7 @@ Hi there!
 
 If you're in the K8S world, you've probably come across eBPF and Cilium lately.
 I did and started to look at what it means when considering AKS, which is my main Kubernetes platform.
-In this article, I propose a first look at AKS and Cilium together and what we can do with it. 
+In this article, I propose a first look at AKS and Cilium together and what we can do with it.  
 Spoiler, I'll have to do more than 1 article to be able to deep dive in all the features that Cilium brings to the table.
 For now, it will be just an introduction.
 
@@ -46,14 +46,14 @@ Now, the idea for today is not to go deep into the CNI specs, because, it would 
 For now let's just list a few well known CNI such as:
 
 - [Calico](https://docs.tigera.io/calico/latest/about/)
-- [Azure](https://github.com/Azure/azure-container-networking) (well we do talk about AKS after all &#x1F606;	)
+- [Azure](https://github.com/Azure/azure-container-networking) (well we do talk about AKS after all &#x1F606;)
 - and of course [Cilium](https://docs.cilium.io/en/stable/overview/intro/)
 
 Now that we've prepared the basics, what about Cilium?
 
 So Cilium is bringing a new approach to network in Kubernetes because it relies on [eBPF](https://ebpf.io/what-is-ebpf/#what-is-ebpf), which stands for Extended Berkley Packet Filter.
 
-eBPF in itself is the game changer, because it allows to run sandboxed programs within the operating system. 
+eBPF in itself is the game changer, because it allows to run sandboxed programs within the operating system.  
 With the aid of a Just-In-Time compiler and verification engine, the OS is able to guarantees safety and execution, as if those programs were natively compiled.
 eBPF is used for many use case, including networking, observability and security functionnality, which means, most of Cilium topics ^^
 
@@ -61,12 +61,11 @@ eBPF is used for many use case, including networking, observability and security
 
 Now that we've talked a little bit about Cilium, let's focus on what we can do on Azure with this CNI.
 
-
 ## 2. Cilium & AKS, a love story?
 
 Let's start by reviewing rapidly what we have for CNI options on AKS.
-We talked about that in a previous article about [AKS Network considerations]().
-Initially, we had a choice between kubenet and Azure CNI. 
+We talked about that in a previous article about [AKS Network considerations](/_posts/2023-10-31-AKS_Networking_considerationspart1.markdown).
+Initially, we had a choice between kubenet and Azure CNI.  
 While Azure CNI was often the de-facto choice for AKS aimed to production, It brough a serious probleme of IP consumptions and was sometimes difficult to put in place in hybrid environement.
 On the other hand, kubenet, while not subject to this IP consumption problem, was (and still is) crippled by an additional latency due to the additional hop inducted by the pod network overlay.
 
@@ -74,7 +73,7 @@ On the other hand, kubenet, while not subject to this IP consumption problem, wa
 
 ![illustration2](/assets/aksntwconsiderations/cni002.png)
 
-To solve that, fortunately, the AKS teams worked a lot and gave us additional solutions. 
+To solve that, fortunately, the AKS teams worked a lot and gave us additional solutions.  
 Two of those mark an interest because of the potential additional feature:
 
 - Azure CNI powered by Cilium
@@ -116,7 +115,7 @@ Considering the az cli arguments, we need to use with the `az aks create` comman
 
 | AKS byo cni parameters​ | AKS Azure CNI powered by cilium parameters |
 |-|-|
-| `--network-plugin none` | `--network-plugin azure` <br> `--network-plugin-mode overlay` <br> `--network-dataplane cilium` <br> |
+| `--network-plugin none` | `--network-plugin azure` </br> `--network-plugin-mode overlay` </br> `--network-dataplane cilium` </br> |
 
 Creating an Azure CNI powered by Cilium cluster is done with a command looking like this:
 
@@ -126,7 +125,7 @@ yumemaru@azure:~$ az aks create -n aks-cnicilium -g rsg-ciliumlab -l eastus --ne
 
 ```
 
-Once the cluster is deployed, we can get the cluster credentials and have a look at Cilium status. We need cilium cli btw, which binary are available [here](https://github.com/cilium/cilium-cli#helm-installation-mode). 
+Once the cluster is deployed, we can get the cluster credentials and have a look at Cilium status. We need cilium cli btw, which binary are available [here](https://github.com/cilium/cilium-cli#helm-installation-mode).  
 
 ```bash
 
@@ -157,7 +156,7 @@ We'll note the hubble state, which is disabled, as defined in the Azure document
 
 So that's about all for the CNI powered by Cilium, because, we don't get the first feature that we want to test which is Network observability through Hubble.
 
-Now, for a cluster created with the byocni, because we do bring our own CNI, the cluster comes with nodes in `NotReady` State : 
+Now, for a cluster created with the byocni, because we do bring our own CNI, the cluster comes with nodes in `NotReady` State :  
 
 ```bash
 
@@ -169,7 +168,7 @@ aks-nodepool1-30325416-vmss000002   NotReady   agent   19m   v1.28.5
 
 ```
 
-We do need to install cilium, with the following paramaters for the helm chart: 
+We do need to install cilium, with the following paramaters for the helm chart:  
 
 ```go
 
@@ -207,7 +206,7 @@ We do need to install cilium, with the following paramaters for the helm chart:
 
 ```
 
-And then the cilium status command shows us the following display: 
+And then the cilium status command shows us the following display:  
 
 ```bash
 
@@ -238,10 +237,8 @@ Image versions         cilium             quay.io/cilium/cilium:v1.14.0@sha256:5
 
 ```
 
-
 This time, we do have hubble, among our enabled features for Cilium.
 Let's start playing a bit then.
-
 
 ## 4. Looking at the features of Cilium
 
@@ -385,7 +382,9 @@ The result is a bit too much, so we want to fine tune a little the result. Looki
 --to-pod          filter            Show all flows terminating in the given pod name prefix([namespace/]<pod-name>). If namespace is not provided, 'default' is used
 
 ```
+
 We can thus filter the traffic between the test pod and the deployment and get something like this:
+
 ```bash
 
 yumemaru@azure:~$ hubble observe --to-pod basics/basicdeploy-65ff8695df-p58zr --from-pod default/testpod
@@ -436,7 +435,7 @@ spec:
 
 ```
 
-We can notice some differences here. While the `ingress` parameter remains, we select for the target an endpoint with the `endpointSelector` rather than a `podSelector`. 
+We can notice some differences here. While the `ingress` parameter remains, we select for the target an endpoint with the `endpointSelector` rather than a `podSelector`.  
 
 Let's apply this policy and see what hubble tells us:
 
@@ -457,7 +456,7 @@ Mar 29 21:06:40.105: default/testpod:48740 (ID:2615) <> basics/basicdeploy-65ff8
 
 This time, we can see some dropped packet, mentioning the `Policy denied DROPPED`.
 
-Let's add a new pod in a new namespace called client: 
+Let's add a new pod in a new namespace called client:  
 
 ```bash
 
@@ -494,7 +493,7 @@ spec:
 
 ```
 
-Again, we can have a look at our traffic through hubble and see the allowed traffic: 
+Again, we can have a look at our traffic through hubble and see the allowed traffic:  
 
 ```bash
 yumemaru@azure:~$ hubble observe --to-pod basics/basicdeploy-65ff8695df-p58zr --from-pod default/testpod
@@ -521,7 +520,6 @@ Mar 29 22:23:08.647: default/testpod:47484 (ID:2615) <> basics/basicdeploy-65ff8
 Ok, but at this point, this is just another way of writing a network policy, without any addiotion. Let's gear up and add some L7 in our network policy.
 For this we'll want to manage egress traffic on our deployment, and allow only a subset of Egress Traffic.
 Let's start with a deny Egress:
-
 
 ```yaml
 
@@ -649,7 +647,7 @@ yumemaru@azure:~$ k exec -n basics basicdeploy-65ff8695df-p58zr -- curl -i -X GE
 
 ```
 
-A last look at hubble gives us confirmation of flows 
+A last look at hubble gives us confirmation of flows.  
 
 ```bash
 
@@ -702,6 +700,3 @@ And also a Gateway API without any other installation.
 Well, let's get back on all that in another article ^^
 
 Until then, have a good time!
-
-
-
