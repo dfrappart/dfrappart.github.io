@@ -24,14 +24,14 @@ Let's get started!
 
 ## 1. What is Vault
 
-I wonder if we really need to introduce Vault. It's becoming something of a must have in the secrets management landscape (amon others things).
+I wonder if we really need to introduce Vault. It's becoming something of a must have in the secrets management landscape (among others things).
 
 But well, just to be thorough, let's describe what we have.
 
 Vault from Hashicorp is a Secrets Engine.
-Right, which means ? &#128517;
+Right, which means? &#128517;
 
-Well, if, like me, you're dealing in a Public Cloud environment, you probably came accross times when you needed to store, and even more, manage secrets. Those secrets being password, key, or certificate.
+Well, if, like me, you're dealing in a Public Cloud environment, you probably came accross times when you needed to store, and even more, manage secrets. Those secrets being passwords, keys, or certificates.
 
 If, again, like me, you're dealing with Azure, you probably also came accross Azure Keyvault, which, all in all, could be described as a `vault as a service`.
 Notice the lack of capital `V` here. When I say vault, it means the concepts of vault to securely store secrets.
@@ -84,8 +84,8 @@ In the external storage, we can find many well known storage options, either in 
 
 A more exhaustive list can be found on the [documentation](https://developer.hashicorp.com/vault/docs/configuration/storage).
 
-All of thos options are well proven in traditional and cloud native architecture and it can makes sense to choose from one of those.
-However, the Integrated storage option is nowadays the recommended solution from Hashicorp. Taking into considerations the following tableextracted again fro mthe documentation it does make sense:
+All of those options are well proven in traditional and cloud native architecture and it can makes sense to choose from one of those.
+However, the Integrated storage option is nowadays the recommended solution from Hashicorp. Taking into considerations the following table, extracted again from the documentation, it does make sense:
 
 |  | Integrated Storage	| External Storage |
 |-|-|-|
@@ -306,7 +306,7 @@ Error initializing storage of type raft: failed to create fsm: failed to open bo
 
 ```
 
-And it does not work !
+And it does not work!
 
 But it makes sense, there is  no reason that we should access the path `/opt/vault/data` with the vagrant user.
 Let's just verify tha the configuration is ok by launching the vault command with sudo.
@@ -367,7 +367,7 @@ HA Enabled         true
 
 ```
 
-So it does work, but it's not "reboot persistent", and well, it's really not a good idea to start apps as root so let's try to do better.
+So it works this time, but it's not "reboot persistent", and well, it's really not a good idea to start apps as root so let's try to do better.
 
 ```bash
 
@@ -712,7 +712,7 @@ So we know how to init, unseal Vault and reset the root token. And the server re
 ### 3.3. Vault auto unseal with keyvault
 
 Vault can be configured to use a feature to auto-unseal upon startup.
-In this case, instead of requiring Vault operators to enter the unseal keys, Vault will fetch a key store, for example a keyvault to get the encryption key.
+In this case, instead of requiring Vault operators to enter the unseal keys, Vault will fetch a key store, for example a keyvault, to get the encryption key.
 
 ![illustration6](/assets/vault/autounseal001.png)
 
