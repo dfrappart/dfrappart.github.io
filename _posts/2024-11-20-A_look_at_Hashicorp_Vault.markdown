@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "A look at Hashicorp Vault - Getting started"
+title:  "A look at HashiCorp Vault - Getting started"
 date:   2024-11-20 18:00:00 +0200
 year: 2024
 categories: Vault Security
 ---
 
 It's been a long time coming!
-I decided to start seriously looking into Hashicorp Vault.
+I decided to start seriously looking into HashiCorp Vault.
 I love the product but by lack of time, never started the journey.
 So what better way to start than initiating a few blog posts on the topic &#128523;
 
@@ -28,15 +28,15 @@ I wonder if we really need to introduce Vault. It's becoming something of a must
 
 But well, just to be thorough, let's describe what we have.
 
-Vault from Hashicorp is a Secrets Engine.
+Vault from HashiCorp is a identity-based Secrets and Encryption management system.
 Right, which means? &#128517;
 
-Well, if, like me, you're dealing in a Public Cloud environment, you probably came accross times when you needed to store, and even more, manage secrets. Those secrets being passwords, keys, or certificates.
+Well, if, like me, you're dealing in a Public Cloud environment, you probably came across times when you needed to store, and even more, manage secrets. Those secrets being passwords, keys, or certificates.
 
-If, again, like me, you're dealing with Azure, you probably also came accross Azure Keyvault, which, all in all, could be described as a `vault as a service`.
-Notice the lack of capital `V` here. When I say vault, it means the concepts of vault to securely store secrets.
+If, again, like me, you're dealing with Azure, you probably also came across Azure Keyvault, which, all in all, could be described as a `vault as a service`.
+Notice the lack of capital `V` here. When I say **v**ault, it means the concepts of vault to securely store secrets.
 
-Well, Vault (with a capital `V`) is also a `vault as a service` but also so much more.
+Well, **V**ault (with a capital `V`) is also a `vault as a service` but also so much more.
 
 Obviously, because it's so much more, it also comes with much more management to do.
 
@@ -54,12 +54,12 @@ The Vault API, as one would expect, is the entry point to access Vault component
 
 Those components are the core of Vault functionnalities. We have for instance, the secrets engines, the authentication methods or the token store. Things that we will have a look at when we go deeper in our Vault journey.
 
-Because all of those components interacts with sensitive data, they're included in what is called the Barrier, the Vault encryption layer.
+Because all of those components interact with sensitive data, they're included in what is called the Barrier, the Vault encryption layer.
 Inside this barrier occurs the encryption/decryption actions.
 
 We'll note that the backend storage is outside of the barrier, meaning that it's not trusted. And that's why Vault encrypt the data **before** sending data to be written to the storage.
 
-For more details, please refer to [Vault architecture page](https://developer.hashicorp.com/vault/docs/internals/architecture).
+For more details, please refer to [Vault architecture page](https://developer.HashiCorp.com/vault/docs/internals/architecture).
 
 Now, still about the architecture, there are considerations for High availability, but I prefer to keep that for another time.
 
@@ -82,10 +82,10 @@ In the external storage, we can find many well known storage options, either in 
 - MySql
 - Cassandra
 
-A more exhaustive list can be found on the [documentation](https://developer.hashicorp.com/vault/docs/configuration/storage).
+A more exhaustive list can be found on the [documentation](https://developer.HashiCorp.com/vault/docs/configuration/storage).
 
-All of those options are well proven in traditional and cloud native architecture and it can makes sense to choose from one of those.
-However, the Integrated storage option is nowadays the recommended solution from Hashicorp. Taking into considerations the following table, extracted again from the documentation, it does make sense:
+All of those options are well proven in traditional and cloud native architecture, and it can makes sense to choose from one of those.
+However, the Integrated storage option is nowadays the recommended solution from HashiCorp. Taking into considerations the following table, extracted, again, from the documentation, it does make sense:
 
 |  | Integrated Storage	| External Storage |
 |-|-|-|
@@ -114,7 +114,7 @@ Now it's time to start experimenting a bit
 
 It's very easy to have a ephemeral lab of Vault, thanks to the dev server.
 
-But that's not what we would like to achieve. Instead, we will create a local lab with the help of another Hashicorp tool which is Vagrant.
+But that's not what we would like to achieve. Instead, we will create a local lab with the help of another HashiCorp tool: Vagrant.
 
 There are many doc and tutorials on this tool, and I honestly found the configuration for this lab somewhere on the Internet.
 To get started, we need a Vagrantfile file, somehow similar to docker, except it's all virtual machine. The vagrant file content is like this:
@@ -176,7 +176,7 @@ echo "127.0.1.1 $(hostname)" >> /etc/hosts
 
 export currentip=$(/sbin/ip -o -4 addr list enp0s8 | awk '{print $4}' | cut -d/ -f1)
 
-# Add Hashicorp repository
+# Add HashiCorp repository
 
 wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
@@ -309,7 +309,7 @@ Error initializing storage of type raft: failed to create fsm: failed to open bo
 And it does not work!
 
 But it makes sense, there is  no reason that we should access the path `/opt/vault/data` with the vagrant user.
-Let's just verify tha the configuration is ok by launching the vault command with sudo.
+Let's just verify tha the configuration is ok, by launching the vault command with sudo.
 
 ```bash
 
@@ -387,7 +387,7 @@ In our case, we will add the following in our script:
 ```bash
 sudo tee -a /etc/systemd/system/vault.service > /dev/null <<EOT
 [Unit]
-Description="Hashicorp Vault"
+Description="HashiCorp Vault"
 Documentation="https://developer.hashicorp.com/vault/docs"
 Requires=network-online.target
 After=network-online.target
@@ -441,7 +441,7 @@ After rebuilding our box, we have a working vault service:
 ```bash
 
 vagrant@vaultserver1:~$ systemctl status vault
-● vault.service - "Hashicorp Vault"
+● vault.service - "HashiCorp Vault"
      Loaded: loaded (/etc/systemd/system/vault.service; enabled; vendor preset: enabled)
      Active: active (running) since Thu 2024-11-14 22:07:24 UTC; 40s ago
        Docs: https://developer.hashicorp.com/vault/docs
@@ -707,7 +707,7 @@ hvs.xxxxxxxxxxxxxxxxxxxxxxxx
 
 ```
 
-So we know how to init, unseal Vault and reset the root token. And the server remains unseal upon a restart, unless...
+So we know how to init, unseal Vault and reset the root token. And the server seals itself upon restart, unless...
 
 ### 3.3. Vault auto unseal with keyvault
 
