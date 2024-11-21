@@ -59,7 +59,10 @@ Inside this barrier occurs the encryption/decryption actions.
 
 We'll note that the backend storage is outside of the barrier, meaning that it's not trusted. And that's why Vault encrypt the data **before** sending data to be written to the storage.
 
-For more details, please refer to [Vault architecture page](https://developer.HashiCorp.com/vault/docs/internals/architecture).
+About encryption, there are some important things to get. As we mentionned, everything is encrypted. There is a key that is used for those encryptions actions, which is called, guess what?  The **Encryption key**.
+To protect this **Encryption key**, we use a root key. As mentionned on the[seal documentation page](https://developer.hashicorp.com/vault/docs/concepts/seal), at startup, the server is sealed, so it does know where is its storage, but has not the means to decrypt the data stored. Getting the root key that allows access the data, which is also getting the **Encryption key** is called unseal. That's what we do at startup, and we'll see it a bit later, with the key shared a.k.a the Shamir seals. From the Shamir Seals, we rebuilt the root key to get access to the Encryption key. We'll see also that there are other means to get the root key. 
+
+For more details on the architecture, it's possible to refer to the [Vault architecture page](https://developer.HashiCorp.com/vault/docs/internals/architecture).
 
 Now, still about the architecture, there are considerations for High availability, but I prefer to keep that for another time.
 
@@ -494,6 +497,8 @@ Now that we have a vault server ready, we need to interact with it.
 At this point, the server is neither initiated nor unsealed, as we saw on the previous section, so first, we will need to initialize it.
 This is something we can achieve with the `vault operator init` command, which documentation is available [here](https://developer.hashicorp.com/vault/docs/commands/operator/init).
 By default the seal type is **shamir**. For those who wonders what hide behind this name, there's a definition available on [wikipedia](https://en.wikipedia.org/wiki/Shamir's_secret_sharing).
+
+Remember, we said earlier that the unseal operation is how we get the root key that protect the encryption key. Once we have it, we can encrypt/decrypt data to the backend storage, if we don't have it, we cannot read/write on the storage, hence the Vault server is sealed.
 
 To summarize, shamir is a secret sharing algorithm, which relies on a quorum. The secret information is divided into parts that need to be assembled in a sufficiant number to rebuild the secrets.
 In our case, when we initialize the vault server with shamir seal, we will thus specify the number of shares with the argument `-key-shares`, and the number of share required to rebuild the root token with the argument `-key-threshold`.
