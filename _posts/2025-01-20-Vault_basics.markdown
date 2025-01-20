@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "A look at Hashicorp Vault - Getting started"
+title:  "Vault basics"
 date:   2025-01-20 18:00:00 +0200
 year: 2025
 categories: Vault Security
