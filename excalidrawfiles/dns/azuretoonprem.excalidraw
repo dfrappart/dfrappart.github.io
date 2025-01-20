@@ -5468,7 +5468,7 @@
       "containerId": "a-elseLCJulkVsdmWUwya",
       "originalText": "Internet",
       "lineHeight": 1.25,
-      "baseline": 19
+      "baseline": 18
     },
     {
       "type": "arrow",
@@ -5561,7 +5561,7 @@
       "containerId": "XppecmtTGs0kE-IJgEfuF",
       "originalText": "DNS queries",
       "lineHeight": 1.25,
-      "baseline": 19
+      "baseline": 18
     },
     {
       "type": "arrow",
@@ -5654,7 +5654,7 @@
       "containerId": "_f-7lVZzQgTfsudoVIorK",
       "originalText": "resolde public fqdn",
       "lineHeight": 1.25,
-      "baseline": 19
+      "baseline": 18
     },
     {
       "type": "arrow",
@@ -5751,7 +5751,7 @@
       "containerId": "xGswyJ4KtPcGZsq_pv3-P",
       "originalText": "resolve private fqdn",
       "lineHeight": 1.25,
-      "baseline": 19
+      "baseline": 18
     },
     {
       "type": "text",
@@ -10800,8 +10800,8 @@
     },
     {
       "type": "text",
-      "version": 112,
-      "versionNonce": 1223886180,
+      "version": 126,
+      "versionNonce": 2035213775,
       "isDeleted": false,
       "id": "Yt0q3UQlagDmBabe42szd",
       "fillStyle": "solid",
@@ -10810,11 +10810,11 @@
       "roughness": 1,
       "opacity": 100,
       "angle": 0,
-      "x": 1529.9072487038686,
+      "x": 1527.2112419289663,
       "y": 282.9765237033697,
       "strokeColor": "#1e1e1e",
       "backgroundColor": "transparent",
-      "width": 148.5443115234375,
+      "width": 153.9363250732422,
       "height": 40,
       "seed": 1557068199,
       "groupIds": [
@@ -10824,16 +10824,16 @@
       "frameId": null,
       "roundness": null,
       "boundElements": [],
-      "updated": 1730108304735,
+      "updated": 1737383292717,
       "link": null,
       "locked": false,
       "fontSize": 16,
       "fontFamily": 1,
-      "text": "Private DNS zone \nfor Key Vault",
+      "text": "Private DNS zone \nfor IaaS resources",
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Private DNS zone \nfor Key Vault",
+      "originalText": "Private DNS zone \nfor IaaS resources",
       "lineHeight": 1.25,
       "baseline": 34
     },
@@ -10879,8 +10879,8 @@
     },
     {
       "type": "text",
-      "version": 183,
-      "versionNonce": 934638300,
+      "version": 186,
+      "versionNonce": 1047152865,
       "isDeleted": false,
       "id": "bxT52FiUKiydAPo-FihLa",
       "fillStyle": "solid",
@@ -10903,16 +10903,16 @@
       "frameId": null,
       "roundness": null,
       "boundElements": [],
-      "updated": 1730108304736,
+      "updated": 1737383280119,
       "link": null,
       "locked": false,
       "fontSize": 16,
       "fontFamily": 1,
-      "text": "Private DNS zone \nfor Key Vault",
+      "text": "Private DNS zone \nfor AKS",
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Private DNS zone \nfor Key Vault",
+      "originalText": "Private DNS zone \nfor AKS",
       "lineHeight": 1.25,
       "baseline": 34
     },

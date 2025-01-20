@@ -125,7 +125,7 @@ Again, we can rely on the Azure documentation which specifies which DNS domain t
 
 | Azure service| Private DNS zone for private Endpoint| Forwarding configuration |
 |-|-|-|
-| Azure Key Vault | `privatelink.vaultcore.azure.net` | `vault.azure.net` </br>`vaultcore.azure.net` |
+| Azure Key Vault | `privatelink.vaultcore.azure.net` | `vault.azure.net` <br>`vaultcore.azure.net` |
 |Azure Kubernetes Service | `privatelink.eastus.azmk8s.io` | `eastus.azmk8s.io` |
 
 ![illustration8](/assets/dnsresolver/onpremdnsconnectedconditionalfwd.png)
@@ -190,17 +190,17 @@ With conditional forwarding, it's possible to tell an on-premise workload to fin
 But how could we do this in reverse?
 We have 2 possible use case here:
 
-- The Azure VM need to access DNS resoltion for on-premise service
+- The Azure VM need to access DNS resolution for on-premise service
 - An Azure PaaS instance need to resolve DNS name for on-premise servide
 
-If we think about it, it's théortically simple. As long as the service lives in a virtual Network, it get its DNS configuration from the DNS configuration on the vnet or the Nic, as we've seen earlier.
+If we think about it, it's theoritically simple. As long as the service lives in a virtual Network, it get its DNS configuration from the DNS configuration on the vnet or the Nic, as we've seen earlier.
 So if we change the DNS configuration and point the DNS config to an on-premise DNS server (in our case, that would be DC1), then we get DNS resolution, end of story &#128526;
 
 But well, it's not ideal right?
 As I said, it's a DNS focused post, so no consideration for network connnectivity between Azure and on-premise.
 But let's make a little incurion in the network, just a bit.
 
-If all the DNS request go to an on-premise server, we go through the network connection each time. This is definitely not considered a best practice in the well arcihtected framework.
+If all the DNS request go to an on-premise server, we go through the network connection each time. This is definitely not considered a best practice in the well architected framework.
 Indeed, the [recommandation](https://learn.microsoft.com/en-us/azure/architecture/hybrid/hybrid-dns-infra#availability) is to keep the DNS servers close to theirs clients.
 
 So what do we do?
@@ -238,7 +238,7 @@ Here come the DNS private resolver.
 
 From the related [documentation](https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview), this service enables querying Azure DNS private zones from an on-premises environment and vice versa **without deploying VM based DNS servers**.
 
-Technically speaking, a DNS private resolver, once deployed, will leverage either an outbount endpoint, an dinbound enpoint, or both.
+Technically speaking, a DNS private resolver, once deployed, will leverage either an outbound endpoint, and inbound enpoint, or both.
 
 #### 3.1.1 Oubount Endpoint
 
@@ -422,10 +422,10 @@ Ok let's wrap it!
 
 In this article we reviewed the basics of DNS:
 
-- In Azure, DNS is provided by Azure DNS on virtual Network, withou any configuration
+- In Azure, DNS is provided by Azure DNS on virtual Network, without any configuration
 - Managing DNS for object living in Vnet implies using Private DNS zones and Virtual Network link on said zones.
 - Troubles start with hybrid resolution but can be resolved with Conditional forwarding on the On-premise DNS systems, and something in Azure, preferably managed such as DNS Private resolver, in Azure to forward traffic to On-premise.
-- DNS private reoslver can be use with either a cnetralized or a distributed model
+- DNS private resolver can be use with either a cnetralized or a distributed model
 
 And that's all.
 

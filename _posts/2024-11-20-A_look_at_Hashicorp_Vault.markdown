@@ -791,13 +791,53 @@ Vault is still sealed.
 
 ```bash
 
+vagrant@vaultserver1:~$ sudo systemctl status vault
+● vault.service - "Hashicorp Vault"
+     Loaded: loaded (/etc/systemd/system/vault.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2025-01-03 17:07:38 UTC; 7s ago
+       Docs: https://developer.hashicorp.com/vault/docs
+   Main PID: 2372 (vault)
+      Tasks: 7 (limit: 2275)
+     Memory: 102.3M
+        CPU: 174ms
+     CGroup: /system.slice/vault.service
+             └─2372 /usr/bin/vault server -config=/etc/vault.d/config.hcl
+
+Jan 03 17:07:38 vaultserver1 vault[2372]:            Recovery Mode: false
+Jan 03 17:07:38 vaultserver1 vault[2372]:                  Storage: raft (HA available)
+Jan 03 17:07:38 vaultserver1 vault[2372]:                  Version: Vault v1.18.3, built 2024-12-16T14:00:53Z
+Jan 03 17:07:38 vaultserver1 vault[2372]:              Version Sha: 7ae4eca5403bf574f142cd8f987b8d83bafcd1de
+Jan 03 17:07:38 vaultserver1 vault[2372]: ==> Vault server started! Log data will stream in below:
+Jan 03 17:07:38 vaultserver1 vault[2372]: 2025-01-03T17:07:38.287Z [INFO]  proxy environment: http_proxy="" https_proxy="" no_proxy=""
+Jan 03 17:07:38 vaultserver1 vault[2372]: 2025-01-03T17:07:38.868Z [INFO]  incrementing seal generation: generation=1
+Jan 03 17:07:38 vaultserver1 vault[2372]: 2025-01-03T17:07:38.919Z [WARN]  core: entering seal migration mode; Vault will not automatically unseal even if using an autoseal: from_barrier_typ>
+Jan 03 17:07:38 vaultserver1 vault[2372]: 2025-01-03T17:07:38.919Z [INFO]  core: Initializing version history cache for core
+Jan 03 17:07:38 vaultserver1 vault[2372]: 2025-01-03T17:07:38.919Z [INFO]  events: Starting event system
+
+vagrant@vaultserver1:~$ vault status
+Key                           Value
+---                           -----
+Seal Type                     azurekeyvault
+Recovery Seal Type            shamir
+Initialized                   true
+Sealed                        true
+Total Recovery Shares         3
+Threshold                     2
+Unseal Progress               0/2
+Unseal Nonce                  n/a
+Seal Migration in Progress    true
+Version                       1.18.3
+Build Date                    2024-12-16T14:00:53Z
+Storage Type                  raft
+HA Enabled                    true
+
 ```
 
 And we cannot unseal, because the auto unseal migration is initiated.
 
 ```bash
 
-df@df2204lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant$ vault operator unseal 
+yumemaru@df2204lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant$ vault operator unseal 
 Unseal Key (will be hidden): 
 Error unsealing: Error making API request.
 
