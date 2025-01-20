@@ -30,17 +30,17 @@ Without Azure Bastion, either a VM with a public IP and required flows configure
 
 There's plenty of [documentation](https://learn.microsoft.com/en-us/azure/bastion/) on Bastion available. To summarize, we should remember the following:
 
-- A bastion host lives in a subnet in a virtual network. The said subnet ame is imposed to `AzureBastionSubnet` and should be at least a `/26`
+- A bastion host lives in a subnet in a virtual network. The said subnet name is imposed to `AzureBastionSubnet` and should be at least a `/26`
 - It does have a public IP, that users access through the Azure API. It requires an Entra Id authentication on the tenant, and proper RBAC configuration on both the Bastion host and the target VM
 - If NSG are implemented (as it should be) Infrastructure flows are required on the subnet to allow Azure Bastion to work.
 
-In terms of features, aprt from the one that we are interested in, it's important ot get that those are related to the sku. There are 3 skus
+In terms of features, apart from the one that we are interested in, it's important ot get that those are related to the sku. There are 3 skus
 
 - `developper`
 - `basic`
 - `standard`
 
-and a new `premium` sku, stillin preview currently.
+and a new `premium` sku, still in preview currently.
 
 The following table, from the [documentation](https://learn.microsoft.com/en-us/azure/bastion/bastion-overview#sku), details the different features available per sku
 
