@@ -11,14 +11,17 @@ Following our previous Vault 101, here is another Vault article, this time about
 The Agenda:
 
 
-1. Vault basics, authentication and first secrets
-2. A bit of terraform for vault
+1. Where we are
+2. Adding users to Vault
+3. Storing secrets in Vault
+4. Understanding the path
+5. Managing access to Vault
+
 
 Let's get started!
 
-## 1. Vault basics, authentication and first secrets
 
-### 1.1. Where we are
+## 1 Where we are
 
 At the end of the previous article, we had a working stand alone Vault server.
 At this point, we can start the server, and because we configured auto unseal with Azure keyvault, we get an unseal server after boot
@@ -78,7 +81,7 @@ policies             ["root"]
 
 ```
 
-### 1.2. Adding users to Vault
+## 2. Adding users to Vault
 
 At this point, we only have the token authentication method and nothing else.
 
@@ -223,7 +226,7 @@ Code: 403. Errors:
 
 The interesting information here is the policies, which specify `["default"]`. We'll have a look at the Vault policies in the coming sections. For now, let's start playing with secrets.
 
-### 1.3. Storing secrets in Vault
+## 3. Storing secrets in Vault
 
 In this section, we, at last, start storing secrets in Vault. Toget start, let's enable a secret engine first.
 
@@ -406,7 +409,7 @@ No value found at tbbtkv/data/sheldon
 Wait, what?
 Let's dig a little bit.
 
-### 1.4. Understanding the path
+## 4. Understanding the path
 
 So we know that we can get the secret from the API.
 
@@ -609,7 +612,7 @@ Which means that the path should contains the name of the secret. In our case, w
 
 Moving on, let's have a look at how we can grant access to this Vault server.
 
-### 1.5. Managing access to Vault
+## 5. Managing access to Vault
 
 Now that we have a kv engine available, we want our user to start using it. In the previous section, we did everything as the root user, which is not really the aim right ^^.
 
@@ -743,7 +746,7 @@ I want to be able, as sheldon user, to list all secrets under the path tbbtkv/sh
 
 ```bash
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ vault kv list -output-policy tbbtkv/sheldon/
+df@df-2404lts:~$ vault kv list -output-policy tbbtkv/sheldon/
 path "tbbtkv/metadata/sheldon" {
   capabilities = ["list"]
 }
@@ -754,7 +757,7 @@ Additionally, Sheldon should be able to create secrets under his own path:
 
 ```bash
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ vault kv put -output-policy tbbtkv/sheldon/secret24 secretvalue=bazinga
+df@df-2404lts:~$ vault kv put -output-policy tbbtkv/sheldon/secret24 secretvalue=bazinga
 path "tbbtkv/data/sheldon/secret24" {
   capabilities = ["create", "update"]
 }
@@ -765,7 +768,7 @@ And also read those secrets
 
 ```bash
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ vault kv get -output-policy tbbtkv/sheldon/secret24
+df@df-2404lts:~$ vault kv get -output-policy tbbtkv/sheldon/secret24
 path "tbbtkv/data/sheldon/secret24" {
   capabilities = ["read"]
 }
@@ -780,45 +783,56 @@ With those additional info, we can write a policy that does what we want:
 
 ```go
 
-path "tbbtkv/+/sheldon/*" {
+path "tbbtkv/data/sheldon/*" {
+  capabilities = ["list", "create", "update", "read", "patch", "delete"]
+}
+
+path "tbbtkv/metadata/sheldon/*" {
   capabilities = ["list", "create", "update", "read", "patch", "delete"]
 }
 
 ```
 
-Notice the use of the glob `*` which act as a wild card here, for everything under the `tbbtkv/sheldon/` path. 
-
-Note also the `+`  which allows us to basically define with only one line all path under `tbbtkv` that have a subpath `sheldon`. In our case, `tbbtkv/data/sheldon` and `tbbtkv/metadata/sheldon`.
+Notice the use of the glob `*` which act as a wild card here, for everything under the `tbbtkv/data/sheldon/` and the `tbbtkv/metadata/sheldon` path. 
 
 Now let's create this policy. The command to do this is the following:
 
 
 ```bash
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ batcat sheldon.hcl 
+df@df-2404lts:~$ batcat sheldon.hcl 
 ───────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
        │ File: sheldon.hcl
 ───────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-   1   │ path "tbbtkv/+/sheldon/* {
-   2   │   capabilities = ["create", "update", "read", "patch", "delete"]
+   1   │ path "tbbtkv/data/sheldon/*" {
+   2   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
    3   │ }
+   4   │ 
+   5   │ path "tbbtkv/metadata/sheldon/*" {
+   6   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
+   7   │ }
+   8   │ 
+   9   │ path "tbbtkv/*" {
+  10   │   capabilities = ["list"]
+  11   │ }
 ───────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 ```
 
 ```bash
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault policy write tbbtkv-sheldon ./sheldon.hcl
+df@df-2404lts:~$ vault policy write tbbtkv-sheldon ./sheldon.hcl
 Success! Uploaded policy: tbbtkv-sheldon
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault policy list
+df@df-2404lts:~$ vault policy list
 default
 tbbtkv-sheldon
 root
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault write auth/userpass/users/sheldon policies="tbbtkv-sheldon"
+df@df-2404lts:~$ vault write auth/userpass/users/sheldon policies="tbbtkv-sheldon"
 Success! Data written to: auth/userpass/users/sheldon
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault read /auth/userpass/users/sheldon
+df@df-2404lts:~$ vault read /auth/userpass/users/sheldon
 Key                        Value
 ---                        -----
 policies                   [tbbtkv-sheldon]
@@ -856,7 +870,7 @@ Because it is not very user friendly, we would like to add a list at the root of
 
 ```bash
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant$ vault kv list -output-policy tbbtkv/
+df@df-2404lts:~$ vault kv list -output-policy tbbtkv/
 path "tbbtkv/metadata" {
   capabilities = ["list"]
 }
@@ -868,22 +882,25 @@ Let's update our policy and try it
 
 ```bash
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant$ batcat ./vaultpolicies/sheldon.hcl 
+df@df-2404lts:~$ batcat ./vaultpolicies/sheldon.hcl 
 ───────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
        │ File: ./vaultpolicies/sheldon.hcl
 ───────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-   1   │ path "tbbtkv/+/sheldon/*" {
+   1   │ path "tbbtkv/data/sheldon/*" {
    2   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
    3   │ }
    4   │ 
-   5   │ path "tbbtkv/*" {
-   6   │   capabilities = ["list"]
+   5   │ path "tbbtkv/metadata/sheldon/*" {
+   6   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
    7   │ }
    8   │ 
+   9   │ path "tbbtkv/*" {
+  10   │   capabilities = ["list"]
+  11   │ }
 ───────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant$ vault policy write tbbtkv-sheldon ./vaultpolicies/sheldon.hcl
+df@df-2404lts:~$ vault policy write tbbtkv-sheldon ./vaultpolicies/sheldon.hcl
 Success! Uploaded policy: tbbtkv-sheldon
 
 ```
@@ -909,7 +926,7 @@ Let's modify the policy for Sheldon first. Using again the `-output-policy`, we 
 
 ```bash
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault kv get -output-policy tbbtkv/sheldon/shared/secretshared1
+df@df-2404lts:~$ vault kv get -output-policy tbbtkv/sheldon/shared/secretshared1
 path "tbbtkv/data/sheldon/shared/secretshared1" {
   capabilities = ["read"]
 }
@@ -920,22 +937,25 @@ We will use the `+` characters again as below:
 
 ```bash
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ batcat sheldon.hcl 
+df@df-2404lts:~$ batcat sheldon.hcl 
 ───────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
        │ File: sheldon.hcl
 ───────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-   1   │ path "tbbtkv/+/sheldon/*" {
+   1   │ path "tbbtkv/data/sheldon/*" {
    2   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
    3   │ }
    4   │ 
-   5   │ path "tbbtkv/*" {
-   6   │   capabilities = ["list"]
+   5   │ path "tbbtkv/metadata/sheldon/*" {
+   6   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
    7   │ }
    8   │ 
-   9   │ path "tbbtkv/data/+/sharedsecrets/*" {
-  10   │   capabilities = ["read"]
+   9   │ path "tbbtkv/*" {
+  10   │   capabilities = ["list"]
   11   │ }
   12   │ 
+  13   │ path "tbbtkv/data/+/sharedsecrets/*" {
+  14   │   capabilities = ["read"]
+  15   │ }
 ───────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
@@ -950,65 +970,66 @@ For the purpose of being complete, let's add policies for Penny and me ^^
 
 ```bash
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ batcat penny.hcl 
+df@df-2404lts:~$ batcat penny.hcl 
 ───────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
        │ File: penny.hcl
 ───────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-   1   │ path "tbbtkv/+/penny/*" {
+   1   │ path "tbbtkv/metadata/penny/*" {
    2   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
    3   │ }
    4   │ 
-   5   │ path "tbbtkv/*" {
-   6   │   capabilities = ["list"]
+   5   │ path "tbbtkv/data/penny/*" {
+   6   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
    7   │ }
    8   │ 
-   9   │ path "tbbtkv/data/+/sharedsecrets/*" {
-  10   │   capabilities = ["read"]
+   9   │ path "tbbtkv/*" {
+  10   │   capabilities = ["list"]
   11   │ }
   12   │ 
-  13   │ /*
-  14   │ path "tbbtkv/data/david/sharedsecrets/*" {
-  15   │   capabilities = ["read"]
-  16   │ }
-  17   │ */
+  13   │ path "tbbtkv/data/+/sharedsecrets/*" {
+  14   │   capabilities = ["read"]
+  15   │ }
+  16   │ 
 ───────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ batcat david.hcl 
+df@df-2404lts:~$ batcat david.hcl 
 ───────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
        │ File: david.hcl
 ───────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-   1   │ path "tbbtkv/+/david/*" {
+   1   │ path "tbbtkv/data/david/*" {
    2   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
    3   │ }
    4   │ 
-   5   │ path "tbbtkv/*" {
-   6   │   capabilities = ["list"]
+   5   │ path "tbbtkv/metadata/david/*" {
+   6   │   capabilities = ["list", "create", "update", "read", "patch", "delete"]
    7   │ }
    8   │ 
-   9   │ path "tbbtkv/data/+/sharedsecrets/*" {
-  10   │   capabilities = ["read"]
+   9   │ path "tbbtkv/*" {
+  10   │   capabilities = ["list"]
   11   │ }
   12   │ 
+  13   │ path "tbbtkv/data/+/sharedsecrets/*" {
+  14   │   capabilities = ["read"]
+  15   │ }
 ───────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault policy write tbbtkv-penny ./penny.hcl
+df@df-2404lts:~$ vault policy write tbbtkv-penny ./penny.hcl
 Success! Uploaded policy: tbbtkv-penny
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault write auth/userpass/users/david policies="tbbtkv-david"
+df@df-2404lts:~$ vault write auth/userpass/users/david policies="tbbtkv-david"
 Success! Data written to: auth/userpass/users/david
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault policy list
+df@df-2404lts:~$ vault policy list
 default
 tbbtkv-david
 tbbtkv-penny
 tbbtkv-sheldon
 root
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault read auth/userpass/users/david
+df@df-2404lts:~$ vault read auth/userpass/users/david
 Key                        Value
 ---                        -----
 policies                   [tbbtkv-david]
@@ -1022,7 +1043,7 @@ token_policies             [tbbtkv-david]
 token_ttl                  0s
 token_type                 default
 
-df@df-2404lts:~/Documents/myrepo/vaultlab/vault_standalone_vagrant/vaultpolicies$ vault read auth/userpass/users/penny
+df@df-2404lts:~$ vault read auth/userpass/users/penny
 Key                        Value
 ---                        -----
 token_bound_cidrs          []
@@ -1037,13 +1058,25 @@ token_type                 default
 
 ```
 
+![illustration33](/assets/vaultbasics/vaultbasics033.png)
 
+![illustration34](/assets/vaultbasics/vaultbasics034.png)
 
-## 2. A bit of terraform for vault
+![illustration35](/assets/vaultbasics/vaultbasics035.png)
 
+So that's it.
 
-
+Let's conclude because that'smore than enough for now.
 
 ## 4. Summary
 
-In this article, 
+In this article, we started from our previous Vault implementation and did the following: 
+
+- enabled a kv v2 store
+- enabled the userpass authentication
+- create policies to grant users access
+
+All in all, at this point, we have something similar to a key vault, with access to a Web UI, or a cli, or an API.
+In following articles, we will have a look at some automation and more secret engine integration.
+
+See you soon ^^
