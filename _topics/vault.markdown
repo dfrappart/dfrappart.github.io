@@ -2,7 +2,7 @@
 layout: page
 title: Vault
 description: Posts about Hashicorp Vault
-permalink: /aks/
+permalink: /vault/
 ---
 ![Vault](/assets/vault.png)
 {% assign posts = site.posts | where_exp: "item", "item.categories contains 'Vault'" %}
