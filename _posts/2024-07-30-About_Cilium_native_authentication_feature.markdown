@@ -23,20 +23,20 @@ Let's get started!
 ### 1.1. Why we need authentication
 
 Security in micro-service based architecture is a huge topic. 
-In a kubernetes environment, we can look at the network and we implement least privilege by restricting traffic to the only needed port and protocol.
+In a kubernetes environment, we can look at the network and we implement Zero Trust by restricting traffic to the only needed port and protocol.
 In this case, we can rely on network policies.
 For example, this policy deny all ingress traffic in the `basic` namespace
 
 ```yaml
 
-kind: NetworkPolicy
-apiVersion: networking.k8s.io/v1
-metadata:
-  name: default-deny-all
-  namespace: basics
-spec:
-  podSelector: {}
-  ingress: []
+kind: NetworkPolicy                                  
+apiVersion: networking.k8s.io/v1                     
+metadata:                                            
+  name: default-deny-all                             
+  namespace: basics                                  
+spec:                                                
+  podSelector: {}                                    
+  ingress: []                                        
 
 ```
 
@@ -151,8 +151,6 @@ Let's have a look at how it goes when we deploy that in an AKS cluster.
 
 To try this feature, we'll use a environment with simply an AKS cluster and its default node pool, in a virtual network.
 
-**shcemainfra**
-
 The authentication requires to be specified at the install of cilium, with the parameters `authentication.mutual.spire.enabled` and `authentication.mutual.spire.install.enabled` to be set to true.
 
 The full list of the helm parameters that we used are summarized below
@@ -214,7 +212,7 @@ Image versions         cilium             quay.io/cilium/cilium:v1.16.0@sha256:4
 And we can also look at the additional kubernetes objets: 
 
 - A deployment for SPIRE server
-- A deamonset for the agent, running on each nodes.
+- A daemonset for the agent, running on each nodes.
 
 ```bash
 
@@ -439,7 +437,7 @@ demodeployment   3/3     3            3           15h   app=demodeployment
 ```
 
 ```bash
-yumemaru@azure:~$ export client1=$(k get ciliumendpoints.cilium.io -l app=client1 -o=jsonpath='{.items[0].status.identity.id}')id}')
+yumemaru@azure:~$ export client1=$(k get ciliumendpoints.cilium.io -l app=client1 -o=jsonpath='{.items[0].status.identity.id}')
 
 ```
 
@@ -553,7 +551,52 @@ spec:
 
 ```
 - Second, a policy allowing the traffic for app1 to the demo app.
+
+```yaml
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allowclient1noauth
+spec:
+  endpointSelector:
+    matchLabels:
+      app: demodeployment
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: client1
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+
+``` 
+
 - Third, a network policy allowing app2 to demo app, but this time requiring the authentication.
+
+```yaml
+
+
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allowclient2withauth
+spec:
+  endpointSelector:
+    matchLabels:
+      app: demodeployment
+  ingress:
+  - fromEndpoints:
+    - matchLabels:
+        app: client2
+    authentication:
+      mode: "required"
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+
+``` 
 
 If we apply just the first one, we should not be able to access the demo app anymore. This is visible with `hubble observe` command
 
@@ -666,13 +709,16 @@ Jul 31 11:35:19.661: default/client2-d64dd865b-qskqc:50986 (ID:77602) -> default
 
 ```
 
-And that's all for now. Let's wrap it
+There's a little delay for client2 to connect to demo app. And that's because authentication occurs. And we can see it in hubble.
+
+Ok let's wrap it.
+
 
 ## 3. Summary
 
 In this article, we went a little deeper in Cilium features, looking at its mutual authentication capabilities coming from the service mesh.
 This feature relies on a spire server deployment that implement the SPIFFE framework.
-After that, it's finally quite simple. A simple specification in the network policy ensure that the workload are authenticated together.
+After that, it's finally quite simple. A single specification in the network policy ensure that the workload are authenticated together.
 And it's also quite easy to see it on with hubble.
 The next step should be to configure more monitoring on the hubble part but also on the spire server. That's why the metric related values are added in the chart configuration.
 For now it's not working for me so I'll have to come back to this later. There's also some thoughts required on the observability of the spire serve. Probably looking at the logs with loki or something similar whould be nice.
