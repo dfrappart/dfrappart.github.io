@@ -181,7 +181,7 @@ Commercial support is available at
 
 ```
 
-It's interesting to note that the cloud provider gives us option to configure the service through specific [annotations](https://cloud-provider-azure.sigs.k8s.io/topics/loadbalancer/#loadbalancer-annotations), as in the sample below.
+It's interesting to note that the cloud provider gives us options to configure the service through specific [annotations](https://cloud-provider-azure.sigs.k8s.io/topics/loadbalancer/#loadbalancer-annotations), as in the sample below.
 
 
 ```yaml
@@ -746,7 +746,7 @@ and then the different object to manage apps exposure:
 - grpcRoutes
 - TLSRoute
 
-So there are stil some requirements to use a Gateay API, and the first one is to have those CRDs installed on the target cluster. This can be done quite easily:
+So there are stil some requirements to use a Gateway API, and the first one is to have those CRDs installed on the target cluster. This can be done quite easily:
 
 ```bash
 
@@ -844,7 +844,7 @@ cilium   io.cilium/gateway-controller   True       2d8h
 
 ```
 
-If the Gateay is in a pending status, it may help to restart cilium related pods, as mentioned on the Cilium doc. I'll admit that I did miss this one, and solve it with an AKS restart &#128517;.
+If the Gateway is in a pending status, it may help to restart cilium related pods, as mentioned on the Cilium doc. I'll admit that I did miss this one, and solve it with an AKS restart &#128517;.
 
 ```bash
 
@@ -853,7 +853,7 @@ kubectl -n kube-system rollout restart ds/cilium
 
 ```
 
-If oit's working, we can move along with the creation of a gateway.
+If it's working, we can move along with the creation of a gateway.
 
 
 ```yaml
@@ -1258,7 +1258,7 @@ hypothetically, we should be able to create a gateway with a node port or a clus
 
 Also, while we could pass the annotations for the service to the Ingress Controller installatin, it seems that we need to rely on an admission controller here to provide something similar.
 
-So let's top hee, and summarize, because it was a long run.
+So let's stop here, and summarize, because it was a long run.
 
 ## 4. Summary
 
