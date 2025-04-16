@@ -9,7 +9,7 @@ categories: Aks Security Network
 Hi!
 
 In this article I propose to have a look at how apps are exposed in Kubernetes.
-This is a back to basics mixed with new stiffs from the Kubernetes related project Gateway API.
+This is a back to basics mixed with new stuffs from the Kubernetes related project Gateway API.
 Hope you'll enjoy it.
 
 The Agenda:
@@ -234,7 +234,7 @@ And that's for this kind of things that we had first the ingress.
 
 ## 2. Exposing apps better with the Ingress
 
-The idea of the ingress is to provide this addiitonal awareness of the L7 LB, which does not exist in default kubernetes services.
+The idea of the ingress is to provide this additional awareness of the L7 LB, which does not exist in default kubernetes services.
 
 
 ![illustration7](/assets/svctogapi/svctogapi007.png)
