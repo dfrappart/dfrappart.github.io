@@ -137,7 +137,7 @@ The same can be applied to Cilium where we can find that the supported version i
 
 So that's one warning point: Validate the CRDs versions is the one supported by the Gateway API proovider.
 
-Now let's have a look at the objects and do some stuff.
+We can start looking at the gateway class.
 
 ## 2. More on the Gateway class object
 
@@ -238,7 +238,7 @@ metadata:
 
 ```
 
-LEt's have a look at the [API object](https://gateway-api.sigs.k8s.io/reference/spec/#gatewayclass) to find what we could do to further configure a gateway class.
+Let's have a look at the [API object](https://gateway-api.sigs.k8s.io/reference/spec/#gatewayclass) to find what we could do to further configure a gateway class.
 
 The main section are as below
 
@@ -249,7 +249,7 @@ The main section are as below
 | metadata | The metadata section contains information related to the identification of the object, such as the name||
 | spec | The spec section contains information related to the object specifications | |
 
-Let's look a little more on the `spec` section sub parameters.
+And the `spec` section include the following parameters.
 
 | Field | Description | Value |
 |-|-|-|
@@ -260,13 +260,13 @@ Let's look a little more on the `spec` section sub parameters.
 The `parametersRef` sub-section is used for provider specific configuration and can refers either to a CRD or a configmap.
 In the case of Cilium, there is indeed a CRD called `CiliumGatewayClassConfig` that can be used to feed specific parameters to the `parametersRef` section
 
-Now let's manipulate a little the gateway class and all those parameters.
+WE can manipulate a little the gateway class and all those parameters.
 
 
 ### 2.2. Playing with GatewayClass
 
 We identified previously the default Cilium Gateway class with a kubectl command.
-Let's try to create additional gateway classes, for internal and external traffic
+To create additional gateway classes, for internal and external traffic, we can write the below definition.
 
 ```yaml
 
@@ -391,7 +391,7 @@ shortNames:
 
 ```
 
-Because we can apparently specify the type of service, let's create a `CiliumGatewayClassConfig` and change the kind of service to `ClusterIP`
+We can apparently specify the type of service with a `CiliumGatewayClassConfig` by specifying the kind of service to `ClusterIP`
 
 ```yaml
 
@@ -407,7 +407,7 @@ spec:
 
 ```
 
-We also need to update the gateway class.
+Then we should update the gateway class.
 
 ```yaml
 
@@ -421,19 +421,17 @@ spec:
   parametersRef:
     group: cilium.io
     kind: CiliumGatewayClassConfig
-    name: custom-gateway-class  
+    name: internal-gateway-class 
 
 ```
 
 At this point, we have seen how to create a gateway class, and with the use of a dedicated CRD, how to add some configurations.
 
 However, it seems there is no simple way to passe Cloud provider annotations, such as `service.beta.kubernetes.io/azure-load-balancer-internal: "true"` so that the gateways can inherit it from the gateway class.
-One could say that the gataway class is more akeen to the ingress class, and thus it may be more on the gateway side that we can configure such annotations.
+One could say that the gateway class is more akeen to the ingress class, and thus it may be more on the gateway side that we can configure such annotations.
 So let's move on to the gateway object.
 
 ## 3. More on the Gateway object
-
-Let's dig a little bit deeper into the Gateway object.
 
 ### 3.1. Gateway basic concepts
 
@@ -528,7 +526,7 @@ df@df-2404lts:~$ k get service cilium-gateway-test-gw -o json | jq .metadata.own
 
 ```
 
-Let's play a bit with the previously creatred class and its custom configuration now.
+That's the basics stuff, what about some customizations?
 
 ### 3.2. Using a custom class with a custom config
 
@@ -628,7 +626,9 @@ Well, it seems that the `CiliumGatewayClassConfig` did not work as expected. But
 
 Anyway, comparing it to the Ingress Controller implementation which allows us to pass annotations for the underlying service, it is not satisfying.
 
-Since we can access to the service, we may be able to add manually the annotation. Let's try this. Here is a new gateway definition.
+Since we can access to the service, we may be able to add manually the annotation. 
+
+To test this, we will add a new gateway with the following definition.
 
 ```yaml
 
@@ -650,7 +650,7 @@ spec:
 
 ```
 
-As before we get the corresponding service, prefixed with `cilium-gateway-` wioth the type `LoadBalancer`
+As before we get the corresponding service, prefixed with `cilium-gateway-` with the type `LoadBalancer`
 
 ```bash
 
@@ -714,7 +714,7 @@ cilium-gateway-cilium-gw-internal-manual   LoadBalancer   100.67.101.42   172.21
 
 ```
 
-But that's not really efficient. So let's have amore thorough look at the gateway object to find out if we can be more accurate in our configuration
+But that's not really efficient. So let's have a more thorough look at the gateway object to find out if we can be more accurate in our configuration.
 
 
 ### 3.3. The gateway object definition
