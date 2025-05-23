@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Exposing apps in Kubernetes: from services to Gateway API"
+title:  "More on Gateway API"
 date:   2025-05-22 18:00:00 +0200
 year: 2025
 categories: Aks Security Network
