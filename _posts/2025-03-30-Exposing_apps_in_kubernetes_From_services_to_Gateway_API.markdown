@@ -144,7 +144,7 @@ However, if there is another NSG on the subnet (which may be something by design
 
 ```bash
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ curl -i -X GET http://74.179.240.209:8080
+df@df-2404lts:~$ curl -i -X GET http://74.179.240.209:8080
 HTTP/1.1 200 OK
 Server: nginx/1.27.4
 Date: Wed, 26 Mar 2025 07:25:21 GMT
@@ -569,7 +569,7 @@ Also, to leverage the capabilities of the cloud controller manager, we can inser
 
 ```bash
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ helm upgrade internal-ingress ingress-nginx/ingress-nginx --namespace internalingress --create-namespace --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal"=true --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal-subnet"="sub2-vnet-sbx-spokeaks1" --set controller.ingressClassResource.name="internal-nginx" --set controller.ingressClassResource.controllerValue="k8s.io/ingress-nginx-internal" --install
+df@df-2404lts:~$ helm upgrade internal-ingress ingress-nginx/ingress-nginx --namespace internalingress --create-namespace --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal"=true --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-internal-subnet"="sub2-vnet-sbx-spokeaks1" --set controller.ingressClassResource.name="internal-nginx" --set controller.ingressClassResource.controllerValue="k8s.io/ingress-nginx-internal" --install
 Release "internal-ingress" does not exist. Installing it now.
 NAME: internal-ingress
 LAST DEPLOYED: Wed Mar 26 13:26:02 2025
@@ -838,7 +838,7 @@ And we should have a gatewayclass available.
 
 ```bash
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ k get gatewayclasses.gateway.networking.k8s.io 
+df@df-2404lts:~$ k get gatewayclasses.gateway.networking.k8s.io 
 NAME     CONTROLLER                     ACCEPTED   AGE
 cilium   io.cilium/gateway-controller   True       2d8h
 
