@@ -8,8 +8,8 @@ categories: Aks Security Network
 
 Hello!
 
-Last time we look at the Gateway class and the Gateway. Which are the begining of the Gateway API usage.
-But we had to stop before looking really at how to expose apps.
+Last time we look at the Gateway class and the Gateway, which are the begining of the Gateway API usage.
+But we stopped before looking really at how to expose apps.
 In this article, we carry on from this point and we look specifically at the HTTP Route and reflect on how we manage the exposure of apps.
 
 The Agenda:
@@ -17,13 +17,12 @@ The Agenda:
 
 1. The HTTP Route - basics
 2. Adding TLS
-3. What about a shared Gateway?
-4. Conclusion
+3. Conclusion
 
 
 As a reminder, we went through the creation of gateway class, and some gateway.
-Doing so, we identified that while there is a way to pass annotations to the service created by the gateway through the spec.infrastructure.annotations property.
-While there is also a dedicated crd ciliumgatewayclassconfigs.cilium.io to customize the gateway class, finally we pushed the customization on the gateway side rather than on the gatewa class side.
+Doing so, we identified that while there is a way to pass annotations to the service created by the gateway through the `spec.infrastructure.annotations` property.
+While there is also a dedicated crd ciliumgatewayclassconfigs.cilium.io to customize the gateway class, finally we pushed the customization on the gateway side rather than on the gateway class side.
 
 At this point, a gateway manifest looks like this:
 
@@ -70,13 +69,14 @@ spec:
 
 ```
 
-Now let's move on and look at how we can manage application exposition.
+Now let's move on and look at how we can manage applications exposition.
 
 ## 1. The HTTP Route
 
 ### 1.1. basics
 
-Exposing an application is done with the http route. Details on this api object are available on the [gateway api documentation](https://gateway-api.sigs.k8s.io/reference/spec/#httproute)
+Exposing an application is done with the http route. Details on this api object are available on the [gateway api documentation](https://gateway-api.sigs.k8s.io/reference/spec/#httproute).
+
 Let's say that we have an app based on a deployment, and a service.
 
 ```yaml
@@ -152,9 +152,7 @@ spec:
 
 ```
 
-
-
-At this point, the application is only accessible internally, through any pod actually
+With the default ClusterIP service configuration, the application is only accessible internally, through any pod actually.
 
 ```bash
 
@@ -197,7 +195,7 @@ spec:
 
 ```
 
-In the hostnames section, we specified an host which should be DNS resolvable and point to the Public IP of the gateway.
+In the hostnames section, we specified an host which should be DNS resolvable and point to the Public IP of the gateway (In my case, this is through an Azure DNS zone, but it's quite simple so I won't detailled that here &#128541;).
 
 ```bash
 
@@ -268,7 +266,7 @@ spec:
 
 ```
 
-Assuming the underlying kubernetes services exist (and the asdsociated apps), we would get sometghing like this.
+Assuming the underlying kubernetes services exist (and the associated apps), we would get something like this.
 
 ```bash
 
@@ -403,7 +401,7 @@ df@df-2404lts:~$ curl http://gundam.app.teknews.cloud/barbatos
 ```
 
 
-Well, no because we need to specify the rewrite rule. It is clearly related to the way the http route forward traffic, since we get an nginx based error, which is even more clear when we look at the pod's logs (we scale down the deploiement to 1 replicas, to be sure that we cvheck the correect pod logs)
+Well, no because we need to specify the rewrite rule. It is clearly related to the way the http route forward traffic. The nginx based error is clear when we look at the pod's logs (we scale down the deploiement to 1 replicas, to be sure that we cvheck the correect pod logs). It gets a request for an unexisting path.
 
 ```bash
 
@@ -465,6 +463,12 @@ filters:
 And thus gives us a working httproute for the url `http://gundam.app.teknwes.cloud/barbatos`
 
 ![illustration2](/assets/gapi/pathrewrite.png)
+
+
+The attentive reader (or experienced Ingress user &#129325;) probably noticed that the rewrite configuration is in this case managed for each backend.
+This was not necessarily the case with an Ingress controller which often relied on annotations, such as `nginx.ingress.kubernetes.io/rewrite-target: /` that we used in our previous example.
+
+While this worked, and was quite simple, we have here more granularity in the same http route. All in all, the rewrite may seem less simple, but the granularity is quite nice.
 
 Before moving to the TLS part, let's have a look at one last item, the weight management.
 
@@ -553,11 +557,6 @@ df@df-2404lts:~$ cat curlresponses.txt | grep -i akatsuki | wc -l
 16
 
 ```
-
-The attentive reader (or experienced Ingress user &#129325;) probably noticed that the rewrite configuration is in this case managed for each backend.
-This was not necessarily the case with an Ingress controller which often relied on annotations, such as `nginx.ingress.kubernetes.io/rewrite-target: /` that we used in our previous example.
-
-While this worked, and was quite simple, we have here more granularity in the same http route. All in all, the rewrite may seem less simple, but the granularity is quite nice.
 
 Ok that was fun now let's have a look at some encryption ^^
 
