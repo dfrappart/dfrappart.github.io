@@ -439,9 +439,9 @@ AS displayed on the below schema, the gateway is the first element that we acces
 
 ![illustration3](/assets/gapi/gateway.png)
 
-With this, and the role based organization schemla, it's clear that we diverge from the ingress concepts.
+With this, and the role based organization schema, it's clear that we diverge from the ingress concepts.
 
-Indeed, the ingress controller defined an ingress class an a unique entry point while the gateway class can be parent to many different gateways.
+Indeed, the ingress controller defined an ingress class and a unique entry point (Akubernetes service actually) while the gateway class can be parent to many different gateways (Each with its own Kubvernetes service but we're about to see this).
 
 Below is a sample gateway definition, using the default cilium gateway class.
 
