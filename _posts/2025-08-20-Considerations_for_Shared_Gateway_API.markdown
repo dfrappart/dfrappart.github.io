@@ -535,7 +535,7 @@ So to add Httproutes from the `demoapp` namespace in the allowed list, setting t
 
 ```yaml
 
-from: Selector
+        from: Selector
         selector:
           matchLabels:
             kubernetes.io/metadata.name: "gundam"
@@ -552,7 +552,7 @@ Instead, the equivalent of an `OR` expression in the selector section looks like
 
 ```yaml
 
-from: Selector
+        from: Selector
         selector:
           #matchLabels:
           #  kubernetes.io/metadata.name: "gundam"
