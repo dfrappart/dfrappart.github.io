@@ -3,7 +3,7 @@ layout: post
 title:  "Still More on Gateway API. The HTTP Route"
 date:   2025-06-18 18:00:00 +0200
 year: 2025
-categories: Aks Security Network
+categories: Aks Kubernetes Network
 ---
 
 Hello!
