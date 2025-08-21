@@ -3,7 +3,7 @@ layout: post
 title:  "Please Azure Arc Give me a Kubernetes Cluster"
 date:   2022-12-26 18:00:00 +0200
 year: 2022
-categories: Azure Arc
+categories: Kubernetes Arc 
 ---
 
 Hello there!

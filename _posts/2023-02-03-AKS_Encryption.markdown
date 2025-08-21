@@ -3,7 +3,7 @@ layout: post
 title:  "AKS encryption options"
 date:   2023-02-03 18:00:00 +0200
 year: 2023
-categories: AKS Security
+categories: AKS Security Kubernetes
 ---
 
 Hi everyone!

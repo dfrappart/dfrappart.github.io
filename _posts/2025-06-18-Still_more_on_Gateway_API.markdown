@@ -3,7 +3,7 @@ layout: post
 title:  "Still More on Gateway API. The HTTP Route"
 date:   2025-06-18 18:00:00 +0200
 year: 2025
-categories: Aks Security Network
+categories: Aks Kubernetes Network
 ---
 
 Hello!
@@ -663,15 +663,15 @@ Once our objects are created, we should have our new gateway and httproute avail
 
 ```bash
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ k get gateway -n gundam gundam-tls-gw -o wide
+df@df-2404lts:~$ k get gateway -n gundam gundam-tls-gw -o wide
 NAME            CLASS    ADDRESS        PROGRAMMED   AGE
 gundam-tls-gw   cilium   20.242.243.1   True         46h
         
-df@df-2404lts:~/Documents/dfrappart.github.io$ k get httproutes.gateway.networking.k8s.io -n gundam gundamtls 
+df@df-2404lts:~$ k get httproutes.gateway.networking.k8s.io -n gundam gundamtls 
 NAME        HOSTNAMES                         AGE
 gundamtls   ["gundamtls.app.teknews.cloud"]   23h
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ k get httproutes.gateway.networking.k8s.io -n gundam gundamtls -o wide
+df@df-2404lts:~$ k get httproutes.gateway.networking.k8s.io -n gundam gundamtls -o wide
 NAME        HOSTNAMES                         AGE
 gundamtls   ["gundamtls.app.teknews.cloud"]   23h
 
@@ -681,7 +681,7 @@ We can then try a curl on the different path available
 
 ```bash
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ k describe httproutes.gateway.networking.k8s.io -n gundam gundamtls 
+df@df-2404lts:~$ k describe httproutes.gateway.networking.k8s.io -n gundam gundamtls 
 Name:         gundamtls
 Namespace:    gundam
 Labels:       <none>
@@ -797,7 +797,7 @@ Status:
       Name:   gundam-tls-gw
 Events:       <none>
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ curl https://gundamtls.app.teknews.cloud
+df@df-2404lts:~$ curl https://gundamtls.app.teknews.cloud
 <html>
 <h1>Welcome to Demo App Akatsuki</h1>
 </br>
@@ -805,7 +805,7 @@ df@df-2404lts:~/Documents/dfrappart.github.io$ curl https://gundamtls.app.teknew
 <img src="https://sakura-pink.jp/img-items/1-gundam-2024-6-4-1-4.jpg" />
 </html
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ curl https://gundamtls.app.teknews.cloud/exia
+df@df-2404lts:~$ curl https://gundamtls.app.teknews.cloud/exia
 <html>
 <h1>Welcome to Exia App</h1>
 </br>
@@ -813,7 +813,7 @@ df@df-2404lts:~/Documents/dfrappart.github.io$ curl https://gundamtls.app.teknew
 <img src="https://imgs.search.brave.com/F1Miw5SAIQpxwxWpbkMxtFzznghhOZrQ3Z7zqpCBrfI/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5jZG53cy5jb20v/X2kvNTg5MzQvMzcw/NS8xNzk3LzcvYmFu/ZGFpLTIwNDU0MzEx/MjUyMjI3Ni5qcGVn" />
 </html
 
-df@df-2404lts:~/Documents/dfrappart.github.io$ curl https://gundamtls.app.teknews.cloud/eva02
+df@df-2404lts:~$ curl https://gundamtls.app.teknews.cloud/eva02
 <html>
 <h1>Welcome to EVA 02 App 3</h1>
 </br>

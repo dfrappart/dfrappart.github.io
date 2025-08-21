@@ -3,7 +3,7 @@ layout: post
 title:  "About Cilium native authentication feature"
 date:   2024-07-30 18:00:00 +0200
 year: 2024
-categories: AKS Security Network
+categories: AKS Security Network Kubernetes
 ---
 
 Hi there!

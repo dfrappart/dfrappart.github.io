@@ -3,7 +3,7 @@ layout: post
 title:  "Sandbox containers and AKS"
 date:   2023-03-30 23:00:00 +0200
 year: 2023
-categories: AKS Security
+categories: AKS Security Kubernetes
 ---
 
 Hello All!

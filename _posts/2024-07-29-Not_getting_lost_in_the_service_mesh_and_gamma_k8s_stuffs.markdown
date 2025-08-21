@@ -3,7 +3,7 @@ layout: post
 title:  "Not Getting lost in the Service mesh and GAMMA initiative stuff in the k8s landscape"
 date:   2024-07-29 18:00:00 +0200
 year: 2024
-categories: AKS Security Network
+categories: Kubernetes
 ---
 
 Hello all!
