@@ -38,8 +38,9 @@ Remember the schema for role based organization with the gateway API:
 
 ![illustration1](/assets/servicemesh/smesh006.png)
 
-Considering that the namespace is often a security boundary, with rbac applied, letting all the object related to the exposure may be not appropriate for our security requirement.
-Regarding the gateway classes, those are not namespaced resources anyway, so the control of access, while still to be taken into accound, is not addressed through namespace separation
+Considering that the namespace is often a security boundary, with rbac applied, letting all the objects related to the exposure in the same place may be not appropriate for our security requirements.
+
+Regarding the gateway classes, those are not namespaced resources anyway, so the control of access, while still to be taken into accound, is not addressed through namespace separation.
 
 ```bash
 
@@ -49,7 +50,7 @@ gatewayclasses                      gc                                  gateway.
 
 ```
 
-The gateway is a namespace resource however, and it makes sense to think about a way to put it in another namespace, managed by another team.
+The gateway is a namespaced resource however, and it makes sense to think about a way to put it in another namespace, managed by another team.
 
 ```bash
 
@@ -60,8 +61,8 @@ gateways                            gtw                                 gateway.
 
 We could imagine an organization as below:
 
-- namespace managed by cluster operators containing the shared gateway, exposed on the external network
-- namespaces managed by apps owner, containing the http routes and all the other apps related resources
+- namespace managed by cluster operators containing the shared gateway, exposed on the external network.
+- namespaces managed by apps owners, containing the Httproutes and all the other apps related resources.
 
 Also, as a reminder, we can add annotations to the underlying service of a gateway, to make the said gateway an internal gateway:
 
@@ -77,7 +78,7 @@ spec:
 
 Taking that into account, it should be possible to apply a policy that force a gateway created in an app namespace to add the `spec.infrastructure.annotations` parameters that we want. But that's a story for another time &#x1F61D;
 
-Last, regarding TLS configuration, which is absolutely mandatory in real world scenario, we saw that the certificate is referenced at the gateway level.
+Last, regarding TLS configuration, which is absolutely mandatory in a real world scenario, we saw that the certificate is referenced at the gateway level.
 
 ```yaml
 
@@ -97,7 +98,7 @@ spec:
 
 ```
 
-We will not dig in secrets engine or sexy operators in this article. For now, we will just consider a scenario where, as for the gateway, the secrets associated to the TLS configurations are managed in another namespace.
+We will not dig in secrets engines or sexy operators in this article. For now, we will just consider a scenario where, as for the gateway, the secrets associated to the TLS configurations are managed in another namespace.
 
 ### 1.2. A word on the lab environment
 
@@ -168,7 +169,7 @@ spec:
 
 ```
 
-Now we need an app. We can use the same basis as in [our previous article on http route](/_posts/2025-06-18-Still_more_on_Gateway_API.markdown), which gives us some pod managed by a deployment, and the associated service, plus a confgmap associated to the pod configuration.
+Now we need an app. We can use the same basis as in [our previous article on Httproute](/_posts/2025-06-18-Still_more_on_Gateway_API.markdown), which gives us some pod managed by a deployment, and the associated service, plus a confgmap associated to the pod configuration.
 
 ```bash
 
@@ -295,7 +296,7 @@ x-envoy-upstream-service-time: 0
 
 ```
 
-However, at this point, we still host the gateway in the same namespace as the http route and the application, which is not our target. 
+However, at this point, we still host the gateway in the same namespace as the Httproute and the application, which is not our target. 
 
 Ok, let's go into to topic and get started with the shared gateway part.
 
@@ -305,11 +306,11 @@ Ok, let's go into to topic and get started with the shared gateway part.
 
 To achieve our goal, we need to dig in the API specifications.
 
-We can find in the [`spec.listeners` description](https://gateway-api.sigs.k8s.io/reference/spec/#listener) a reference to the `allowedRoutes` which contains a `namespace` field. Its default value, as displayed in the below table is `Same` which means that by default, it configures the gateway to accept Http routes from the same namespace.
+We can find in the [`spec.listeners` description](https://gateway-api.sigs.k8s.io/reference/spec/#listener) a reference to the `allowedRoutes` which contains a `namespace` field. Its default value, as displayed in the below table is `Same` which means that by default, it configures the gateway to accept Httproutes from the same namespace.
 
 | Field	| Description	| Default	|
 |-|-|-|
-| `namespaces` |	Namespaces indicates namespaces from which Routes may be attached to this Listener. This is restricted to the namespace of this Gateway by default. Support: Core	| { from:Same }	|
+| `namespaces` |	Namespaces indicates namespaces from which Routes may be attached to this Listener. This is restricted to the namespace of this Gateway by default. | { from:Same }	|
 
 Following the links in the documentation, we find that the accepted values.
 
@@ -401,7 +402,7 @@ Let's do this. As found earlier, we need to add the following in the listener co
 
 ```
 
-And this time, the status shows us that the gateway accepted the Http route.
+And this time, the status shows us that the gateway accepted the Httproute.
 
 ```bash
 
@@ -444,7 +445,7 @@ df@df-2404lts:~$ curl http://192.168.56.17:32708/barbatos
 
 ```
 
-However, allowing http routes from any namespace is a bit much. We should be able to use the `Selector` instead to reference the namespaces that we want to specifically allow.
+However, allowing Httproutes from any namespace is a bit much. We should be able to use the `Selector` instead to reference the namespaces that we want to specifically allow.
 
 Checking the `gundam` namespace, we can get the default label.
 
@@ -472,7 +473,7 @@ We can change the gateway listener to this.
 
 The status is not changed, and the curl command result is still the same. But you can test on your own if you don't believe me ^^
 
-Now we will add another app in a new namespace called demoapp
+Now we will add another app in a new namespace called `demoapp`.
 
 ```bash
 
@@ -493,7 +494,7 @@ replicaset.apps/demoapp-d67cd5b89   3         3         3       30h
 
 ```
 
-with its associated http route.
+with its associated Httproute.
 
 ```yaml
 
@@ -530,7 +531,7 @@ Conditions:
 ```
 
 It's interesting to note that, while the selector field can be used to provide more than one label, it works as an `AND` base operator. 
-So to add http routes from the demoapp namespace in the allowed list, setting the listener as below does not work.
+So to add Httproutes from the `demoapp` namespace in the allowed list, setting the listener as below does not work.
 
 ```yaml
 
@@ -566,7 +567,8 @@ Let's have a look at the TLS part now.
 
 ## 3. Managing Secrets, also in different namespaces
 
-With the Gateway APi, TLS management is done on the Gateway level. the `listeners[].protocol` have to be set to `HTTPS` and the `listeners[].port` is usually to `443`.
+With the Gateway APi, TLS management is done on the Gateway level. The `listeners[].protocol` have to be set to `HTTPS` and the `listeners[].port` is usually to `443`.
+
 Also, the `tls` section contains the information for the certificate. 
 A gateway configured with a listener with tls look like this, with its associated secret.
 
@@ -616,7 +618,7 @@ When the certificate is referenced like this, it implies that the secret is in t
 | `name` |	Name is the name of the referent. 	||
 | `namespace` | Namespace is the namespace of the referenced object. When unspecified, the local namespace is inferred. Note that when a namespace different than the local namespace is specified, a `ReferenceGrant` object is required in the referent namespace to allow that namespace's owner to accept the reference. See the `ReferenceGrant` documentation for details. ||
 
-To perform further tests, we'll create a new naqmesapce and recreat the certificate in this namespace.
+To perform further tests, we'll create a new namespace and recreat the certificate in this namespace.
 
 ```yaml
 
@@ -640,7 +642,7 @@ type: kubernetes.io/tls
 
 ```
 
-And add the `namespace` field to the gateway.
+And add the `namespace` field to the gateway listener.
 
 ```yaml
 
@@ -653,7 +655,7 @@ And add the `namespace` field to the gateway.
 
 ```
 
-Checking the status, we can see that the reference toi the certificate is not allowed.
+Checking the status, we can see that the reference to the certificate is not allowed.
 
 ```bash
 
@@ -776,14 +778,14 @@ Commercial support is available at
 
 ```
 
-The attentive readers may have noticed that the curl is done once on the IP and the other time on the hostname. That's because the Http route in one case reference a value for the hostname, while it does not in the other case.
+The attentive readers may have noticed that the curl is done once on the IP and the other time on the hostname. That's because the Httproute in one case reference a value for the hostname, while it does not in the other case.
 Lastly, all of the hostname may work with the gateway because we did not specified any value in its configuration.
 
 Ok that's all for today ^^
 
 ## 4. Summary
 
-Going further on the Gateway API usage, this time we explored a shared gateway scenario and what it implies. We saw that the gateway can be configured quite easily to be more selective on which namespace the Http routes should origin from.
+Going further on the Gateway API usage, this time we explored a shared gateway scenario and what it implies. We saw that the gateway can be configured quite easily to be more selective on which namespace the Httproutes should origin from.
 And last we saw the `ReferenceGrant` that is used to list which objects, and from where, can reference another object in another namespace. 
 
 Hope it was useful. IT was for me anyway &#128568;
