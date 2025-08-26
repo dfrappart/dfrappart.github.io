@@ -677,6 +677,8 @@ This time the pod runs. However, it showed us that it's far from easy to get a f
 
 Last but not least for this part, it could be tempting to get a custom profile through Gen AI. I won't go to the process on how to get results out of ChatGpt. To summarize, we get a GEN-AI generated profile that looks like this.
 
+**Note**: I DID NOT test this profile, and I can only recommand to verify that everything is as expected and works fine before using this.
+
 ```json
 
 {
