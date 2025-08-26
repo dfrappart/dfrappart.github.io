@@ -9,9 +9,9 @@ categories: Kubernetes AKS Security
 Hi!
 
 I'm currently trying (with moderate succes, hence the trying part &#128573;) the CKS certification.
-Among the multitude of topics to understand, there is on call Seccomp.
+Among the multitude of topics to understand, there is one call **Seccomp**.
 So this article will not be anything in the breaking technologies stuff, but clearly a kind of walkthrough to use Seccomp in Kubernetes and AKS.
-Hope you'll enjoiyu it, and well, at least It will be a good cheat sheet for me &#129325;
+Hope you'll enjoiy it, and well, at least It will be a good cheat sheet for me &#129325;
 
 So the Agenda:
 
@@ -30,7 +30,7 @@ So the Agenda:
 
 From a Kubernetes standpoint, Seccomp, for Secure Compute, is a feature from Linux to restrict the calls that a process is able to perform, from the user namespace to the kernel.
 
-If we dig a little bit more, we can find on [wikipedia](https://en.wikipedia.org/wiki/Seccomp) or [lwn.net](https://lwn.net/Articles/656307/) that seccomp is quite old.
+If we dig a little bit more, we can find on [wikipedia](https://en.wikipedia.org/wiki/Seccomp) or [lwn.net](https://lwn.net/Articles/656307/) that Seccomp is quite old.
 It was introduced around 2005, to secure the execution of untrusted programs in grid computing.
 With time, it was more thoroughly adopted, notably by Chrome, to sandbox the execution of Adobe Flash, in Docker, and many others programs such as Firefox, OpenSSH...
 
@@ -39,8 +39,8 @@ Back to our use case now. Using Seccomp is a mean to ensure that programs runnin
 Obviously we need a recent kernel, above:
 
 - Linux kernel ≥ 2.6.12 from which basic seccomp strict mode was introduced.
-- Linux kernel ≥ 3.5 from which seccomp-BPF filter mode (the flexible one that allows whitelists/blacklists) was added.
-- Linux kernel ≥ 3.17 from which dedicated seccomp() syscall introduced (instead of only prctl).
+- Linux kernel ≥ 3.5 from which `seccomp-BPF` filter mode (the flexible one that allows whitelists/blacklists) was added.
+- Linux kernel ≥ 3.17 from which dedicated `seccomp()` syscall introduced (instead of only `prctl`).
 
 Modern linux distributions fill those requirement. We can check this wit the `uname -r` command
 
@@ -64,7 +64,7 @@ CONFIG_SECCOMP_FILTER=y
 
 ```
 
-And, last but not least, the container engine and kubernetes should be recent enough to support Seccomp. It means something like kubernete 1.19 at least
+And, last but not least, the container engine and kubernetes should be recent enough to support Seccomp. It means something like kubernete `1.19` at least, which is kind of old already.
 
 ```bash
 
@@ -93,18 +93,18 @@ Leveraging the `spec.securityContext.seccompProfile` section in a pod manifest, 
 
 **Note**: Seccomp is not the only thing that can be configured in the `spec.securityContext` section, but we want to focus on Seccomp today.
 
-In the seccompProfile section, we can set three values:
+In the `seccompProfile` section, we can set three values:
 
 - `Unconfined`: This value will enfore no restrictions. Let's say that it is not our preferred configuration &#128517;. 
 - `RuntimeDefault`: This value will enforce the container runtime’s default profile. More on that later
 - `Localhost`: This value is probably the most intersting, and the worst at the same time.It allows the use of a custom profile from the node’s filesystem.
 
-About the container runtimle defautt's propfile, it seems that whatever the runtime i.e Docker, Containerd, Cri-O, it is based on Docker's default profile. We can find information about it on the [Docker documentation](https://docs.docker.com/engine/security/seccomp/).
+About the container runtimle default's profile, it seems that whatever the runtime i.e Docker, Containerd, Cri-O, it is based on Docker's default profile. We can find information about it on the [Docker documentation](https://docs.docker.com/engine/security/seccomp/).
 
 It's a whitelist based profile, meaning that its default action is block syscalls, except those that are specificallly allowed. The doc includes a portion of the whitelisted syscall, with explanations for most syscalls.
 Digging a bit more, we can find on Docker's github the [`default.json`](https://github.com/microsoft/docker/blob/master/profiles/seccomp/default.json) that is used for the profile.
 
-Copy/pasting the full profile is not really relevant, but just for infiormation, the structure looks like this.
+Copy/pasting the full profile is not really relevant, but just for information, the structure looks like this.
 
 
 ```json
@@ -134,7 +134,7 @@ This structure is also what is used for the custom profiles loaded with the `Loc
 
 Ok, enough with the concepts, let's try some stuffs ^^
 
-## 2. Trying to used Seccomp on a Kubernetes cluster
+## 2. Trying to use Seccomp on a Kubernetes cluster
 
 ### 2.1. Using the container runtime default profile
 
@@ -195,7 +195,7 @@ Relying on the [kubernetes documentation](https://kubernetes.io/docs/tutorials/s
 
 ```
 
-We can see that the `defaultAction` differs in both profiles. We can get information form another page of the [kubernetes documentation](https://kubernetes.io/docs/reference/node/seccomp/).
+We can see that the `defaultAction` differs in both profiles. We can get information from another page of the [kubernetes documentation](https://kubernetes.io/docs/reference/node/seccomp/).
 
 | Seccomp profile action| Description |
 |-|-|
@@ -290,7 +290,7 @@ agrant@k8scilium1:~$ k get pod sample-profilenotexisting -o json | jq .status.co
 
 ```
 
-What about the sample pod with the `violation` profile. This time, we expect the pod to fail because we do block all the syscall.
+What about the sample pod with the `violation` profile. This time, we expect the pod to fail because we do block all the syscalls.
 
 ```bash
 
@@ -343,16 +343,11 @@ Well, that's a bit more complex. Let's have a look.
 
 ### 2.3. Creating a custom Seccomp profile
 
-Because a Seccomp profile is used to allow only the necessary, or at least the acceptabble, syscalls, we need a way to find out which syscalls is used by the app.
-
-spec for profile :
-
-https://github.com/opencontainers/runtime-spec/blob/f329913/config-linux.md#seccomp
-
+Because a Seccomp profile is used to allow only the necessary, or at least the acceptable, syscalls, we need a way to find out which syscalls is used by the app.
 
 One way to do this, among orhers, is the audit profile that we used earlier. Remember, this profile uses the `SCMP_ACT_LOG` which allows the syscall to be executed after logging its action in syslog.
 
-So if we create a pod withe this profile, as defined in the kubernetes documentation, we can the theorically parse the syslog to find about which syscall are used.
+So if we create a pod with this profile, as defined in the kubernetes documentation, we can then theorically parse the syslog to find about which syscall are used.
 
 ```yaml
 
@@ -406,7 +401,7 @@ vagrant@k8scilium1:~$ cat /var/log/syslog |grep "http-echo"
 
 ```
 
-We can find reference to syscalls 35 and 202. To find out which syscall corresponds to which number, we can look on the syscall table available on the [chromium documentation](https://www.chromium.org/chromium-os/developer-library/reference/linux-constants/syscalls/).
+We can find reference to syscalls `35` and `202`. To find out which syscall corresponds to which number, we can look on the syscall table available on the [chromium documentation](https://www.chromium.org/chromium-os/developer-library/reference/linux-constants/syscalls/).
 
 | Syscall number | Syscall name |
 |-|-|
@@ -414,7 +409,7 @@ We can find reference to syscalls 35 and 202. To find out which syscall correspo
 | 202 | futex |
 
 
-Another way is the strace tool.
+Another way to identify syscalls used is the `strace` tool.
 For this to work, we need the Pid associated to the container. We can get this through `crictl`.
 
 ```bash
@@ -462,7 +457,7 @@ So we can create a custom seccomp profile as below.
         "SCMP_ARCH_X86",
         "SCMP_ARCH_X32"
     ],
-    "syscalls": [``
+    "syscalls": [
         {
             "names": [
                 "futex",
@@ -476,7 +471,7 @@ So we can create a custom seccomp profile as below.
 
 ```
 
-A pod definition with the corresponding profile.
+Write a pod definition with the corresponding profile.
 
 ```yaml
 
@@ -501,7 +496,7 @@ spec:
 
 ```
 
-And create the pod... and see it failing &#128517;
+Create the pod... and see it failing &#128517;
 
 ```bash
 
@@ -576,7 +571,7 @@ Events:
 
 ```
 
-Refering to the Kubernetes documentation, we can see the proposed fine-grained profile is more like this.
+Refering to the Kubernetes documentation, we can see the proposed fine-grained profile is more like this. If you wonder why the `strace` analysis did not gave us all the syscalls, welcome to the band &#128518;.
 
 ```json
 
@@ -680,15 +675,84 @@ spec:
 Remember that the profile needs to be available on the seccomp path, which is `var/lib/kubelet/seccomp`.
 This time the pod runs. However, it showed us that it's far from easy to get a full list of syscalls for a running container.
 
-Last but not least for this part, it could be tempting to get a custom profile through Gen AI. I won't go to the process on how I got some result out of ChatGpt. To summarize, I got a GEN-AI generated profile that looks like this.
+Last but not least for this part, it could be tempting to get a custom profile through Gen AI. I won't go to the process on how to get results out of ChatGpt. To summarize, we get a GEN-AI generated profile that looks like this.
 
-And the sources mentioned to get this result are:
+```json
+
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "archMap": [
+    {
+      "architecture": "SCMP_ARCH_X86_64",
+      "subArchitectures": [
+        "SCMP_ARCH_X86",
+        "SCMP_ARCH_X32"
+      ]
+    }
+  ],
+  "syscalls": [
+    {
+      "names": [
+        "accept",
+        "accept4",
+        "access",
+        "brk",
+        "close",
+        "dup",
+        "dup2",
+        "dup3",
+        "epoll_create1",
+        "epoll_ctl",
+        "epoll_pwait",
+        "eventfd2",
+        "execve",
+        "exit",
+        "exit_group",
+        "fstat",
+        "futex",
+        "getpid",
+        "getppid",
+        "getrandom",
+        "madvise",
+        "mmap",
+        "mprotect",
+        "munmap",
+        "nanosleep",
+        "openat",
+        "pipe2",
+        "pread64",
+        "prlimit64",
+        "read",
+        "recvfrom",
+        "recvmsg",
+        "rt_sigaction",
+        "rt_sigprocmask",
+        "rt_sigreturn",
+        "sendmsg",
+        "sendto",
+        "setitimer",
+        "setsockopt",
+        "sigaltstack",
+        "socket",
+        "stat",
+        "write",
+        "writev"
+      ],
+      "action": "SCMP_ACT_ALLOW"
+    }
+  ]
+}
+
+
+```
+
+But the most important thing, IMHO, are the sources mentioned to get this result:
 
 - The Docker documentation, and all the references to the runtime default profile, that we already mentioned.
 - The kubernetes documentation, and specifically the fine grained profile that is defined in the samples.
 - The [syscall2seccomp github repository](https://github.com/antitree/syscall2seccomp/tree/master), which funily, mention a lot of hours to debug why strace does not show all the required syscalls.
 
-And last, I found a very interesting article on [4armed.com](https://www.4armed.com/blog/kubernetes-seccomp/) that details some exotic ways to upload custom profile on a cluster. Since this is something that will be helpful for configuring Seccomp on an AKS cluster, we'll discuss this in the next part.
+And last, a very interesting article on [4armed.com](https://www.4armed.com/blog/kubernetes-seccomp/) that details some exotic ways to upload custom profile on a cluster. Since this is something that will be helpful for configuring Seccomp on an AKS cluster, we'll discuss this in the next part.
 
 
 ## 3. What about Seccomp on AKS
@@ -706,7 +770,7 @@ Which means also that we should not interact with those nodes directly on the po
 
 However, AKS is still a Kubernetes cluster, which follows quite closely the Kubernetes release rhythm. So that means we have all the Seccomp features available that we've discussed, somehow.
 
-There is a [documentation page](https://docs.azure.cn/en-us/aks/secure-container-access) on the topic, but not necessarily detailed enough. But more on the content of this later.
+There is a [documentation page](https://docs.azure.cn/en-us/aks/secure-container-access) on the topic, but not detailed enough from my point of view.
 
 Considering the following deployment, the default runtime container profile works fine on an AKS cluster.
 
@@ -743,9 +807,9 @@ status: {}
 
 What else?
 
-Well, we can consider the node customization, describe on the [documentation](https://docs.azure.cn/en-us/aks/custom-node-configuration?tabs=linux-node-pools), and on this [community article](https://techcommunity.microsoft.com/blog/appsonazureblog/customising-node-level-configuration-in-aks/4435038).
+Well, we can consider the node customization, described on the [documentation](https://docs.azure.cn/en-us/aks/custom-node-configuration?tabs=linux-node-pools), and on this [community article](https://techcommunity.microsoft.com/blog/appsonazureblog/customising-node-level-configuration-in-aks/4435038).
 
-Looking deeper into the cluster and node pool object, we can find in the [ARM reference](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/managedclusters/agentpools?pivots=deployment-language-terraform) the following paramter inside the kubelet configuration.
+Looking deeper into the cluster and node pool objects, we can find in the [ARM reference](https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/managedclusters/agentpools?pivots=deployment-language-terraform) the following paramter inside the kubelet configuration.
 
 ![illustration2](/assets/K8ssecu/aksseccomp002.png)
 
@@ -774,19 +838,19 @@ yumemaru@azure~$ az feature show --namespace "Microsoft.ContainerService" --name
 
 ```
 
-If it show `Registered`, everything is fine, if not, it must be registered. Again, the AKS Seccomp doc details the steps required.
+If it shows `Registered`, everything is fine, if not, it must be registered. Again, the AKS Seccomp doc details the steps required.
 
-Once we are ok on this feature activation, the next step is the customization of the nodes. If works with the `--kubelet-config` and a json file which is read when creating either the cluster or the node pool.
+Once we are ok on this feature activation, the next step is the customization of the nodes. It works with the `--kubelet-config` and a json file which is read when creating either the cluster or the node pool.
 
 We will test this with a node pool here. The command to create the node pool would look like this.
 
 ```bash
 
-az aks nodepool add --name mynodepool1 --cluster-name myAKSCluster --resource-group myResourceGroup --kubelet-config ./linuxkubeletconfig.json
+az aks nodepool add --name <nodepool_name> --cluster-name myAKSCluster --resource-group <resourcegroup_name> --kubelet-config ./linuxkubeletconfig.json
 
 ```
 
-And the json file to pass through the cli would look like this.
+And the json file to pass through the cli looks like this.
 
 ```json
 
@@ -810,7 +874,7 @@ null
 
 ```
 
-It's mentionned in the AKS documentation that afterward, we should connect to the node(s) and check the seccomp configuration, but the steps are not specified. Instead, we will create 2 differents pods, with node afinities. For this test, I added a specific label to my nodes through the AKS command `az aks nodepool update` and the `--labels` argument. Specifically, I set the label `seccompDefaultEnabled=true/false`.
+It's mentionned in the AKS documentation that afterward, we should connect to the node(s) and check the seccomp configuration, but the steps are not specified (I did say it was not detailed enough for me...). Instead, we will create 2 differents pods, with node afinities. For this test, I added a specific label to my nodes through the AKS command `az aks nodepool update` and the `--labels` argument. Specifically, I set the label `seccompDefaultEnabled=true/false`.
 
 ```bash
 
@@ -903,7 +967,7 @@ yumemaru@azure~$ k get nodes -o json | jq .items[].metadata.labels
 
 ```
 
-finally to test the difference we deploy pods with the amicontained image.
+Finally, to test the differences, we deploy pods with the `amicontained` image, an useful container image for Seccomp analysis taht I found parsing [kodekloud notes](https://notes.kodekloud.com/docs/Certified-Kubernetes-Security-Specialist-CKS/System-Hardening/Implement-Seccomp-in-Kubernetes).
 
 ```yaml
 
@@ -963,8 +1027,8 @@ spec:
 
 ```
 
-Creating the pods, we can check that those are hosted on the expected nodes.
-We can also see that, because we did not specified the `spec.securitycontext.seccompProfile`, we do not see the configuration of a seccomp profile reflected in the 
+Creating the pods, we can check the expected nodes are used..
+We can also see that, because we did not specified the `spec.securitycontext.seccompProfile`, we do not see the configuration of a seccomp profile reflected in the pod configuration output.
 
 ```bash
 
@@ -1013,7 +1077,7 @@ Looking for Docker.sock
 
 ```
 
-So we have access to the default seccomp profile, either through the pods confugration, or by setting the parameter on the node pools. The second option is quite interesting to enforce default security, at the node level rather than the pod level.
+So we have access to the default seccomp profile, either through the pods configuration, or by setting the parameter on the node pools. The second option is quite interesting to enforce default security, at the node level rather than the pod level.
 
 Now what about the use of custom profile?
 
@@ -1386,7 +1450,7 @@ root@aks-npuser1-78178449-vmss000000:/# cat /var/lib/kubelet/seccomp/customprofi
 
 That's that.
 
-We could also use the same concept but instead of an init container, which impact the time to start the pod, use a daemonset that would copy the profile on each node. A yaml definition would look like this.
+Additionaly, we could also use the same concept but instead of an init container, which impact the time to start the pod, use a daemonset that would copy the profile on each node. A yaml definition would look like this.
 
 ```yaml
 
@@ -1483,24 +1547,29 @@ spec:
 
 ```
 
-Again, it works. One might question the relevance of mounting folders from the host to achieve this security requirement though &#129323;
+One might question the relevance of mounting folders from the host to achieve this security requirement though &#129323;
 
-**Note:** While those methods works on a cluster without access to thenodes, the results would be the sames with a self-managed cluster.
+**Note:** While those methods works on a cluster without access to the nodes, the results would be the sames with a self-managed cluster on which we can access to the nodes.
 
-Last, there is a dedicated operator to manage seccomp profile. The documentation can be found [here](https://github.com/kubernetes-sigs/security-profiles-operator/tree/main). Because it deserves a more thorough study, we are only mentionning today, and may come back to it another day.
+To avoid that, we could use the dedicated operator to manage seccomp profile. 
+
+The documentation can be found [here](https://github.com/kubernetes-sigs/security-profiles-operator/tree/main). Because it deserves a more thorough study, we are only mentionning today, and may come back to it another day.
+
+Ok time to wrap up!
 
 ## 4. Summary
 
 Soooooo!
 
 It's been an eventful journey right?
+
 To summarize:
 
 - Seccomp is a powerful (while not new) tool to give us a measure of security on kubernetes
 - As expected for a security feature, it implies that we know a bit about kubernetes and the potential limitations of the environment.
 - There is room for customisation, but one would say that the minimum requirement should be to at least enforce the runtime's default profile.
 - Because AKS also needs security, and people at microsoft think about our need, we found that there is a way to enforce this default profile inb Azure environment
-- Custom profiles are a pain, both for the creation but to manage, specifically on multi-nodes clusters, and even more on cloud-managed cluster
+- Custom profiles are a pain, both for the creation but to manage, specifically on multi-nodes clusters, and even more on cloud-managed cluster. While we can find ways to push profiles to clusters, creating profiles is far from easy.
 
 And that's all!
 
