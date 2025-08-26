@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Consideration for a shared Gateway"
+title:  "Considerations for a shared Gateway"
 date:   2025-08-20 18:00:00 +0200
 year: 2025
 categories: Kubernetes
