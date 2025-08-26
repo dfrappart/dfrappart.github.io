@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Seccomp in Kubernetes and AKS"
-date:   2025-08-25 18:00:00 +0200
+date:   2025-08-26 18:00:00 +0200
 year: 2025
 categories: Kubernetes AKS Security
 ---
