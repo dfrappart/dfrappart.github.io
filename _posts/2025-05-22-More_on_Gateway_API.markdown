@@ -28,7 +28,7 @@ Let's get started!
 
 We start discussing about Gateway API in a previous article about applications exposition.
 As mentionned in the [kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/ingress/), the Ingress API is now frozen, and the Gateway API is the official replacement to all the Ingress implementations currently used.
-Again, we can find infoirmation about the available implementation of the Gateway API in the [documentation](https://gateway-api.sigs.k8s.io/implementations/).
+Again, we can find information about the available implementation of the Gateway API in the [documentation](https://gateway-api.sigs.k8s.io/implementations/).
 Present in this list are, among others: 
 
 - Nginx Gateway Fabric
@@ -54,13 +54,13 @@ Additionally, there are also the following objects:
 
 It's important to note that all those resources are not at the same state.
 
-Details on the CRDs definition are available on the relate [github](https://github.com/kubernetes-sigs/gateway-api/tree/main/config/crd/standard) repository.
+Details on the CRDs definition are available on the related [github](https://github.com/kubernetes-sigs/gateway-api/tree/main/config/crd/standard) repository.
 
 ![illustration1](/assets/gapi/github.png)
 
 You'll notice that the stable version is currently 1.3.
 
-We can check the presence of the CRDs on the lcuster with a kubectl get command.
+We can check the presence of the CRDs on the cluster with a kubectl get command.
 
 ```bash
 
@@ -75,7 +75,7 @@ tlsroutes.gateway.networking.k8s.io                          2025-03-28T13:48:01
 
 ```
 
-Once thispoint validated it's time to install a gateway provider.
+Once this point validated it's time to install a gateway provider.
 
 With a cluster using Cilium, the installation can be done with the additional argument
 
@@ -135,7 +135,7 @@ For instance, looking at [Traefik doc](https://doc.traefik.io/traefik/v3.2/routi
 
 The same can be applied to Cilium where we can find that the supported version is `1.2.0`.
 
-So that's one warning point: Validate the CRDs versions is the one supported by the Gateway API proovider.
+So that's one warning point: Validate the CRDs versions is the one supported by the Gateway API provider.
 
 We can start looking at the gateway class.
 
@@ -216,9 +216,9 @@ status:
 Looking at the yaml configuration, we can see in the `status` section important information about... the gateway class status &#129325;
 The `conditions` section should display `type: Accepted` and `status: "True"`.
 
-Also, in the `spec` section, wee can find the controllerName parameter which specifies which provider is used. Here, we note the reference to Cilium with `io.cilium/gateway-controller`.
+Also, in the `spec` section, we can find the controllerName parameter which specifies which provider is used. Here, we note the reference to Cilium with `io.cilium/gateway-controller`.
 
-Refering the the schema of the role based organization of the Gateway API, it is considered a fact that the gateway class ismanaged by the infrastructure provider
+Refering the the schema of the role based organization of the Gateway API, it is considered a fact that the gateway class is managed by the infrastructure provider
 
 ![illustration3](/assets/gapi/gapiresourcemodel.png)
 
@@ -253,14 +253,14 @@ And the `spec` section include the following parameters.
 
 | Field | Description | Value |
 |-|-|-|
-| controllerName | A string defining the controller name | Spoecific to the Gateway API provider. For Cilium `io.cilium/gateway-controller` |
+| controllerName | A string defining the controller name | Specific to the Gateway API provider. For Cilium `io.cilium/gateway-controller` |
 | parametersRef | Another sub-section to further define the gateway class, specific to the controller | |
 | description | A string that allow to describe the class ||
 
 The `parametersRef` sub-section is used for provider specific configuration and can refers either to a CRD or a configmap.
 In the case of Cilium, there is indeed a CRD called `CiliumGatewayClassConfig` that can be used to feed specific parameters to the `parametersRef` section
 
-WE can manipulate a little the gateway class and all those parameters.
+We can manipulate a little bit the gateway class and all those parameters.
 
 
 ### 2.2. Playing with GatewayClass
@@ -288,7 +288,7 @@ spec:
 
 ```
 
-We shoudl have now 2 additional classes.
+We should have now 2 additional classes.
 
 ```bash
 
@@ -441,7 +441,7 @@ AS displayed on the below schema, the gateway is the first element that we acces
 
 With this, and the role based organization schema, it's clear that we diverge from the ingress concepts.
 
-Indeed, the ingress controller defined an ingress class and a unique entry point (Akubernetes service actually) while the gateway class can be parent to many different gateways (Each with its own Kubvernetes service but we're about to see this).
+Indeed, the ingress controller defined an ingress class and a unique entry point (A kubernetes service actually) while the gateway class can be parent to many different gateways (Each with its own Kubvernetes service but we're about to see this).
 
 Below is a sample gateway definition, using the default cilium gateway class.
 
@@ -622,7 +622,7 @@ kubernetes                        ClusterIP      100.67.0.1       <none>        
 
 ```
 
-Well, it seems that the `CiliumGatewayClassConfig` did not work as expected. But it may also be related to the nature of thegateway, which may not be cluster internal &#129335;
+Well, it seems that the `CiliumGatewayClassConfig` did not work as expected. But it may also be related to the nature of the gateway, which may not be cluster internal &#129335;
 
 Anyway, comparing it to the Ingress Controller implementation which allows us to pass annotations for the underlying service, it is not satisfying.
 
