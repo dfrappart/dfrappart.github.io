@@ -5,7 +5,7 @@ permalink: /2025/
 description: Posts in 2025
 ---
 
-## Posts in 2023
+## Posts in 2025
 {% assign posts = site.posts | where_exp: "item", "item.year == 2025" %}
 {% for post in posts %}
   [{{ post.title }}]({{ post.url | relative_url }}) - {{ post.date | date_to_string }}

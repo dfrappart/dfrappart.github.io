@@ -8,7 +8,7 @@ categories: Kubernetes AKS Network
 
 Hi!
 
-We juste completed a view of the Application Gateway For container in a previous article.
+We juste completed a view of the Application Gateway For containers in a previous [article](/_posts/2025-09-25-Azure_Native_Gateway_API_with_Application_Gateway_for_Containers.markdown).
 
 You may have felt that there was more to the story than juste something working smoothly.
 
@@ -17,9 +17,9 @@ This article is my journey to make it works. And because I don't really care abo
 Our Agenda will be:
 
 
-1. Components of the Application Gateway for containers
-2. Prerequisites and deployment on an AKS cluster with Azure CNI overlay powered by Cilium
-3. Managing Gateway and HTTP routes with AGC
+1. Troubleshooting the ALB Controller deployment
+2. Is it really working with overlay?
+3. Subnet size related issues
 3. Conclusion
 
 Let's get started!
@@ -234,9 +234,26 @@ df@df-2404lts:~$ k logs -n azure-alb-system deployments/alb-controller
 
 ```json
 
-{"level":"info","version":"1.7.9","Timestamp":"2025-09-26T10:18:17.54527184Z","message":"Retrying GetTrafficController after error: failed to get Application Gateway for Containers alb-aks-lab: DefaultAzureCredential: failed to acquire a token.\nAttempted credentials:\n\tEnvironmentCredential: missing environment variable AZURE_CLIENT_ID\n\tWorkloadIdentityCredential authentication failed. \n\t\tPOST https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/oauth2/v2.0/token\n\t\t--------------------------------------------------------------------------------\n\t\tRESPONSE 400: 400 Bad Request\n\t\t--------------------------------------------------------------------------------\n\t\t{\n\t\t  \"error\": \"unauthorized_client\",\n\t\t  \"error_description\": \"AADSTS700016: Application with identifier 'https://francecentral.oic.prod-aks.azure.com/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000/' was not found in the directory 'dfitc'. This can happen if the application has not been installed by the administrator of the tenant or consented to by any user in the tenant. You may have sent your authentication request to the wrong tenant. Trace ID: ce2bad1f-7eb1-4159-a2a1-1e4185da0e00 Correlation ID: 3459235a-918a-4d58-be57-8dc6ee4bfd4f Timestamp: 2025-09-26 10:18:17Z\",\n\t\t  \"error_codes\": [\n\t\t    700016\n\t\t  ],\n\t\t  \"timestamp\": \"2025-09-26 10:18:17Z\",\n\t\t  \"trace_id\": \"ce2bad1f-7eb1-4159-a2a1-1e4185da0e00\",\n\t\t  \"correlation_id\": \"3459235a-918a-4d58-be57-8dc6ee4bfd4f\",\n\t\t  \"error_uri\": \"https://login.microsoftonline.com/error?code=700016\"\n\t\t}\n\t\t--------------------------------------------------------------------------------\n\t\tTo troubleshoot, visit https://aka.ms/azsdk/go/identity/troubleshoot#workload. Attempt: 2"}
-{"level":"info","version":"1.7.9","Timestamp":"2025-09-26T10:19:17.591747763Z","message":"Retrying GetTrafficController after error: failed to get Application Gateway for Containers alb-aks-lab: DefaultAzureCredential: failed to acquire a token.\nAttempted credentials:\n\tEnvironmentCredential: missing environment variable AZURE_CLIENT_ID\n\tWorkloadIdentityCredential authentication failed. \n\t\tPOST https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/oauth2/v2.0/token\n\t\t--------------------------------------------------------------------------------\n\t\tRESPONSE 400: 400 Bad Request\n\t\t--------------------------------------------------------------------------------\n\t\t{\n\t\t  \"error\": \"unauthorized_client\",\n\t\t  \"error_description\": \"AADSTS700016: Application with identifier 'https://francecentral.oic.prod-aks.azure.com/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000/' was not found in the directory 'dfitc'. This can happen if the application has not been installed by the administrator of the tenant or consented to by any user in the tenant. You may have sent your authentication request to the wrong tenant. Trace ID: 741042a7-9880-48bf-86ea-af26d20c0e00 Correlation ID: 4be0058d-407e-4783-a40b-af987cef1f50 Timestamp: 2025-09-26 10:19:17Z\",\n\t\t  \"error_codes\": [\n\t\t    700016\n\t\t  ],\n\t\t  \"timestamp\": \"2025-09-26 10:19:17Z\",\n\t\t  \"trace_id\": \"741042a7-9880-48bf-86ea-af26d20c0e00\",\n\t\t  \"correlation_id\": \"4be0058d-407e-4783-a40b-af987cef1f50\",\n\t\t  \"error_uri\": \"https://login.microsoftonline.com/error?code=700016\"\n\t\t}\n\t\t--------------------------------------------------------------------------------\n\t\tTo troubleshoot, visit https://aka.ms/azsdk/go/identity/troubleshoot#workload. Attempt: 3"}
-{"level":"error","version":"1.7.9","AGC":"alb-aks-lab","error":"failed to get location for Application Gateway for Containers resource, failed to get Application Gateway for Containers alb-aks-lab: DefaultAzureCredential: failed to acquire a token.\nAttempted credentials:\n\tEnvironmentCredential: missing environment variable AZURE_CLIENT_ID\n\tWorkloadIdentityCredential authentication failed. \n\t\tPOST https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/oauth2/v2.0/token\n\t\t--------------------------------------------------------------------------------\n\t\tRESPONSE 400: 400 Bad Request\n\t\t--------------------------------------------------------------------------------\n\t\t{\n\t\t  \"error\": \"unauthorized_client\",\n\t\t  \"error_description\": \"AADSTS700016: Application with identifier 'https://francecentral.oic.prod-aks.azure.com/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000/' was not found in the directory 'dfitc'. This can happen if the application has not been installed by the administrator of the tenant or consented to by any user in the tenant. You may have sent your authentication request to the wrong tenant. Trace ID: 741042a7-9880-48bf-86ea-af26d20c0e00 Correlation ID: 4be0058d-407e-4783-a40b-af987cef1f50 Timestamp: 2025-09-26 10:19:17Z\",\n\t\t  \"error_codes\": [\n\t\t    700016\n\t\t  ],\n\t\t  \"timestamp\": \"2025-09-26 10:19:17Z\",\n\t\t  \"trace_id\": \"741042a7-9880-48bf-86ea-af26d20c0e00\",\n\t\t  \"correlation_id\": \"4be0058d-407e-4783-a40b-af987cef1f50\",\n\t\t  \"error_uri\": \"https://login.microsoftonline.com/error?code=700016\"\n\t\t}\n\t\t--------------------------------------------------------------------------------\n\t\tTo troubleshoot, visit https://aka.ms/azsdk/go/identity/troubleshoot#workload","Timestamp":"2025-09-26T10:19:17.591808665Z","message":"Internal error. See error tag for more information"}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "Timestamp": "2025-09-26T10:18:17.54527184Z",
+  "message": "Retrying GetTrafficController after error: failed to get Application Gateway for Containers alb-aks-lab: DefaultAzureCredential: failed to acquire a token.\nAttempted credentials:\n\tEnvironmentCredential: missing environment variable AZURE_CLIENT_ID\n\tWorkloadIdentityCredential authentication failed. \n\t\tPOST https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/oauth2/v2.0/token\n\t\t--------------------------------------------------------------------------------\n\t\tRESPONSE 400: 400 Bad Request\n\t\t--------------------------------------------------------------------------------\n\t\t{\n\t\t  \"error\": \"unauthorized_client\",\n\t\t  \"error_description\": \"AADSTS700016: Application with identifier 'https://francecentral.oic.prod-aks.azure.com/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000/' was not found in the directory 'dfitc'. This can happen if the application has not been installed by the administrator of the tenant or consented to by any user in the tenant. You may have sent your authentication request to the wrong tenant. Trace ID: ce2bad1f-7eb1-4159-a2a1-1e4185da0e00 Correlation ID: 3459235a-918a-4d58-be57-8dc6ee4bfd4f Timestamp: 2025-09-26 10:18:17Z\",\n\t\t  \"error_codes\": [\n\t\t    700016\n\t\t  ],\n\t\t  \"timestamp\": \"2025-09-26 10:18:17Z\",\n\t\t  \"trace_id\": \"ce2bad1f-7eb1-4159-a2a1-1e4185da0e00\",\n\t\t  \"correlation_id\": \"3459235a-918a-4d58-be57-8dc6ee4bfd4f\",\n\t\t  \"error_uri\": \"https://login.microsoftonline.com/error?code=700016\"\n\t\t}\n\t\t--------------------------------------------------------------------------------\n\t\tTo troubleshoot, visit https://aka.ms/azsdk/go/identity/troubleshoot#workload. Attempt: 2"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "Timestamp": "2025-09-26T10:19:17.591747763Z",
+  "message": "Retrying GetTrafficController after error: failed to get Application Gateway for Containers alb-aks-lab: DefaultAzureCredential: failed to acquire a token.\nAttempted credentials:\n\tEnvironmentCredential: missing environment variable AZURE_CLIENT_ID\n\tWorkloadIdentityCredential authentication failed. \n\t\tPOST https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/oauth2/v2.0/token\n\t\t--------------------------------------------------------------------------------\n\t\tRESPONSE 400: 400 Bad Request\n\t\t--------------------------------------------------------------------------------\n\t\t{\n\t\t  \"error\": \"unauthorized_client\",\n\t\t  \"error_description\": \"AADSTS700016: Application with identifier 'https://francecentral.oic.prod-aks.azure.com/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000/' was not found in the directory 'dfitc'. This can happen if the application has not been installed by the administrator of the tenant or consented to by any user in the tenant. You may have sent your authentication request to the wrong tenant. Trace ID: 741042a7-9880-48bf-86ea-af26d20c0e00 Correlation ID: 4be0058d-407e-4783-a40b-af987cef1f50 Timestamp: 2025-09-26 10:19:17Z\",\n\t\t  \"error_codes\": [\n\t\t    700016\n\t\t  ],\n\t\t  \"timestamp\": \"2025-09-26 10:19:17Z\",\n\t\t  \"trace_id\": \"741042a7-9880-48bf-86ea-af26d20c0e00\",\n\t\t  \"correlation_id\": \"4be0058d-407e-4783-a40b-af987cef1f50\",\n\t\t  \"error_uri\": \"https://login.microsoftonline.com/error?code=700016\"\n\t\t}\n\t\t--------------------------------------------------------------------------------\n\t\tTo troubleshoot, visit https://aka.ms/azsdk/go/identity/troubleshoot#workload. Attempt: 3"
+}
+{
+  "level": "error",
+  "version": "1.7.9",
+  "AGC": "alb-aks-lab",
+  "error": "failed to get location for Application Gateway for Containers resource, failed to get Application Gateway for Containers alb-aks-lab: DefaultAzureCredential: failed to acquire a token.\nAttempted credentials:\n\tEnvironmentCredential: missing environment variable AZURE_CLIENT_ID\n\tWorkloadIdentityCredential authentication failed. \n\t\tPOST https://login.microsoftonline.com/00000000-0000-0000-0000-000000000000/oauth2/v2.0/token\n\t\t--------------------------------------------------------------------------------\n\t\tRESPONSE 400: 400 Bad Request\n\t\t--------------------------------------------------------------------------------\n\t\t{\n\t\t  \"error\": \"unauthorized_client\",\n\t\t  \"error_description\": \"AADSTS700016: Application with identifier 'https://francecentral.oic.prod-aks.azure.com/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000/' was not found in the directory 'dfitc'. This can happen if the application has not been installed by the administrator of the tenant or consented to by any user in the tenant. You may have sent your authentication request to the wrong tenant. Trace ID: 741042a7-9880-48bf-86ea-af26d20c0e00 Correlation ID: 4be0058d-407e-4783-a40b-af987cef1f50 Timestamp: 2025-09-26 10:19:17Z\",\n\t\t  \"error_codes\": [\n\t\t    700016\n\t\t  ],\n\t\t  \"timestamp\": \"2025-09-26 10:19:17Z\",\n\t\t  \"trace_id\": \"741042a7-9880-48bf-86ea-af26d20c0e00\",\n\t\t  \"correlation_id\": \"4be0058d-407e-4783-a40b-af987cef1f50\",\n\t\t  \"error_uri\": \"https://login.microsoftonline.com/error?code=700016\"\n\t\t}\n\t\t--------------------------------------------------------------------------------\n\t\tTo troubleshoot, visit https://aka.ms/azsdk/go/identity/troubleshoot#workload",
+  "Timestamp": "2025-09-26T10:19:17.591808665Z",
+  "message": "Internal error. See error tag for more information"
+}
 
 ```
 
@@ -439,7 +456,15 @@ Once we recreated our prvious Gateway, we can see in the alb controller logs tha
 
 ```json
 
-{"level":"info","version":"1.7.9","AGC":"alb-aks-lab","alb-resource-id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rsg-spoke-agw/providers/Microsoft.ServiceNetworking/trafficControllers/alb-aks-lab","operationID":"dee31c49-97d2-4dad-9c07-95421c11520c","Timestamp":"2025-09-26T13:42:27.643367539Z","message":"Application Gateway for Containers resource config update OPERATION_STATUS_SUCCESS with operation ID dee31c49-97d2-4dad-9c07-95421c11520c"}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "AGC": "alb-aks-lab",
+  "alb-resource-id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rsg-spoke-agw/providers/Microsoft.ServiceNetworking/trafficControllers/alb-aks-lab",
+  "operationID": "dee31c49-97d2-4dad-9c07-95421c11520c",
+  "Timestamp": "2025-09-26T13:42:27.643367539Z",
+  "message": "Application Gateway for Containers resource config update OPERATION_STATUS_SUCCESS with operation ID dee31c49-97d2-4dad-9c07-95421c11520c"
+}
 
 ```
 
@@ -525,7 +550,7 @@ df@df-2404lts:~/Documents/dfrappart.github.io$ k get gateway -n agctest gateway-
 
 So that's how we can make AGC work, Azure CNI Overlay or not. Speaking of Overlay, let's have a look at some other issues encountered.
 
-## 2. Is it really working with overlay???
+## 2. Is it really working with overlay?
 
 This issue was encountered with a bring your own deployement. 
 The secificity was regarding the network configuration, in which the aim was to deploy AGC in another vnet than the AKS cluster.
@@ -620,7 +645,7 @@ Azure CNI Overlay seems to be limited to deployment within the same vnet for AGC
 
 Let's move on and check another scenario
 
-## 3. subnet size related issues
+## 3. Subnet size related issues
 
 ### 3.1. Subnet too small?
 

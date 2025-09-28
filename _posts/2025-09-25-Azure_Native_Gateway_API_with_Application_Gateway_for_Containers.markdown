@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Azure Native Gateway API with Application Gateway for container"
+title:  "Azure Native Gateway API with Application Gateway for containers"
 date:   2025-09-25 18:00:00 +0200
 year: 2025
 categories: Kubernetes AKS Network
