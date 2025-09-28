@@ -8,7 +8,7 @@ categories: Kubernetes AKS Network
 
 Hi!
 
-We juste completed a view of the Application Gateway For containers in a previous [article](/_posts/2025-09-25-Azure_Native_Gateway_API_with_Application_Gateway_for_Containers.markdown).
+We juste completed a view of the Application Gateway For containers in a previous [article](https://blog.teknews.cloud/kubernetes/aks/network/2025/09/25/Azure_Native_Gateway_API_with_Application_Gateway_for_Containers.html).
 
 You may have felt that there was more to the story than juste something working smoothly.
 
@@ -637,7 +637,15 @@ Indeed, checking the logs, it seems that it does not reconcile the association b
 
 df@df-2404lts:~$ k logs -n azure-alb-system deployments/alb-controller |grep gateway-01
 
-{"level":"error","version":"1.7.9","AGC":"alb-aks-lab","alb-resource-id":"/subscriptions/00000000-0000-0000-0000-00000000000/resourceGroups/rsg-spoke-agw/providers/Microsoft.ServiceNetworking/trafficControllers/alb-aks-lab","error":"failed to reconcile subnet association: failed to reconcile overlay resources: Overlay extension config azure-alb-system/alb-overlay-extension-config-d22b74b6 failed with error: OEC IP range 172.21.4.0/24 is not within any of the VNet CIDRs 172.16.0.0/16","Timestamp":"2025-09-25T21:33:01.991979766Z","message":"Retrying to process the request."}
+{
+  "level": "error",
+  "version": "1.7.9",
+  "AGC": "alb-aks-lab",
+  "alb-resource-id": "/subscriptions/00000000-0000-0000-0000-00000000000/resourceGroups/rsg-spoke-agw/providers/Microsoft.ServiceNetworking/trafficControllers/alb-aks-lab",
+  "error": "failed to reconcile subnet association: failed to reconcile overlay resources: Overlay extension config azure-alb-system/alb-overlay-extension-config-d22b74b6 failed with error: OEC IP range 172.21.4.0/24 is not within any of the VNet CIDRs 172.16.0.0/16",
+  "Timestamp": "2025-09-25T21:33:01.991979766Z",
+  "message": "Retrying to process the request."
+}
 
 ```
 
@@ -738,16 +746,7 @@ Logs from the alb controller looks ok too.
 df@df-2404lts:~$ k logs -n azure-alb-system deployments/alb-controller |grep alb-test2
 Found 2 pods, using pod/alb-controller-86d7bc7694-nl8gt
 Defaulted container "alb-controller" out of: alb-controller, init-alb-controller-crds (init), init-alb-controller-bootstrap (init)
-{"level":"info","version":"1.7.9","controller":"lb-resources-reconciler","object":{"name":"alb-test2","namespace":"agcmanaged"},"namespace":"agcmanaged","name":"alb-test2","reconcileID":"6f1cc301-7a99-4ac9-810c-8c045823b72a","Timestamp":"2025-09-25T18:31:59.177027962Z","message":"Reconciling"}
-{"level":"info","version":"1.7.9","Timestamp":"2025-09-25T18:31:59.177050662Z","message":"Received request for object agcmanaged/alb-test2"}
-{"level":"info","version":"1.7.9","controller":"lb-resources-reconciler","object":{"name":"alb-test2","namespace":"agcmanaged"},"namespace":"agcmanaged","name":"alb-test2","reconcileID":"6f1cc301-7a99-4ac9-810c-8c045823b72a","Timestamp":"2025-09-25T18:31:59.177061563Z","message":"Reconcile successful"}
-{"level":"info","version":"1.7.9","Timestamp":"2025-09-25T18:31:59.177076563Z","message":"Processing requested object agcmanaged/alb-test2"}
-{"level":"info","version":"1.7.9","Timestamp":"2025-09-25T18:31:59.177943274Z","message":"Successfully processed object agcmanaged/alb-test2"}
-{"level":"info","version":"1.7.9","operationID":"462051cc-ee0a-4161-a1a6-031256e05d07","Timestamp":"2025-09-25T18:31:59.177965774Z","message":"Starting event handler for Application Gateway for Containers resource agcmanaged/alb-test2"}
-{"level":"info","version":"1.7.9","AGC":"agcmanaged/alb-test2","operationID":"462051cc-ee0a-4161-a1a6-031256e05d07","operationID":"462051cc-ee0a-4161-a1a6-031256e05d07","Timestamp":"2025-09-25T18:31:59.177974274Z","message":"Creating new Application Gateway for Containers resource Handler"}
-{"level":"info","version":"1.7.9","operationID":"0b163b87-49c1-4820-aa33-8f3c5361e149","Timestamp":"2025-09-25T18:31:59.272533228Z","message":"Triggering a config update for Application Gateway for Containers resource agcmanaged/alb-test2"}
-{"level":"info","version":"1.7.9","operationID":"fb096b57-4413-4ada-888e-bbafc9a1e088","Timestamp":"2025-09-25T18:31:59.272542628Z","message":"Triggering an endpoint update for Application Gateway for Containers resource agcmanaged/alb-test2 with resources"}
-{"level":"info","version":"1.7.9","AGC":"agcmanaged/alb-test2","Timestamp":"2025-09-25T18:31:59.382784926Z","message":"Deploying Application Gateway for Containers resource: agcmanaged/alb-test2"}
+
 
 ```
 
@@ -761,6 +760,93 @@ Location       Name          ProvisioningState    ResourceGroup
 francecentral  alb-aks-lab   Succeeded            rsg-spoke-agw
 francecentral  alb-aks-lab2  Succeeded            rsg-spoke-aks
 francecentral  alb-497eb140  Succeeded            rsg-aksobjectslab
+
+```
+
+```json
+
+{
+  "level": "info",
+  "version": "1.7.9",
+  "controller": "lb-resources-reconciler",
+  "object": {
+    "name": "alb-test2",
+    "namespace": "agcmanaged"
+  },
+  "namespace": "agcmanaged",
+  "name": "alb-test2",
+  "reconcileID": "6f1cc301-7a99-4ac9-810c-8c045823b72a",
+  "Timestamp": "2025-09-25T18:31:59.177027962Z",
+  "message": "Reconciling"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "Timestamp": "2025-09-25T18:31:59.177050662Z",
+  "message": "Received request for object agcmanaged/alb-test2"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "controller": "lb-resources-reconciler",
+  "object": {
+    "name": "alb-test2",
+    "namespace": "agcmanaged"
+  },
+  "namespace": "agcmanaged",
+  "name": "alb-test2",
+  "reconcileID": "6f1cc301-7a99-4ac9-810c-8c045823b72a",
+  "Timestamp": "2025-09-25T18:31:59.177061563Z",
+  "message": "Reconcile successful"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "Timestamp": "2025-09-25T18:31:59.177076563Z",
+  "message": "Processing requested object agcmanaged/alb-test2"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "Timestamp": "2025-09-25T18:31:59.177943274Z",
+  "message": "Successfully processed object agcmanaged/alb-test2"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "operationID": "462051cc-ee0a-4161-a1a6-031256e05d07",
+  "Timestamp": "2025-09-25T18:31:59.177965774Z",
+  "message": "Starting event handler for Application Gateway for Containers resource agcmanaged/alb-test2"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "AGC": "agcmanaged/alb-test2",
+  "operationID": "462051cc-ee0a-4161-a1a6-031256e05d07",
+  "Timestamp": "2025-09-25T18:31:59.177974274Z",
+  "message": "Creating new Application Gateway for Containers resource Handler"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "operationID": "0b163b87-49c1-4820-aa33-8f3c5361e149",
+  "Timestamp": "2025-09-25T18:31:59.272533228Z",
+  "message": "Triggering a config update for Application Gateway for Containers resource agcmanaged/alb-test2"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "operationID": "fb096b57-4413-4ada-888e-bbafc9a1e088",
+  "Timestamp": "2025-09-25T18:31:59.272542628Z",
+  "message": "Triggering an endpoint update for Application Gateway for Containers resource agcmanaged/alb-test2 with resources"
+}
+{
+  "level": "info",
+  "version": "1.7.9",
+  "AGC": "agcmanaged/alb-test2",
+  "Timestamp": "2025-09-25T18:31:59.382784926Z",
+  "message": "Deploying Application Gateway for Containers resource: agcmanaged/alb-test2"
+}
 
 ```
 
