@@ -1,0 +1,141 @@
+---
+layout: post
+title:  "VWAN and routing intent"
+date:   2025-10-25 18:00:00 +0200
+year: 2025
+categories: Network
+---
+
+Hello people!
+
+In this article, to change a bit from the kubernetes stuff, I propose to have a look at VWAN and the routing intent feature.
+It should not be a too long article, which will be a change from the last ones &#129325;.
+
+Our Agenda will be:
+
+
+1. A review of VWAN and some routing stuffs
+2. Be more dynamic with routing intent
+
+Let's get started!
+
+
+## 1. A review of VWAN and some routing stuffs
+
+### 1.1. Hub(s) & spokes with Vwan
+
+So, before anything, we probably need a refresh.
+
+Vwan is Microsoft managed service for... WAN. No surprise here.
+There are many things to check when planning for the use of Vwan, but here we want to focus on its managed aspect, and the capabilities it provides in the area of Network backbone, specifically the hub & spoke topology.
+
+One of the main feature of vwan is related to its virtual hub, a child resource that act as a Virtual Network that would be a hub in a hub & spokes topology.
+
+Except that the routing management is centralized in the Vwan/Vhub, instead of distributed to each VirtualNetwork/Subnets.
+
+![illustration1](/assets/vwan/hubandspoke.png)
+
+![illustration2](/assets/routingintent/vwanbasics.png)
+
+The fact that the routing can be centrally managed is thanks to the virtual router that is hiding inside our Vhub, but because it's managed, we don't need to know more &#129323;. 
+
+For those who noticed the 2 Vhubs on the schema, that is also another interesting point of vwan and vhubs, plural.
+
+To have multi-region network topology, we just need to add a vhub, in another region (or not, it works also for same region multi-hubs), and we automatically have network connectivity between the hubs.
+
+Because each hubs have its own routers, there is route propagation between the hubs, and the spokes that are connected to each hub, without much trouble.
+
+there is one importnat point to remember, which is that because the virtual hub is a managed hub, we cannot deploy whatever we want inside. We'll see more on that later.
+
+Now, what about the infamous Secure hub?
+
+### 1.2. Adding hub firewall in vhub
+
+Usually, one of the objective of the hub & spokes with vnets only is to provide an center point of firewall management, by adding an NVA, Azure Firewall or anything else, inside the hub. In this case we have a wide choice of NVA to deploy as IaaS market place offers, or as SaaS offers integrated to Vnet, such as the [Palo Alto NGFW](https://docs.paloaltonetworks.com/cloud-ngfw-azure/deployment/cloud-ngfw-for-azure-deployment-architectures).
+
+Also, because of the non-transitivity of the peering, we need an NVA in the hub to act as a next hop for the routing between spokes. It is usually  A firewall that takes this role, or in some case, a virtual network gateway.
+
+In a Vhub, because of the integrated router, there is no need for additional configuration when connecting spokes to the hub. Keeping the default network connection configuration will automatically propagate routes between connected spokes, so that there is a path between each workloads insides differents Vnet connected.
+
+So we add a firewall only for the purpose of security, hence the **secure hub** name.
+
+Adding the firewall is quite easy, except that we have less choice than with the Vnet hub.
+Having the firewall becoming the center point of traffic between our spokes however, is less easy.
+
+This time there is a need for routing configuration. 
+
+Navigating in the vhub, we can find 2 route tables.
+
+![illustration3](/assets/securehub/routeconfig.png)
+
+- The default route table is... the default, and is the one that is used for propagating required routes for spoke connectivity.
+- The none route table is a route table that is used to... not propagate routes &#129299;.
+
+At this point, even if there is a firewall in the vhub, no route redirect traffic through it.
+
+One way to achieve this goal is to add a custom route which define the Firewall IP as the next hop for all RFC 1918 ranges.
+
+![illustration4](/assets/securehub/routeconfigsecure.png)
+
+![illustration5](/assets/securehub/routingvmdifferentspokes.png)
+
+Then we just need to specify the custom route table in the network connection configuration when we connect a spoke. We also need to not propagate the range of the spoke in the route table, so we choose the propagate to the none route table. It may feel strange at first but well.
+
+For more details, there is quite a lot of documentation available on Internet, and I wrote a [walkthrough for Secure hub](https://blog.teknews.cloud/network/security/terraform/2024/01/19/Walkthrough_Secure_Hub_in_Virtual_WAN.html) some times ago that may still be of help.
+
+With this we manage more than one route table, but we do have a Secure hub.
+
+Other scenarios can be considered, such as specifying public spokes and private spokes. This way, with 2 route tables, we can manage the network connection depending of the spokes nature.
+
+![illustration6](/assets/securehub/routingdifferenttable.png)
+
+In this last scenario, adding static route on the default route table is required to provide a route for the yellow spoke to any blue spokes.
+
+So we can have a secure hub, have centrally managed routes and, sometimes get lost in all this routing configuration &#128517;
+
+## 2. Be more dynamic with routing intent
+
+Before diving into the nice routing intent feature, we'll look at a specific scenario where the multiple route tables scenario does not work.
+
+### 2.1. Multiple hub, multiple firewall, and connectivity issue between spokes 
+
+
+
+
+
+Ok time to wrap up!
+
+## 4. Summary
+
+Soooooo!
+
+Another eventful journey right?
+
+
+To summarize:
+
+Application Gateway works... supposedly.
+
+Currently there are some isue with the chart which does not propagate the client Id of the managed identity where it should.
+A not so easy issue to tackle, as mentionned already.
+
+Once the ALB controller is deployed and working, depending on the underlying network, we may have more trouble.
+
+First, Azure CNI Overlay is fine, as long as the deployment of the AGC is in the same Vnet range than the Cluster. Otherwise, we encounter errors, hinting that the multi-vnet deployment is not functionnal yet.
+
+Second, the managed deployment is not totally working. For this, I'm not totaly clear on what's not ok and what is. Supposedly, a CIDR of `/24` fopr the ALB subnet. But we saw that we can get error with a /24 or a /23. So maybe it's just the managed deployment which is not working fantastically. Or maybe it's more related to the Azure CNI Overlay. I did not push it to find out what may not work with an Azure CNI Pod Subnet (I mean for the managed deployment).
+
+Also, I did not try with an Azure CNI Powered by Cilium. I kind of though it may have been too risky &#129325;
+
+Anyway, I hope it was intersting for some of you.
+
+I'll be back soon for more AGC I think, and definitly more Gateway API.
+
+Have fun ^^
+
+
+
+
+
+
+
