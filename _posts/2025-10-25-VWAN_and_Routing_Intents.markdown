@@ -99,7 +99,121 @@ Before diving into the nice routing intent feature, we'll look at a specific sce
 
 ### 2.1. Multiple hub, multiple firewall, and connectivity issue between spokes 
 
+Let's consider the following scenario:
 
+We are in a multi-region topology and, because Vwan is made for this, we want to leverage multiple virtual hub in different regions.
+Because we need to secure the East-West flow, meaning the flows between spokes, we want ot have firewalls in both virtual hubs.
+
+![illustration7](/assets/routingintent/vwanmultiplefw.png)
+
+Capitlaizing on the discussed matter, we know that we can manage routing configuration for spokes with a custom route table stating that all traffic should go to the local hub firewall to which a spoke is connected.
+
+Under the condition that all spokes have a vnet range in the RFC 1918 range, we can assume that a vm in a blue spoke can find a route for a vm in another blue spoke. This statement is also true for yellow vms in differents yellow spokes (not represented on the schema, but you get the idea).
+
+What about the case where a blue vm try to reach a yellow vm?
+
+For the purpose of experimenting, we create a VWAN with 2 secure hubs and a custom route table for each vhub.
+The route tables are configured to set the firewall as the next hop for the private IP range, and for Internet Egress.
+
+```json
+
+df@df-2404lts:~/$ az network vhub route-table list --vhub-name vwan-lab-001-vhub-lab-001 -g rg-lab-vwan-001 | jq .[2]
+{
+  "associatedConnections": [],
+  "etag": "W/\"00000000-0000-0000-0000-000000000000\"",
+  "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-lab-vwan-001/providers/Microsoft.Network/virtualHubs/vwan-lab-001-vhub-lab-001/hubRouteTables/rt-lab-vwan-lab-001-vhub-lab-001",
+  "labels": [
+    "privatezone-vwan-lab-001-vhub-lab-001"
+  ],
+  "name": "rt-lab-vwan-lab-001-vhub-lab-001",
+  "propagatingConnections": [],
+  "provisioningState": "Succeeded",
+  "resourceGroup": "rg-lab-vwan-001",
+  "routes": [
+    {
+      "destinationType": "CIDR",
+      "destinations": [
+        "0.0.0.0/0"
+      ],
+      "name": "InternetToFw",
+      "nextHop": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-lab-vwan-001/providers/Microsoft.Network/azureFirewalls/afw-vwan-lab-001-vhub-lab-001",
+      "nextHopType": "ResourceId"
+    },
+    {
+      "destinationType": "CIDR",
+      "destinations": [
+        "10.0.0.0/8",
+        "192.168.0.0/16",
+        "172.16.0.0/12"
+      ],
+      "name": "PrivateCIDRToFW",
+      "nextHop": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-lab-vwan-001/providers/Microsoft.Network/azureFirewalls/afw-vwan-lab-001-vhub-lab-001",
+      "nextHopType": "ResourceId"
+    }
+  ],
+  "type": "Microsoft.Network/virtualHubs/hubRouteTables"
+}
+
+```
+
+Also we have the following spokes with the routing configuration detailed in the below table.
+
+| Spoke | Connected to vhub | Network connection associated to route table | Network connection propagate to route table | static route added on default route |
+|-|-|-|-|
+| spoke1 | vwan-lab-001-vhub-lab-001 | defaultRouteTable in vhub1 | defaultRouteTable in vhub1 | no |
+| spoke2 | vwan-lab-001-vhub-lab-001 | rt-lab-vwan-lab-001-vhub-lab-001 | noneRouteTable | yes |
+| spoke3 | vwan-lab-001-vhub-lab-001 | rt-lab-vwan-lab-001-vhub-lab-001 | noneRouteTable | yes
+| spoke4 | vwan-lab-001-vhub-lab-002 | defaultRouteTable in vhub2 | defaultRouteTable in vhub2 | no |
+| spoke5 | vwan-lab-001-vhub-lab-002 | rt-lab-vwan-lab-001-vhub-lab-002 | noneRouteTable | yes | 
+| spoke6 | vwan-lab-001-vhub-lab-002 | rt-lab-vwan-lab-001-vhub-lab-002 | noneRouteTable | yes |
+
+The portal may be slow to render the vhub network connections and the routing configurattion, so It may be better to rely on the cli to get information.
+
+We can see that the default route table is associated and propagate the spoke1. 
+We can also see that the noneRouteTable is used to propagate the connections that are associated to the custom route table.
+With this configuration, we have the firewall in vhub 1 between spoke1, spoke2 and spoke3.
+We have the same configuration respectively for spoke 4, spoke 5 and spoke 6 in vhub2.
+
+However, spoke1 and spoke4, because of their association to the default route table, are not secured with a firewall in between
+
+```bash
+
+df@df-2404lts:~/$ az network vhub route-table list --vhub-name vwan-lab-001-vhub-lab-001 -g rg-lab-vwan-001 -o table
+Name                              ProvisioningState    ResourceGroup
+--------------------------------  -------------------  ---------------
+defaultRouteTable                 Succeeded            rg-lab-vwan-001
+noneRouteTable                    Succeeded            rg-lab-vwan-001
+rt-lab-vwan-lab-001-vhub-lab-001  Succeeded            rg-lab-vwan-001
+
+df@df-2404lts:~$ az network vhub route-table list --vhub-name vwan-lab-001-vhub-lab-001 -g rg-lab-vwan-001 |jq .[0].propagatingConnections
+[
+  "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-lab-vwan-001/providers/Microsoft.Network/virtualHubs/vwan-lab-001-vhub-lab-001/hubVirtualNetworkConnections/peer-vnet-sbx-spoke1-to-vwan-lab-001-vhub-lab-001"
+]
+df@df-2404lts:~$ az network vhub route-table list --vhub-name vwan-lab-001-vhub-lab-001 -g rg-lab-vwan-001 |jq .[0].associatedConnections
+[
+  "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-lab-vwan-001/providers/Microsoft.Network/virtualHubs/vwan-lab-001-vhub-lab-001/hubVirtualNetworkConnections/peer-vnet-sbx-spoke1-to-vwan-lab-001-vhub-lab-001"
+]
+
+df@df-2404lts:~$ az network vhub route-table list --vhub-name vwan-lab-001-vhub-lab-001 -g rg-lab-vwan-001 |jq .[1].propagatingConnections
+[
+  "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-lab-vwan-001/providers/Microsoft.Network/virtualHubs/vwan-lab-001-vhub-lab-001/hubVirtualNetworkConnections/peer-vnet-sbx-spoke3-to-vwan-lab-001-vhub-lab-001",
+  "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-lab-vwan-001/providers/Microsoft.Network/virtualHubs/vwan-lab-001-vhub-lab-001/hubVirtualNetworkConnections/peer-vnet-sbx-spoke2-to-vwan-lab-001-vhub-lab-001"
+]
+df@df-2404lts:~$ az network vhub route-table list --vhub-name vwan-lab-001-vhub-lab-001 -g rg-lab-vwan-001 |jq .[1].associatedConnections
+[]
+
+df@df-2404lts:~$ az network vhub route-table list --vhub-name vwan-lab-001-vhub-lab-001 -g rg-lab-vwan-001 |jq .[2].associatedConnections
+[
+  "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-lab-vwan-001/providers/Microsoft.Network/virtualHubs/vwan-lab-001-vhub-lab-001/hubVirtualNetworkConnections/peer-vnet-sbx-spoke3-to-vwan-lab-001-vhub-lab-001",
+  "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-lab-vwan-001/providers/Microsoft.Network/virtualHubs/vwan-lab-001-vhub-lab-001/hubVirtualNetworkConnections/peer-vnet-sbx-spoke2-to-vwan-lab-001-vhub-lab-001"
+]
+df@df-2404lts:~$ az network vhub route-table list --vhub-name vwan-lab-001-vhub-lab-001 -g rg-lab-vwan-001 |jq .[2].propagatingConnections
+[]
+
+```
+
+So now connection on vm1 in spoke1, we should be able to gain access to vm2 and vm3.
+### 2.2. 
 
 
 
