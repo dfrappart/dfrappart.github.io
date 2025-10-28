@@ -158,14 +158,14 @@ df@df-2404lts:~/$ az network vhub route-table list --vhub-name vwan-lab-001-vhub
 
 Also we have the following spokes with the routing configuration detailed in the below table.
 
-| Spoke | Connected to vhub | Network connection associated to route table | Network connection propagate to route table | static route added on default route |
+| Spoke | range | Connected to vhub | Network connection associated to route table | Network connection propagate to route table | static route added on default route |
 |-|-|-|-|
-| spoke1 | vwan-lab-001-vhub-lab-001 | defaultRouteTable in vhub1 | defaultRouteTable in vhub1 | no |
-| spoke2 | vwan-lab-001-vhub-lab-001 | rt-lab-vwan-lab-001-vhub-lab-001 | noneRouteTable | yes |
-| spoke3 | vwan-lab-001-vhub-lab-001 | rt-lab-vwan-lab-001-vhub-lab-001 | noneRouteTable | yes
-| spoke4 | vwan-lab-001-vhub-lab-002 | defaultRouteTable in vhub2 | defaultRouteTable in vhub2 | no |
-| spoke5 | vwan-lab-001-vhub-lab-002 | rt-lab-vwan-lab-001-vhub-lab-002 | noneRouteTable | yes | 
-| spoke6 | vwan-lab-001-vhub-lab-002 | rt-lab-vwan-lab-001-vhub-lab-002 | noneRouteTable | yes |
+| spoke1 | 172.22.0.0/24 | vwan-lab-001-vhub-lab-001 | defaultRouteTable in vhub1 | defaultRouteTable in vhub1 | no |
+| spoke2 | 172.22.1.0/24 | vwan-lab-001-vhub-lab-001 | rt-lab-vwan-lab-001-vhub-lab-001 | noneRouteTable | yes |
+| spoke3 | 172.22.2.0/24 | vwan-lab-001-vhub-lab-001 | rt-lab-vwan-lab-001-vhub-lab-001 | noneRouteTable | yes
+| spoke4 | 172.22.3.0/24 | vwan-lab-001-vhub-lab-002 | defaultRouteTable in vhub2 | defaultRouteTable in vhub2 | no |
+| spoke5 | 172.22.4.0/24 | vwan-lab-001-vhub-lab-002 | rt-lab-vwan-lab-001-vhub-lab-002 | noneRouteTable | yes | 
+| spoke6 | 172.22.5.0/24 | vwan-lab-001-vhub-lab-002 | rt-lab-vwan-lab-001-vhub-lab-002 | noneRouteTable | yes |
 
 The portal may be slow to render the vhub network connections and the routing configurattion, so It may be better to rely on the cli to get information.
 
