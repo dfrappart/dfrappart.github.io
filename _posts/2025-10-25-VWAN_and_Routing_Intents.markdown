@@ -106,7 +106,7 @@ Because we need to secure the East-West flow, meaning the flows between spokes, 
 
 ![illustration7](/assets/routingintent/vwanmultiplefw.png)
 
-Capitlaizing on the discussed matter, we know that we can manage routing configuration for spokes with a custom route table stating that all traffic should go to the local hub firewall to which a spoke is connected.
+Capitalizing on the discussed matter, we know that we can manage routing configuration for spokes with a custom route table stating that all traffic should go to the local hub firewall to which a spoke is connected.
 
 Under the condition that all spokes have a vnet range in the RFC 1918 range, we can assume that a vm in a blue spoke can find a route for a vm in another blue spoke. This statement is also true for yellow vms in differents yellow spokes (not represented on the schema, but you get the idea).
 
@@ -174,7 +174,7 @@ We can also see that the noneRouteTable is used to propagate the connections tha
 With this configuration, we have the firewall in vhub 1 between spoke1, spoke2 and spoke3.
 We have the same configuration respectively for spoke 4, spoke 5 and spoke 6 in vhub2.
 
-However, spoke1 and spoke4, because of their association to the default route table, are not secured with a firewall in between
+However, spoke1 and spoke4, because of their association to the default route table, are not secured with a firewall in between.
 
 ```bash
 
@@ -213,13 +213,72 @@ df@df-2404lts:~$ az network vhub route-table list --vhub-name vwan-lab-001-vhub-
 ```
 
 So now connection on vm1 in spoke1, we should be able to gain access to vm2 and vm3.
-### 2.2. 
+
+```bash
+
+```
+
+Same for vm1 with vm4.
+
+```bash
+
+```
+
+Connectivity is ok between vm2 and vm3.
+
+```bash
+
+```
+
+
+Because it's similar to vm1 with vm2 and vm3, we have no issue between vm4 and vm5 and vm6
+
+```bash
+
+```
+
+But problems appear when we try to reach vm5 or vm6 from vm1, vm2 or vm3, so typically any vm connected to vhu1 trying to reach vm connected to vhub2.
+
+```bash
+
+```
+
+Which is a shame because it did work without a firewall.
+
+so what can we try?
+
+### 2.2. Playing with static routes
+
+The first idea that come to mind would be to rely on static routes. That's what we did on the default route table so that vm1 could get access to vm2 and vm3.
+
+But first let's have a look at network watcher and the next hop tool.
+
+**network watcher**
+
+Between vms connected to the same hub, we get the firewall as the next hop, which is what we set with the custom route table or by adding a static route on the default route table.
+
+So maybe we could try adding a static route with the neighbour firewall as a next hop?
+Let's try this.
+Note that we need a more specific route than the ones already defined on the custom route table.
+
+**addingstaticroutenexthopneightbourfw**
+
+Well, it seems that we are stuck.
+But no, we have the routing intent option.
+
+### 2.3 Using routing intent for cross secure vhub traffic
+
+Finally, We're here.
+
+It was kind of a long intro just to come to this point, but It was, IMHO, necessary 	&#128517;
+
+Ok first let's have a look at the routing intent.
 
 
 
 Ok time to wrap up!
 
-## 4. Summary
+## 3. Summary
 
 Soooooo!
 
