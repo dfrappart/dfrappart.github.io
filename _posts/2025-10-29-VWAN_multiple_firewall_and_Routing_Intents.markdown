@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "VWAN and routing intent"
+title:  "VWAN, multiple firewalls, and routing intent"
 date:   2025-10-29 18:00:00 +0200
 year: 2025
 categories: Network
