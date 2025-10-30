@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "About Falco"
-date:   2025-10-31 18:00:00 +0200
+date:   2025-11-06 18:00:00 +0200
 year: 2025
 categories: Kubernetes AKS Security
 ---
