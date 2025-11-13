@@ -721,7 +721,7 @@ But that's not really efficient. So let's have a more thorough look at the gatew
 
 Similarly to the gateway class object, we can find the details of the available confuiguration on the gateway api documentation, in the gateway [section](https://gateway-api.sigs.k8s.io/reference/spec/#gateway).
 
-In the Gateway `spec` section, we can find a sub-section named `infrastructure` in which we can specify `AnnotationKey` and `AnnotationValue`. Those annotations, per the filed description, are applied to resources created following the gateway creation.
+In the Gateway `spec` section, we can find a sub-section named `infrastructure` in which we can specify `AnnotationKey` and `AnnotationValue`. Those annotations, per the field description, are applied to resources created following the gateway creation.
 
 | Field | Description | Validation |
 |-|-|-|

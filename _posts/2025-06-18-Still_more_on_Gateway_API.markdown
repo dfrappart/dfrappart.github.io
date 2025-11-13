@@ -20,7 +20,7 @@ The Agenda:
 3. Conclusion
 
 
-As a reminder, we went through the creation of gateway class, and some gateway.
+As a reminder, we went through the creation of gateway class, and some gateways.
 Doing so, we identified that while there is a way to pass annotations to the service created by the gateway through the `spec.infrastructure.annotations` property.
 While there is also a dedicated crd ciliumgatewayclassconfigs.cilium.io to customize the gateway class, finally we pushed the customization on the gateway side rather than on the gateway class side.
 
@@ -293,7 +293,13 @@ df@df-2404lts:~$ curl http://demoingress.app.teknews.cloud
         </div>
     </div>     
 </body>
-</html>df@df-2404lts:~$ curl http://demoingress.app.teknews.cloud/two
+</html>
+
+```
+
+```bash
+
+df@df-2404lts:~$ curl http://demoingress.app.teknews.cloud/two
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -316,7 +322,13 @@ df@df-2404lts:~$ curl http://demoingress.app.teknews.cloud
         </div>
     </div>     
 </body>
-</html>df@df-2404lts:~$ curl http://demoingress.app.teknews.cloud/three
+</html>
+
+```
+
+```bash
+
+df@df-2404lts:~$ curl http://demoingress.app.teknews.cloud/three
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -339,7 +351,6 @@ df@df-2404lts:~$ curl http://demoingress.app.teknews.cloud
         </div>
     </div>     
 </body>
-</html>df@df-2404lts:~$ 
 </html>
 
 ```
@@ -401,7 +412,7 @@ df@df-2404lts:~$ curl http://gundam.app.teknews.cloud/barbatos
 ```
 
 
-Well, no because we need to specify the rewrite rule. It is clearly related to the way the http route forward traffic. The nginx based error is clear when we look at the pod's logs (we scale down the deploiement to 1 replicas, to be sure that we cvheck the correect pod logs). It gets a request for an unexisting path.
+Well, no because we need to specify the rewrite rule. It is clearly related to the way the http route forward traffic. The nginx based error is clear when we look at the pod's logs (we scale down the deploiement to 1 replicas, to be sure that we check the correct pod logs). It gets a request for an unexisting path.
 
 ```bash
 
@@ -460,7 +471,7 @@ filters:
 
 ```
 
-And thus gives us a working httproute for the url `http://gundam.app.teknwes.cloud/barbatos`
+And thus gives us a working httproute for the url `http://gundam.app.teknews.cloud/barbatos`
 
 ![illustration2](/assets/gapi/pathrewrite.png)
 
@@ -562,13 +573,13 @@ Ok that was fun now let's have a look at some encryption ^^
 
 ## 2. Adding TLS
 
-### 2.1. TLS consiuderations with Gateway API
+### 2.1. TLS considerations with Gateway API
 
 For this section, no surprise, we will again rely on the gateway api [documentation](https://gateway-api.sigs.k8s.io/guides/tls/) &#128518;.
 
 We need to consider the traffic from the gateway point of view. Taking this into account, we have 2 parts:
 
-- The downstream connection, happening betwxeen the client and the gateway itself.
+- The downstream connection, happening between the client and the gateway itself.
 - The upstream connection, happening between the gateway and the backend service (most of the time)
 
 ![illustration3](/assets/gapi/gatewayupstreamdownstream.png)
@@ -656,7 +667,7 @@ df@df-2404lts:~$ kubectl create secret tls apptekewscloud --key <path_to_key> --
 
 And about how to manage the certificate creation?
 
-Because I'm definitely not that good in cert management, I'll let this topic outside of thescope of this article.
+Because I'm definitely not that good in cert management, I'll let this topic outside of the scope of this article.
 Between openssl command and [mkcert-like](https://github.com/FiloSottile/mkcert) stuff, it's quite easy to generate cert for tests. It's definitely another thing for prod ready environment, but again, out of scope for today.
 
 Once our objects are created, we should have our new gateway and httproute available.

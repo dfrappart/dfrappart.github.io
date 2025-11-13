@@ -27,7 +27,7 @@ So the Agenda:
 
 ## 1. Scenario for a shared Gatewaay
 
-### 1.1. thoughs on the need to share a gateway
+### 1.1. Thoughs on the need to share a gateway
 
 Up till now, we managed the gateway in a distributed approach.
 We had a namespace, containing manifests for apps and, living in the same namespace, a Gateway and an Httproute to expose the application.
@@ -104,7 +104,7 @@ We will not dig in secrets engines or sexy operators in this article. For now, w
 
 Before getting into the heart of the topic, a little bit about the lab environment.
 
-For this article, the lab used relies ont on an AKS server but on a local kubeadm single node cluster.
+For this article, the lab used relies not on an AKS server but on a local kubeadm single node cluster.
 I used Vagrant with a vagrant file as below:
 
 ```bash
@@ -169,7 +169,7 @@ spec:
 
 ```
 
-Now we need an app. We can use the same basis as in [our previous article on Httproute](/_posts/2025-06-18-Still_more_on_Gateway_API.markdown), which gives us some pod managed by a deployment, and the associated service, plus a confgmap associated to the pod configuration.
+Now we need an app. We can use the same basis as in [our previous article on Httproute](/_posts/2025-06-18-Still_more_on_Gateway_API.markdown), which gives us some pod managed by a deployment, and the associated service, plus a configmap associated to the pod configuration.
 
 ```bash
 
