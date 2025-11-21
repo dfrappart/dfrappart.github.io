@@ -27,7 +27,7 @@ So the Agenda:
 
 ## 1. Scenario for a shared Gatewaay
 
-### 1.1. thoughs on the need to share a gateway
+### 1.1. Thoughs on the need to share a gateway
 
 Up till now, we managed the gateway in a distributed approach.
 We had a namespace, containing manifests for apps and, living in the same namespace, a Gateway and an Httproute to expose the application.
@@ -104,7 +104,7 @@ We will not dig in secrets engines or sexy operators in this article. For now, w
 
 Before getting into the heart of the topic, a little bit about the lab environment.
 
-For this article, the lab used relies ont on an AKS server but on a local kubeadm single node cluster.
+For this article, the lab used relies not on an AKS server but on a local kubeadm single node cluster.
 I used Vagrant with a vagrant file as below:
 
 ```bash
@@ -169,7 +169,7 @@ spec:
 
 ```
 
-Now we need an app. We can use the same basis as in [our previous article on Httproute](/_posts/2025-06-18-Still_more_on_Gateway_API.markdown), which gives us some pod managed by a deployment, and the associated service, plus a confgmap associated to the pod configuration.
+Now we need an app. We can use the same basis as in [our previous article on Httproute](/_posts/2025-06-18-Still_more_on_Gateway_API.markdown), which gives us some pod managed by a deployment, and the associated service, plus a configmap associated to the pod configuration.
 
 ```bash
 
@@ -321,7 +321,7 @@ Following the links in the documentation, we find that the accepted values.
 | `Same` | Only Routes/ListenerSets in the same namespace as the Gateway may be attached to this Gateway. |
 | `None`| No Routes/ListenerSets may be attached to this Gateway. |
 
-Ok, let's create a new gateway API, this time, in another namespace.
+Ok, let's create a new `Gateway`, this time, in another `Namespace`.
 
 ```yaml
 
@@ -402,7 +402,7 @@ Let's do this. As found earlier, we need to add the following in the listener co
 
 ```
 
-And this time, the status shows us that the gateway accepted the Httproute.
+And this time, the status shows us that the gateway accepted the `HTTPRoute`.
 
 ```bash
 
