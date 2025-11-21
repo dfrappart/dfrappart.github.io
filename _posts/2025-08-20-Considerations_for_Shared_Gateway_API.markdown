@@ -321,7 +321,7 @@ Following the links in the documentation, we find that the accepted values.
 | `Same` | Only Routes/ListenerSets in the same namespace as the Gateway may be attached to this Gateway. |
 | `None`| No Routes/ListenerSets may be attached to this Gateway. |
 
-Ok, let's create a new gateway API, this time, in another namespace.
+Ok, let's create a new `Gateway`, this time, in another `Namespace`.
 
 ```yaml
 
@@ -402,7 +402,7 @@ Let's do this. As found earlier, we need to add the following in the listener co
 
 ```
 
-And this time, the status shows us that the gateway accepted the Httproute.
+And this time, the status shows us that the gateway accepted the `HTTPRoute`.
 
 ```bash
 
