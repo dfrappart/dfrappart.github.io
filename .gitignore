@@ -7,3 +7,5 @@ vendor
 /drawiofiles
 /post_draft
 /yamlfiles
+Thumbs.db
+.DS_Store
