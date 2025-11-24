@@ -15,7 +15,7 @@ We'll follow the below agenda:
 
 1. Falco concepts
 2. Falco on self-managed kubernetes
-4. Writing custom rules
+3. Writing custom rules
 
 
 Ok, let's get started!
@@ -107,7 +107,7 @@ While the rules contain an output section, it is used only to define the format 
 - file: a specific file to store the generated evend by falco
 - syslog: the standard linux log output. This will be our default output configuration for the self-hosted kubernetes lab afterward.
 - program: a way to define specific programs as output. We'll definitely not used this one &#128517;.
-- http: a way to send the Falco output to an http endpoint. More on that in section on Falco sidekick.
+- http: a way to send the Falco output to an http endpoint. More on that in when we'll tall about Falco sidekick, but not in this post.
 
 ### 1.4. Plugins
 
@@ -265,6 +265,9 @@ Configuration file '/etc/falco/falco.yaml'
 Obviously, we need to install Falco on all nodes. The fact that we have currently only one is pretty convenient and more a specificity of a lab environment.
 
 Now back to our Falco config.
+
+### 2.2. Falco configuration
+
 We can find the Falco related file in `/etc/falco`
 
 ```bash
@@ -359,7 +362,9 @@ vagrant@k8scilium1:~$ cat /etc/falco/falco_rules.yaml |grep "rule: Read sensitiv
 
 ```
 
-An exemple of a sensitive file could be `/etc/shadow`, so from a pod we'll read this file and see what happens.
+### 2.3. Triggering rules
+
+We just saw a rule that should detect when a sensitive file is opened. An exemple of a sensitive file could be `/etc/shadow`, so from a pod we'll read this file and see what happens.
 
 So one way to trigger this rule is to open the file from a pod. 
 
