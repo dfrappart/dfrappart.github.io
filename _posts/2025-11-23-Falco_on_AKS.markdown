@@ -584,4 +584,14 @@ df@df-2404lts:~$ cat falcooutputcustom.json |jq .
 
 ```
 
-## 3. Conclusiton
+Ok let's conclude for today.
+
+## 3. Conclusion
+
+This time we had a look at Falco on an AKS cluster.
+Instead of installing binaries on the cluster nodes, we relied on Helm anda daemonset to have Falco available on each nodes.
+Apart from that, the way Falco works is unchanged and we can propagate easily additional rules if needed through additional files passed through the Helm command.
+Also, instead of checking the syslog on the nodes, we can use kubectl logs command to see Falco outputs and rules triggered.
+At this point the exploitability is not yet ideal, but we'll see how we can further extend Falco in a coming post.
+
+Until then ^^
