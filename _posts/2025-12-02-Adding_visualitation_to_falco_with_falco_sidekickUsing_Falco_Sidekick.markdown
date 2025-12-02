@@ -22,7 +22,7 @@ Our agenda:
 - About Falco Sidekick
 - Configuring on AKS
 - Configuring on self-managed cluster
-- Streaming Falco alerts to Microsoft Teams
+- Falcosidekick connectivity
 
 Ok, let's go!
 
@@ -438,9 +438,9 @@ What's next?
 
 In this section, we will have a look at how we can connect more with/to Falco.
 
-### 4.1. Using Falcosidekick as a hub for other Falco instance
+### 4.1. Using Falcosidekick as a hub for other Falco instances
 
-Because Falcosidekick can be configured as a hub for other Falco instance, we want to test this.
+Because Falcosidekick can be configured as a hub for other Falco instances, we want to test this.
 
 So in this section, we'll use 2 AKS clusters. We'll install Falco on both clusters but only one with Falcosidekick.
 Then from our previous experimentations, we'll configure Falcosidekick so that it can accept incoming traffic from the other AKS cluster.
