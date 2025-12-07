@@ -661,7 +661,7 @@ A little review before going &#128526;
 
 This time, we looked how to connect Falco to other systems.
 We found that we can achieve this with Falcosidekick which act as a proxy between Falco instances (plural intended) and those other systems.
-The first visualution is brought by Falcosidekick own UI.
+The first visualization is brought by Falcosidekick own UI.
 Apart from that, there are many systems that can connect to Falco. We shaw that the connection to Microsoft Teams is quite simple.
 
 Another steps to extend Falco capabilities would be the plugins, but that will be for another time.

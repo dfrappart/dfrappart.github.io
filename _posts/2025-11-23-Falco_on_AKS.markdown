@@ -175,7 +175,7 @@ config.d          falco.yaml        falco_rules.yaml
 ```
 
 We'll note also the `falco_rules.yaml` which is the default rules file.
-In the configuraiton thoughn we will find that the accepted rule files by default do not change in comparison to the install through binary.
+In the configuration though we will find that the accepted rule files by default do not change in comparison to the install through binary.
 
 ```bash
 
@@ -190,7 +190,7 @@ stdout_output:
 
 ```
 
-We can have allok at the rule file and find out that it is similar to the one we prviously used on the kubeadm lab. For example, the rule Terminal shell in container is present with the same definition as before, which is what we expected.
+We can have a look at the rule file and find out that it is similar to the one we previously used on the kubeadm lab. For example, the rule `Terminal shell in container` is present with the same definition as before, which is what we expected.
 
 ```bash
 df@df-2404lts:~$ k exec -n falco falco-4x52l -- cat /etc/falco/falco_rules.yaml > ./yamlfiles/falco_rules.yaml
@@ -462,7 +462,7 @@ customRules:
 
 ```
 
-If everything goes well (which may take a bit of time, Ihad to restart the daemonset pods a few times), we should see in the daemonset pos the new rule file and its content.
+If everything goes well (which may take a bit of time, I had to restart the daemonset pods), we should see in the daemonset pods the new rule file and its content.
 
 ```bash
 
