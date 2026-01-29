@@ -1,0 +1,12 @@
+---
+layout: page
+title: 2026
+permalink: /2026/
+description: Posts in 2026
+---
+
+## Posts in 2026
+{% assign posts = site.posts | where_exp: "item", "item.year == 2026" %}
+{% for post in posts %}
+  [{{ post.title }}]({{ post.url | relative_url }}) - {{ post.date | date_to_string }}
+{% endfor %}

@@ -292,7 +292,7 @@ We should have now 2 additional classes.
 
 ```bash
 
-df@df-2404lts:~/Documents/myrepo/AKSPerso$ k get gatewayclasses.gateway.networking.k8s.io 
+df@df-2404lts:~$ k get gatewayclasses.gateway.networking.k8s.io 
 NAME                     CONTROLLER                     ACCEPTED   AGE
 cilium                   io.cilium/gateway-controller   True       54d
 external-gateway-class   io.cilium/gateway-controller   True       9s
