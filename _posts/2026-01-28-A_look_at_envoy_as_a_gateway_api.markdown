@@ -1172,7 +1172,7 @@ Additional samples are acvailable on this [page](https://www.envoyproxy.io/docs/
 
 Well, that will be all for now.
 
-### 3. Wrapping up
+## 3. Wrapping up
 
 
 Going back to Gateway API, we looked at Envoy Gateway this time.
