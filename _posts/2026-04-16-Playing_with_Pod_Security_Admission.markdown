@@ -817,9 +817,9 @@ nginx: [emerg] mkdir() "/var/cache/nginx/client_temp" failed (13: Permission den
 
 ```
 
-We can see some permission denied, that may be due to the `securityContext.runAsNonRoot` parameter that is required by the profile.
+We can see some permission denied messages, that may be due to the `securityContext.runAsNonRoot` parameter that is required by the profile.
 
-To avoid adding the `NET_BIND_SERVICE` capability, and also working around the root requirement that seems inherent ot the nginx proces, we can fin other images that require less privileges, such as [`nginxinc/nginx-unprivileged`](https://hub.docker.com/r/nginxinc/nginx-unprivileged/).
+To avoid adding the `NET_BIND_SERVICE` capability, and also working around the root requirement that seems inherent to the nginx proces, we can find other images that require less privileges, such as [`nginxinc/nginx-unprivileged`](https://hub.docker.com/r/nginxinc/nginx-unprivileged/).
 
 This time we are able to run our pods.
 
