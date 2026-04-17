@@ -8,15 +8,14 @@ categories: Kubernetes AKS Security
 
 Hi!
 
-In this article, we'll have allok at pod security admission.
+In this article, we'll have a look at pod security admission.
 
 I had this in my todo since quite some times, and since It's something discussed in the CKS, I though whyt not now?
 
 Today's agenda will be:
 
 1. Introducing Pod Security Admission
-2. Basic usage of PSA
-3. How about using it on AKS
+2. Using PSA
 
 
 ## 1. Introducing Pod Security Standard and Pod Security Admission
@@ -362,7 +361,7 @@ And we can see that we have logs about the PSA.
 
 Ok let's have a look at the `restricted` profile.
 
-### 2.3. The restrcited profile
+### 2.3. The restricted profile
 
 We've already seen that, as its name implies, the `restricted` profile is much more... restrictive &#128517;
 
