@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Playing with Pod Security Admission"
-date:   2026-04-20 18:00:00 +0200
+date:   2026-04-16 18:00:00 +0200
 year: 2026
 categories: Kubernetes AKS Security
 ---
@@ -164,7 +164,7 @@ status: {}
 
 No warning at this point from the baseline policies.
 
-We follow up with another deployment in the restricted namespace.
+We follow up with another deployment in the `restricted` namespace.
 
 ```yaml
 
@@ -366,7 +366,7 @@ Ok let's have a look at the `restricted` profile.
 
 We've already seen that, as its name implies, the `restricted` profile is much more... restrictive &#128517;
 
-We have a namespace with some lables to audit and warn about the restricted profile
+We have a namespace with some lables to audit and warn about the `restricted` profile
 
 ```bash
 
@@ -792,7 +792,7 @@ restricteddeploy-7dfd7f7884   3         3         0       11s
 
 ```
 
-So at first it seems to be ok. But, waiting a bit, we can see errors. The thin is, those errors are not due to the PSA but to what we implemented to use the PSA.
+So at first it seems to be ok. But, waiting a bit, we can see errors. The thing is, those errors are not due to the PSA but to what we implemented to respect the PSA.
 
 ```bash
 
@@ -837,26 +837,21 @@ restricteddeploy-7dfd7f7884-rg46k    0/1     CrashLoopBackOff   9 (2m33s ago)   
 
 ```
 
+That about all we wanted to see, let's wrap this
+
+## 3. Before leaving
+
+In this article, we had a look at the Pod Security Standard, and how tose are puyshed through Pod Secuyrity Admission/
+The feture is avaialble since a few version of kubernetes, so we do not have any excuse to not use it.
+
+Apart from that, we saw that there are different level of configuration. either warn, audit or enforce. In a progresive implementation, the warn/audit is quite useful to get informations on the potential security violations.
+IMHO, those level should be confuigured by default to get informations on the securty posture inside kubernetes.
+
+Now about the different profile, while the `baseline` seems to be permissive enough to be enforced without too much impact, we could see that the `restricted` does implies the use of hardened, small footprint images, as was the case with the nginx-unprivileged image that we used. If the teams are already mature regarding those security aspects, no impact, if not, well, let's say that starting with audit and warn is necessary 
+
+And that will be all.
+
+Next, I'll probably have a look at Validating Admission Policies &#128526;.
 
 
-## 3. The impact of enforcing PSA
-
-
-
-
-
-
-## 4. Before leaving
-
-In this article, we went deep in what we can do with the csi driver for Azure Blob storage.
-
-By default, we can leverage the `StorageClass` `azureblob-fuse-premium` and dynamically create `pv` and storage account.
-
-If we have existing storage, we can associate those to pv and pvc in a more static manner, allowing us to use configuration that are not available in the default `StorageClass`
-
-Finally, it's possible to leverage custom storage classes, based on the blob csi driver, with custom parameters that we saw in this article.
-We can either create a storage class using a single storage under the hood, or we can configure a `StorageClass` that dynamically create storage account with private endpoint. 
-However, the private dns zone cannot be specified at this point so it implies that we lose the central management of those.
-
-That was fun. See you soon
 
