@@ -20,7 +20,7 @@ Today's agenda will be:
 
 ## 1. Introducing Pod Security Standard and Pod Security Admission
 
-Before talking about Pod Security Admission (yhat I'll refer to as PSA from now on, because... I'm lazy &#128517;), we should start with [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/).
+Before talking about Pod Security Admission (that I'll refer to as PSA from now on, because... I'm lazy &#128517;), we should start with [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/).
 
 As mentioned in the kubernetes documentation, Pod Security Standards (that we'll refer to PSS, told you I was lazy right?) define 3 levels of policies to enforce security configuration. Taken for the doc, we have the 3 existing profiles:
 
@@ -696,7 +696,7 @@ df@df-2404lts:~$ k events -n psa-restricted -o json |jq .items[26]
 
 ```
 
-The culoriut for this is the parameter `securityContext.capabilities.drop=["ALL"]` in the container.
+The culprit for this is the parameter `securityContext.capabilities.drop=["ALL"]` in the container.
 
 Indeed, nginx tries to bind the port 80 which is not something possible without the NET_BIND_SERVICE capabilites.
 
