@@ -537,8 +537,8 @@ In the `expression` section:
 
 Noticed also in the `messageExpression` section:
 
-- **'Pod "' + `object.metadata.name`** will translate to **Pod <pod_name>**
-- **'" in namespace "' + `namespaceObject.metadata.name`** will translate to **" in namespace <namespace_name>**
+- 'Pod ' + `object.metadata.name` will translate to **Pod pod_name**
+- ' in namespace ' + `namespaceObject.metadata.name` will translate to ** in namespace namespace_name**
 - ...
 
 You got the point... &#128527;
@@ -560,9 +560,11 @@ The pods "devtest" is invalid: : ValidatingAdmissionPolicy 'require-pod-env-labe
 
 ```
 
-It works as expected. If the pod does not have the label env, it's blocked. If it has the env label but with a value different than the one in the namespace, it's also blocked.
+It works as expected. If the pod does not have the label `env`, it's blocked. If it has the `env` label but with a value different than the one in the namespace, it's also blocked.
 
-Last thing, we will probably not create pods outside of deployments or other controllers. If we try to create a deployment (and thus some pods), we'll get no message at the deployment creation, but the pods will not be scheduled. checking the replicaset status, or the namespace events will give us the error message related to the VAP.
+Last thing, we will probably not create pods outside of deployments or other controllers. If we try to create a deployment (and thus some pods), we'll get no message at the deployment creation, but the pods will not be scheduled. 
+
+Checking the replicaset status, or the namespace events will, give us the error message related to the VAP.
 
 ```bash
 
