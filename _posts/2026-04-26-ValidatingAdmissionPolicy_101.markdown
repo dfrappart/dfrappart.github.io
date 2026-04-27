@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Validating Admission Policy 101"
-date:   2026-04-25 18:00:00 +0200
+date:   2026-04-26 18:00:00 +0200
 year: 2026
 categories: Kubernetes AKS Security
 ---
