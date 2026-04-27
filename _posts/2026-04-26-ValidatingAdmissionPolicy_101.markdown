@@ -44,7 +44,7 @@ In terms of concepts, as for many others kubernetes objects, we started by creat
 
 To conclude our parallele with Azure Policies, we could say that the `ValidatingAdmissionPolicyBinding` is kind of the Policy assignment. We should add that the `VAP` is only audit or deny, no modification.
 
-![illustration001](/assets/admissioncotntroller/vap001.png)
+![illustration001](/assets/admissioncontroller/vap001.png)
 
 Let's note the [reference API](https://kubernetes.io/docs/reference/kubernetes-api/policy-resources/validating-admission-policy-v1/) for these objects. We'll check that a bit later ^^. For now let's give it a try.
 
