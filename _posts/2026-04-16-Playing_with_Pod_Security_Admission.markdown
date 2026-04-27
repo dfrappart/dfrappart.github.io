@@ -50,7 +50,7 @@ Ok so that was the PSS, let's see how we can enforce those. And that is with... 
 It's good to know that this feature is stable since kubernetes 1.25, which means quite a lot of time in the kubernetes lifecycle.
 It works with a built-in admission controller, at the namespace level.
 
-![illustration001](/assets/admissioncotntroller/admissioncontroller001.png)
+![illustration001](/assets/admissioncontroller/admissioncontroller001.png)
 
 The built-in admission controller works with labels on the namespace level.
 
@@ -841,7 +841,7 @@ That about all we wanted to see, let's wrap this
 ## 3. Before leaving
 
 In this article, we had a look at the Pod Security Standard, and how tose are puyshed through Pod Secuyrity Admission/
-The feture is avaialble since a few version of kubernetes, so we do not have any excuse to not use it.
+The feature is available since a few version of kubernetes, so we do not have any excuse to not use it.
 
 Apart from that, we saw that there are different level of configuration. either warn, audit or enforce. In a progresive implementation, the warn/audit is quite useful to get informations on the potential security violations.
 IMHO, those level should be confuigured by default to get informations on the securty posture inside kubernetes.
