@@ -23,7 +23,7 @@ Ok, let's get started!
 ## 1. Falco concepts
 
 In the Kubernetes landscape, it's kind of a big issue to ensure the environments are secured.
-While we have many different ways/tools avaialble to harden this security, it's noty a trivial problem to manage all those aspects.
+While we have many different ways/tools available to harden this security, it's not a trivial problem to manage all those aspects.
 
 When considering security monitoring, or should I say security posture &#129300;, there are a few tools that come to mind. [Falco](https://falco.org/docs/) is one of those.
 
@@ -43,9 +43,9 @@ In terms of architecture, we can find the following components from the document
 ### 1.1. Event sources
 
 Falco monitoring is based on an analysis on different streams of events. The event sources mentioned earlier are the first component of Falco. 
-As mention previously, the default event source is syscall. 
+As mentioned previously, the default event source is syscall. 
 
-Other event sources can be added through plugins. Note thatthe documentation reference a [registry](https://github.com/falcosecurity/plugins/blob/main/registry.yaml) for those plugins. One interesting plkugin (for me &#128527;) is the k8saudit-aks plugin, but that'll be for another time.
+Other event sources can be added through plugins. Note that the documentation reference a [registry](https://github.com/falcosecurity/plugins/blob/main/registry.yaml) for those plugins. One interesting plugin (for me &#128527;) is the k8saudit-aks plugin, but that'll be for another time.
 
 It is important to specify what Falco is not: A SIEM. IT is not able to correlate events from differents sources. But It can be used as a source of event in a SIEM though.
 
@@ -102,9 +102,9 @@ We'll see a bit more about how to modify/create rules later in this article.
 
 ### 1.3. Outputs
 
-While the rules contain an output section, it is used only to define the format of the alerts specific outputs. But Falco can also be configured with different kind of outputs:
+While the rules contain an output section, it is only used to define the format of the alerts' specific outputs. But Falco can also be configured with different kind of outputs:
 
-- file: a specific file to store the generated evend by falco
+- file: a specific file to store the generated event by falco
 - syslog: the standard linux log output. This will be our default output configuration for the self-hosted kubernetes lab afterward.
 - program: a way to define specific programs as output. We'll definitely not used this one &#128517;.
 - http: a way to send the Falco output to an http endpoint. More on that in when we'll tall about Falco sidekick, but not in this post.
@@ -113,14 +113,14 @@ While the rules contain an output section, it is used only to define the format 
 
 We mentioned plugins earlier in the event sources section. 
 
-Falco can be extended to have more event sources through plugins. How to create a plugin is definitely out of the scope of this article (and of my capabilities to be clear &#128517;).
+Falco can be extended to have more event sources through plugins. How to create a plugin is definitely out of the scope of this article (and of my capabilities to be honest &#128517;).
 
 There are however registered plugins listed on the [Falco doc](https://falco.org/docs/concepts/plugins/registered-plugins/). Interesting options could be [k8saudit](https://github.com/falcosecurity/plugins/blob/main/plugins/k8saudit/README.md) or [k8saudit-aks](https://github.com/falcosecurity/plugins/tree/main/plugins/k8saudit-aks) to add event from the kubernetes audit log.
 
 ### 1.5. Metrics
 
 
-Last, metrics give us access to configuration related to Falco observability. 
+Finally, metrics give us access to configuration related to Falco observability. 
 
 
 ## 2. Falco on self-managed kubernetes
@@ -129,7 +129,7 @@ Last, metrics give us access to configuration related to Falco observability.
 ### 2.1 Installation, and upgrade
 
 For this section, we consider a case where we use a non cloud-managed kubernetes (i.e. not an AKS for instance, or GKE, EKS..., you get my point &#128527;).
-The lab use thereafter is a kubeadm single node cluster, managed locally through a vagrant box, with Cilium as its CNI (because I'm kind fond of Cilium for those who did not know). You can refer to this [repo](https://github.com/dfrappart/k8slocal/tree/main/kubeadm-single) to find a getting started if you want to follow along.
+The lab use thereafter is a kubeadm single node cluster, managed locally through a vagrant box, with Cilium as its CNI (because I'm kind of fond of Cilium for those who did not know). You can refer to this [repo](https://github.com/dfrappart/k8slocal/tree/main/kubeadm-single) to find a get started if you want to follow along.
 
 ```bash
 
@@ -191,9 +191,9 @@ vagrant@cilium2:~$ sudo apt install falco
 
 ```
 
-There are additional package mentioned, but not necessary if we are using Modern eBPF, so we won't add those.
+There are additional packages mentioned, but those are not necessary if we are using Modern eBPF, so we won't add them.
 
-If everything went well, we know have Falco running as a service. Notice the `falco-modern-bpf.service name`.
+If everything went well, we now have Falco running as a service. Note the `falco-modern-bpf.service name`.
 
 ```bash
 
@@ -223,7 +223,7 @@ Nov 17 17:57:23 cilium2 falco[5420]: [libs]: Trying to open the right engine!
 
 ```
 
-Note that if want to upgrade Falco, the classic apt command will suffice. However, it is important to notice that the falco.yaml file may be changed during the update, which is not something that we want, specifically if we made some change to our configuration. More on that later &#128526;.
+Note that if want to upgrade Falco, the classic apt command will be sufficient. However, it is important to notice that the falco.yaml file may be changed during the update, which is not something that we want, specifically if we made some change to our configuration. More on that later &#128526;.
 
 ```bash
 
@@ -364,11 +364,11 @@ vagrant@k8scilium1:~$ cat /etc/falco/falco_rules.yaml |grep "rule: Read sensitiv
 
 ### 2.3. Triggering rules
 
-We just saw a rule that should detect when a sensitive file is opened. An exemple of a sensitive file could be `/etc/shadow`, so from a pod we'll read this file and see what happens.
+We just saw a rule that should detect when a sensitive file is opened. An exemple of a sensitive file could be `/etc/shadow`, so let's read this file from a pod and see what happens.
 
-So one way to trigger this rule is to open the file from a pod. 
+One way to trigger this rule is to open the file from a pod. 
 
-We have the following pods.
+We have the following pods:
 
 ```bash
 
@@ -454,7 +454,7 @@ vagrant@k8scilium1:~$ cat /etc/falco/falco.yaml |grep "# Falco outputs channels"
 
 ```
 
-We can see that we have multiple outputs available, as discussed in the concepts section. The syslog output should allow us too see Falco output inside... the syslog.
+We can see that we have multiple outputs available, as discussed in the concepts section. The syslog output should allow us to see Falco output inside... the syslog.
 
 ```bash
 
@@ -487,7 +487,7 @@ vagrant@k8scilium1:~$ tail /var/log/syslog
 
 ```
 
-And we can see the rule was indeed triggered. We can also see informations on the alert sucvh as the `k8s_pod_name` which is `backend`, and the `namespace` which is `test`.
+And we can see the rule was indeed triggered. We can also see informations on the alert such as the `k8s_pod_name` which is `backend`, and the `namespace` which is `test`.
 
 We could also use journalctl, with the `-b -u falco-modern-bpf`. the `-b` allowing us to select the current boot, and `-u` to specify a targeted service, in our case falco
 
@@ -559,7 +559,7 @@ Even so, we can have a look at those 2 scenarios.
 ### 3.1. Modifying an existing rule on a self-managed kubernetes
 
 To modify one rule, we'll use the `falco_rules.local.yaml` file. We are just overriding one rule in this case, by copy-pasting it in the local file.
-We should note that the rule is only overriden on the node for which the `falco_rules.local.yaml` is modified, which also means that we need to interacto with all nodes for customization. 
+We should note that the rule is only overriden on the node for which the `falco_rules.local.yaml` is modified, which also means that we need to interact with all nodes for customization. 
 
 Let's try this by looking specifically at one rule. We'll check a rule that is triggered when a shell is opened in a container.
 
@@ -695,7 +695,7 @@ Ok time to wrap up.
 ## Conclusion
 
 In this article, we saw how to install Falco on a self-managed kubernetes and some basic usage.
-The rules provides a powerful way to monitor the security of the kubernetes environment.
+The rules provide a powerful way to monitor the security of the kubernetes environment.
 And it's a good point, because writing rules is not that easy &#128517;
 
 What is there to see about Falco?
