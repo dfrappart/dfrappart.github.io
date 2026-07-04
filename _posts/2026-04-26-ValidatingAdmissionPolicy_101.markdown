@@ -72,7 +72,7 @@ spec
 
 ```
 
-Now the less easy part, we need to write the rule that will evaluiate this.
+Now the less easy part, we need to write the rule that will evaluate this.
 
 As already mentioned, it relies on the CEL language.
 
@@ -538,7 +538,7 @@ In the `expression` section:
 Noticed also in the `messageExpression` section:
 
 - 'Pod ' + `object.metadata.name` will translate to **Pod pod_name**
-- ' in namespace ' + `namespaceObject.metadata.name` will translate to ** in namespace namespace_name**
+- ' in namespace ' + `namespaceObject.metadata.name` will translate to **in namespace namespace_name**
 - ...
 
 You got the point... &#128527;
