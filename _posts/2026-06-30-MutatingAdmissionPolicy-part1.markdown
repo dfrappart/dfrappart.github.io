@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Mutating Admission Policy"
+title:  "Mutating Admission Policy Part 1"
 date:   2026-06-30 18:00:00 +0200
 year: 2026
 categories: Kubernetes AKS Security
@@ -12,7 +12,7 @@ It's been some time since the last article.
 
 Since march, we played with different kind of native admission controller, so that we could manage guardrails, or policies, or whatever we want to call it, in kubernetes.
 
-This article will be a continuation of those last articles and we'll have a look at the recently GA Mutating Admission Policy.
+This article will be a continuation of those last articles and we'll have a look at the recently GA Mutating Admission Policy. Also, And it was planned at the beginning, it will be a 2 part article, because, well, there is a lot to say
 
 Our agenda will be as follow:
 
@@ -277,7 +277,7 @@ Upon creating the namespace, we can see that it does have the additional labels 
 
 ```bash
 
-➜  ~ k $cil1 get namespaces checkmapns -o json |jq '.metadata.labels'
+➜  ~ k get namespaces checkmapns -o json |jq '.metadata.labels'
 {
   "env": "prd",
   "kubernetes.io/metadata.name": "checkmapns",
@@ -291,7 +291,7 @@ We can also verify that there is an annotation to track the modification of our 
 
 ```bash
 
-➜  ~ k $cil1 get namespaces checkmapns -o json |jq '.metadata.annotations'
+➜  ~ k get namespaces checkmapns -o json |jq '.metadata.annotations'
 {
   "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{\"annotations\":{},\"labels\":{\"env\":\"prd\"},\"name\":\"checkmapns\"},\"spec\":{},\"status\":{}}\n",
   "policy.modifiedby.com/enforce-restricted-pss-on-prd-namespaces": "true"
@@ -303,7 +303,7 @@ If on the other hand we create another namespace without the `env` label, the po
 
 ```yaml
 
-➜  ~ k $cil1 create namespace checkmapns2
+➜  ~ k create namespace checkmapns2
 ➜  ~ k get ns $cil1 checkmapns2
 NAME          STATUS   AGE
 checkmapns2   Active   24s
@@ -394,7 +394,7 @@ We can validate that the `ValidatingAdmissionPolicy` is working be trying to cre
 
 ```bash
 
-➜  ~ k $cil1 create namespace checkvapns1 -o yaml                                        
+➜  ~ k create namespace checkvapns1 -o yaml                                        
 The namespaces "checkvapns1" is invalid: : ValidatingAdmissionPolicy 'require-env-label-on-namespace' with binding 'require-env-label-on-namespace-binding' denied request: Namespace should have a valid 'env' defined (dev|prd|ppr|staging).
 
 ```
@@ -667,7 +667,7 @@ Creating the `namespaces` should generate errors, because some of those do not r
 
 ```bash
 
-➜  ~ k $cil1 apply -f ./04_ns.yaml
+➜  ~ k apply -f ./04_ns.yaml
 namespace/testmap1 created
 namespace/testmap2 created
 namespace/testmap5 created
@@ -680,30 +680,30 @@ Now we can try to create some pods in the namespaces that were allowed.
 
 ```bash
 
-➜  ~ k $cil1 get pod -n testmap3
+➜  ~ k get pod -n testmap3
 No resources found in testmap3 namespace.
-➜  ~ k $cil1 run testmapdev1 -n testmap2 --image nginx
+➜  ~ k run testmapdev1 -n testmap2 --image nginx
 Warning: would violate PodSecurity "restricted:v1.36": allowPrivilegeEscalation != false (container "testmapdev1" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "testmapdev1" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "testmapdev1" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "testmapdev1" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
 pod/testmapdev1 created
-➜  ~ k $cil1 run testmapppr1 -n testmap5 --image nginx
+➜  ~ k run testmapppr1 -n testmap5 --image nginx
 Warning: would violate PodSecurity "restricted:v1.36": allowPrivilegeEscalation != false (container "testmapppr1" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "testmapppr1" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "testmapppr1" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "testmapppr1" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
 pod/testmapppr1 created
-➜  ~ k $cil1 run testmapprd1 -n testmap1 --image nginx
+➜  ~ k run testmapprd1 -n testmap1 --image nginx
 Error from server (Forbidden): pods "testmapprd1" is forbidden: violates PodSecurity "restricted:v1.36": allowPrivilegeEscalation != false (container "testmapprd1" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "testmapprd1" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "testmapprd1" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "testmapprd1" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
 
 ```
 
-We can notice that the creation fails in the namespace with the `env=prd`, because of the `enforce` status of the pss.
+We can notice that the creation fails in the namespace with the `env=prd`, because of the `enforce` status of the `PSS`.
 Also we can check the `env` label inheritance for the other pods.
 
 ```yaml
 
-➜  ~ k $cil1 get pod -n testmap2 -o json |jq '.items[].metadata.labels'
+➜  ~ k get pod -n testmap2 -o json |jq '.items[].metadata.labels'
 {
   "env": "dev",
   "run": "testmapdev1"
 }
-➜  ~ k $cil1 get pod -n testmap5 -o json |jq '.items[].metadata.labels'
+➜  ~ k get pod -n testmap5 -o json |jq '.items[].metadata.labels'
 {
   "env": "ppr",
   "run": "testmapppr1"
@@ -711,26 +711,16 @@ Also we can check the `env` label inheritance for the other pods.
 
 ```
 
-Ok, that's nice, but that's not our aim. Since we are enforcing PSS in restricted mode, and that we have a way to mutate the pod, what about a policy that would ensure that the pod get all the PSS restricted requirement?
-
-Ok let's try to do this.
-
-### 3.5. A reminder of PSS Restricted requirements.
-
-
-
+Ok, that's nice, and we'll wrap here for today.
 
 ## 4. Summary
 
-While in the previous article, we had a look at the built-in policies for Kubernetes by the mean of Pod Security Standard/Admission, this time, we looked at more custom stuff with the `ValidatingAdmissionPolicy`.
+So in this article, we moved from the `ValildatingAdmissionPolicy` to the `MutatingAdmissionPolicy`.
 
-That requires understanding the associated language (CEL) and how we should work between the VAP and the VAP Binding.
-
-We also had a look at some way to make it flexible, in the expression, or in the parameters, with the CEL specificities for the former, and the `paramKind`/`paramRef` for the latter. About the `PramKind`, it's interesting to note that while we used configMap, it's also possible to use CRDs, that should be defined obviously. I would say that it is useful to manage cluster-wide resources nstead of namespaced ones such as the configMap.
-
-In our Kubernetes policies journey, we are now at the place of knowing how to to custom policy to deny or audit, but still no automated remediation.
-
-We'll talk about that next time ^^
+The principles are quite the same. First create a policy, then bind it with a policy binding. 
+Still using the `CEL`.
+The main difference reside in what we want to achieve, which is classified as mutations.
+Coming next is  a usecase of a MAP to enforce the `PSS` with a `MAP` which help us to go deeper into the `CEL` syntax and the mutations.
 
 
 
