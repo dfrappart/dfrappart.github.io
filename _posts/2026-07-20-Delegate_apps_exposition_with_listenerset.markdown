@@ -205,19 +205,371 @@ A nice schema is presented on the gateway api documentation.
 
 ![illustration5](/assets/listenersets/listset002.png)
 
+Through this aproach, the cluster team is able to keep ownership of the cluster wide part, and the `gateway` is included.
+
+Refering to the listenetset documentation, we can find its main configuration in its `spec` section:
+
+- `parentsRef` where is defined which `gateway` the listener depends on.
+- `listeners`, as on the `gateway`, which allows to define listener configuration such as hostnames, ports, protocols but also TLS configuration.
+
+An interesting information specified on this documentation is the augmented number of listeners that can be used through the `listenersets`. Indeed, with only the `listeners` section of the `gateway` there is a limitation of 64 listeners.
+
+Another worthy of interest information is the mention of being able to configure hostnames on the listenersets. Something that can be configured on the `HTTProute`.
+
+```yaml
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: gundam-httproute-with-shared-gw
+  namespace: gundam
+spec:
+  parentRefs:
+  - name: shared-gw-tls-envoy-nodeport
+    namespace: shared-gw
+  hostnames:
+  - "gateway.app.teknews.cloud"
+  rules:
+  - backendRefs:
+    - name: gundamappsvc
+      port: 8080
+      kind: Service
+
+```
+
+However, we never configured any hostname on the `gateway`. Checking the [API documentation](https://gateway-api.sigs.k8s.io/reference/api-spec/1.6/spec/#listener), we can find that the field does exist, and it's mentionned that if it is not specified, then all hostnames are matched.
+
+That's why it can work the way we did it. The `gateway` match all hostnames, and we have a specific hostname on the `HTTPRoute`.
+
+However, we'll keep that in mind for our experiment part.
+
+As a reference, below is a table listing the different fields of the `spec` section for the `listenerset`.
+
+| Fields | Description |
+|-|-|
+| `parentRef` | ParentRef references the Gateway that the listeners are attached to. |
+| `listeners` | Listeners associated with this ListenerSet. Listeners define logical endpoints that are bound on this referenced parent Gateway’s addresses. Max number of items is 64, min is 1 |
+
+And more specifically, the fields of the `listeners` section if the listenerset `spec`.
+
+| Fields | Description |
+|-|-|
+| `name` | Name is the name of the Listener. This name MUST be unique within a `ListenerSet`. Max length is 253. |
+| `hostname` | Hostname specifies the virtual hostname to match for protocol types that define this concept. When unspecified, all hostnames are matched. Maxlength is 253 |
+| `port` | The port number. Multiple listeners can use the same port. |
+| `protocol` | Network protocol |
+| `tls` | Configuration for the `listener` set with protocol `HTTPS` or `TLS` |``
+| `allowedRoutes` | Define the route that can be attached to the listenerset, as for the gateway. Filtering capabilities available |
+
+Ok, we're done with concepts, let's experiment a bit.
+
 ## 3. Experimenting with `listenersets`
 
+Taking from our sample in part 1, we have the following gateway.
 
+```yaml
 
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: shared-gw-tls-envoy-nodeport
+  namespace: shared-gw
+spec:
+  gatewayClassName: envoy-nodeport
+  listeners:
+  - protocol: HTTPS
+    port: 443
+    name: shared-gw-tls-envoy-nodeport
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchExpressions:
+          - { key: kubernetes.io/metadata.name, operator: In, values: [gundam,demoapp] }
+    tls:
+     certificateRefs:
+     - kind: Secret
+       group: ""
+       name: gundamapp-tls
+       namespace: certificates
+
+```
+
+At this point, we have a `gateway` that is configured to match all hostnames. 
+It's also configured to accept `httproutes` from `namespaces` `gundam` and `demoapp`.
+The hostname is referenced only on the `httproute`, as detailed in section 1.
+
+We still lack something for now, but let's write a configuration for a listenerset.
+
+Our main goal is to give more capabilities to the developer team, such as a mean to manage the hostname and certificate.
+
+Let's take the hypothesis that the dev team will use the hostname `listenerset.app.teknews.cloud`. We'll place the `listenerset`, and another `HTTPRoute` in the app `namespace`, in this case `gundam`
+
+```yaml
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: gundam-listenerset-envoy
+  namespace: gundam
+spec:
+  parentRef:
+    namespace: shared-gw
+    name: shared-gw-tls-envoy-nodeport
+    kind: Gateway
+    group: gateway.networking.k8s.io
+  listeners:
+  - name: first
+    hostname: listenerset.app.teknews.cloud
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        group: ""
+        name: gundamapp-listenerset-tls
+
+```
+
+Notice the TLS section in which we specify the secret used to reference the certificate. 
+With this we are reaching our aim to grant the same level of independancy we had with the `ingress` object.
+
+Our HTTPRoute is looking like this.
+
+```yaml
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: gundam-httproute-with-listenerset-envoy
+  namespace: gundam
+spec:
+  parentRefs:
+  - name: gundam-listenerset-envoy
+    kind: ListenerSet
+    group: gateway.networking.k8s.io
+  hostnames:
+  - listenerset.app.teknews.cloud
+  rules:
+  - backendRefs:
+    - name: titansvc
+      port: 8080
+      kind: Service
+  - backendRefs:
+    - name: evasvc
+      port: 8090
+      kind: Service
+    matches:
+    - path:
+        type: PathPrefix
+        value: /eva
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+```
+
+It's referencing other kubernetes services as backend, but this is not what we are interested in.
+
+Here, we can see that we have a match between the hostname in the `listenerset`, and the `HTTPRoute`.
+
+If we try to create our object like this, it won't work.
+
+Firstly because, as mentionned before, our gateway matches all hostnames, so we currently have a conflict between the listener define in our listenerset, which should allow `listenerset.app.teknews.cloud`, and our `gateway`, which does not specify any hostname, and thus allows all hostnames including `gateway.app.tekenws.cloud` referenced in our `HTTPRoute` from earlier, abut also `listenerset.app.teknews.cloud` which should only match for the `listenerset`.
+
+Secondly, because, similarly to the `HTTPRoutes` filters, we need to specifically allow `listenerset` on the `gateway`.
+
+So our gateway becomes somthing like this.
+
+```yaml
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: shared-gw-tls-envoy-nodeport
+  namespace: shared-gw
+spec:
+  gatewayClassName: envoy-nodeport
+  allowedListeners:
+    namespaces:
+      from: Selector
+      selector:
+        matchExpressions:
+        - { key: kubernetes.io/metadata.name, operator: In, values: [shared-gw,gundam,demoapp] }
+  listeners:
+  - protocol: HTTPS
+    port: 443
+    name: shared-gw-tls-envoy-nodeport
+    hostname: gateway.app.teknews.cloud
+    allowedRoutes:
+      namespaces:
+        from: Selector
+        selector:
+          matchExpressions:
+          - { key: kubernetes.io/metadata.name, operator: In, values: [gundam,demoapp] }
+    tls:
+     certificateRefs:
+     - kind: Secret
+       group: ""
+       name: gundamapp-tls
+       namespace: certificates
+
+```
+
+Lst but not least, the HTTPRoute must reference in its parentsRef section the listenerset, instead of the gateway, as before.
+
+```yaml
+
+spec:
+  parentRefs:
+  - name: gundam-listenerset-envoy
+    kind: ListenerSet
+    group: gateway.networking.k8s.io
+
+```
+
+With the apps defined in the `HTTPRoute` backend deployed, we have the following result for the listener define on the `gateway` level.
+
+```bash
+
+➜  ~ curl -k -i -X GET https://gateway.app.teknews.cloud:32086/barbatos
+HTTP/2 200 
+server: nginx/1.31.2
+date: Sat, 11 Jul 2026 21:10:34 GMT
+content-type: text/html
+content-length: 288
+last-modified: Wed, 08 Jul 2026 07:04:11 GMT
+etag: "6a4df66b-120"
+accept-ranges: bytes
+
+<html>
+<h1>Welcome to Gundam App 2</h1>
+</br>
+<h2>This is a demo to illustrate Gateway API </h2>
+<img src="https://imgs.search.brave.com/AfLpq5XX4tK6TtxoWLDbd_665qDaxYgPAJKBCxVl5aE/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL0kv/NjFyYkhlLTdCbEwu/anBn" />
+</html>
+
+```
+
+And on the listenerset level.
+
+```bash
+
+➜  ~ curl -k -i -X GET https://listenerset.app.teknews.cloud:32086/
+HTTP/2 200 
+server: nginx/1.31.2
+date: Sat, 11 Jul 2026 21:10:50 GMT
+content-type: text/html
+content-length: 221
+last-modified: Sat, 11 Jul 2026 21:09:01 GMT
+etag: "6a52b0ed-dd"
+accept-ranges: bytes
+
+<html>
+<h1>Welcome to Gundam App</h1>
+</br>
+<h2>This is a demo to illustrate Gateway API and the use of listenersets</h2>
+<img src="https://i.pinimg.com/originals/5d/35/52/5d3552354ab9f1faed486a70c90d4aea.jpg" />
+</html>
+
+```
+
+We know that for each envoy gateway, we have a corresponding deployment in the namespace.
+
+```sh
+
+➜  ~ k $cil1 get deployments.apps -n envoy-gateway-system 
+NAME                                                    READY   UP-TO-DATE   AVAILABLE   AGE
+envoy-gateway                                           1/1     1            1           24d
+envoy-gundam-gundam-gw-8863faac                         1/1     1            1           3d11h
+envoy-shared-gw-shared-gw-tls-envoy-eff02edc            1/1     1            1           3d4h
+envoy-shared-gw-shared-gw-tls-envoy-nodeport-cee0d807   1/1     1            1           3d4h
+
+```
+
+Checking the logs of the one used by our gateway, we can see the references to our curl command from earlier.
+
+```json
+
+{
+  ":authority": "gateway.app.teknews.cloud:32086",
+  "bytes_received": 0,
+  "bytes_sent": 288,
+  "connection_termination_details": null,
+  "downstream_local_address": "100.64.0.249:10443",
+  "downstream_remote_address": "192.168.56.1:51212",
+  "duration": 1,
+  "method": "GET",
+  "protocol": "HTTP/2",
+  "requested_server_name": "gateway.app.teknews.cloud",
+  "response_code": 200,
+  "response_code_details": "via_upstream",
+  "response_flags": "-",
+  "route_name": "httproute/gundam/gundam-httproute-with-shared-gw/rule/1/match/0/gateway_app_teknews_cloud",
+  "start_time": "2026-07-11T21:14:16.614Z",
+  "upstream_cluster": "httproute/gundam/gundam-httproute-with-shared-gw/rule/1",
+  "upstream_host": "100.64.0.45:80",
+  "upstream_local_address": "100.64.0.249:53442",
+  "upstream_transport_failure_reason": null,
+  "user-agent": "curl/8.7.1",
+  "x-envoy-origin-path": "/",
+  "x-envoy-upstream-service-time": null,
+  "x-forwarded-for": "192.168.56.1",
+  "x-request-id": "94e559ff-9450-4965-ac37-49d36f1bb18f"
+}
+{
+  ":authority": "gateway.app.teknews.cloud:32086",
+  "bytes_received": 0,
+  "bytes_sent": 288,
+  "connection_termination_details": null,
+  "downstream_local_address": "100.64.0.249:10443",
+  "downstream_remote_address": "192.168.56.1:51215",
+  "duration": 0,
+  "method": "GET",
+  "protocol": "HTTP/2",
+  "requested_server_name": "gateway.app.teknews.cloud",
+  "response_code": 200,
+  "response_code_details": "via_upstream",
+  "response_flags": "-",
+  "route_name": "httproute/gundam/gundam-httproute-with-shared-gw/rule/1/match/0/gateway_app_teknews_cloud",
+  "start_time": "2026-07-11T21:14:18.373Z",
+  "upstream_cluster": "httproute/gundam/gundam-httproute-with-shared-gw/rule/1",
+  "upstream_host": "100.64.0.45:80",
+  "upstream_local_address": "100.64.0.249:53442",
+  "upstream_transport_failure_reason": null,
+  "user-agent": "curl/8.7.1",
+  "x-envoy-origin-path": "/",
+  "x-envoy-upstream-service-time": null,
+  "x-forwarded-for": "192.168.56.1",
+  "x-request-id": "8934ec06-9d1d-4da6-9f88-da5d5b976c0c"
+}
+
+```
+
+Which shows we do have waht we want. So let's wrap for today.
 
 ## 4. Summary
 
-In this 2 part article, we were able to get a better understanding of `MutatingAdmissionPolicy` and had the oppportunity to manipulate more `CEL`.
+The idea with this article was to have a look at the fix for something that was missing in the Gateway API.
 
-The conclusion of all of this could be:
+With listenersets, app developers can now manage by themselves the listeners and certificate for their apps.
 
-- `MAP` is a powerfull tool that allows to bring better control in a k8s environment. In addition to Pod Security Admissions & `ValidatingAdmissionPolicy`, it is possible to instantiate complex scenarios of control on the 
-- Its concepts are simple yet the full usage relies on a (very) good understanding of the `CEL`. 
+On the other hand, the `gateway` remains in the cluster team scope. 
+
+The change to take into account here are 
+
+- The *all hostnames match* that should go on the `gateway` listeners, replace at least by something similar to the `Ingress` default backend.
+- Each `listenerset` should have its own hostname, and be allowed to on the `gateway`.
+- `HTTPRoute` (and other downstream part) should have a `parentRefs` defining the `listenerset` instead of the `gateway`. Remember the schema in part 2.
+
+There are other things to look at on `listenersets`, but for some basics, it's enough, and we now have a mean to workaround the previously lost autonomy of dev teams used to manage their certificate.
+
+See you next time ^^.
+
 
 
 
