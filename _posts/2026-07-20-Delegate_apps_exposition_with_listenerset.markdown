@@ -68,10 +68,10 @@ Once the gateway is running, we can see the underlying service deployed by the G
 
 ```bash
 
-➜  ~ k $cil1 get gateway -n shared-gw shared-gw-tls-envoy-nodeport        
+➜  ~ k get gateway -n shared-gw shared-gw-tls-envoy-nodeport        
 NAME                           CLASS            ADDRESS         PROGRAMMED   AGE
 shared-gw-tls-envoy-nodeport   envoy-nodeport   192.168.56.17   True         15h
-➜  ~ k $cil1 get service -n envoy-gateway-system envoy-shared-gw-shared-gw-tls-envoy-nodeport-cee0d807 
+➜  ~ k get service -n envoy-gateway-system envoy-shared-gw-shared-gw-tls-envoy-nodeport-cee0d807 
 NAME                                                    TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)         AGE
 envoy-shared-gw-shared-gw-tls-envoy-nodeport-cee0d807   NodePort   100.65.138.164   <none>        443:32086/TCP   15h
 
@@ -261,7 +261,179 @@ And more specifically, the fields of the `listeners` section if the listenerset 
 | `tls` | Configuration for the `listener` set with protocol `HTTPS` or `TLS` |``
 | `allowedRoutes` | Define the route that can be attached to the listenerset, as for the gateway. Filtering capabilities available |
 
-Ok, we're done with concepts, let's experiment a bit.
+Let's stop a bit here. 
+
+Attentive readers may get the impression that `listenerSets` were not initially present in the Gateway API implementations.
+
+And that's right. This object was made available in the standard channel only starting from v1.5.0 And that means we again have to be very careful with the compatibility matrix of the Gateway API implementation that we use.
+
+As a matter of fact, not all implementation are `listenerSet`-ready.
+
+Before trying some `listenerSet` configurations, we need to verufy the version of the Gateway API CRDs.
+
+```sh
+
+➜  ~ k get crd gatewayclasses.gateway.networking.k8s.io -o yaml |grep -i bundle-version
+    gateway.networking.k8s.io/bundle-version: v1.5.1
+
+```
+
+Then we can check some of the GatewayClasses that we have already and see what is displayed.
+
+```sh
+
+➜  ~ k get gatewayclasses.gateway.networking.k8s.io nginx -o json |jq .status.supportedFeatures |grep -i listenerset -A1 -B1 
+
+```
+```json
+  {
+    "name": "ListenerSet"
+  },
+
+```
+
+As the result of the command shows, some implementations include in the `status.supportedFeatures` the list of supported features. The currently installed version of nginx seems to be `listenerSet` compatible.
+
+However, cilium does not.
+
+```sh
+
+➜  ~ k get gatewayclasses.gateway.networking.k8s.io cilium -o json |jq .status.supportedFeatures 
+```
+```json
+[
+  {
+    "name": "BackendTLSPolicy"
+  },
+  {
+    "name": "GRPCRoute"
+  },
+  {
+    "name": "GRPCRouteNamedRouteRule"
+  },
+  {
+    "name": "Gateway"
+  },
+  {
+    "name": "GatewayAddressEmpty"
+  },
+  {
+    "name": "GatewayFrontendClientCertificateValidationInsecureFallback"
+  },
+  {
+    "name": "GatewayHTTPListenerIsolation"
+  },
+  {
+    "name": "GatewayInfrastructurePropagation"
+  },
+  {
+    "name": "GatewayPort8080"
+  },
+  {
+    "name": "GatewayStaticAddresses"
+  },
+  {
+    "name": "HTTPRoute"
+  },
+  {
+    "name": "HTTPRouteBackendProtocolH2C"
+  },
+  {
+    "name": "HTTPRouteBackendProtocolWebSocket"
+  },
+  {
+    "name": "HTTPRouteBackendRequestHeaderModification"
+  },
+  {
+    "name": "HTTPRouteBackendTimeout"
+  },
+  {
+    "name": "HTTPRouteCORS"
+  },
+  {
+    "name": "HTTPRouteDestinationPortMatching"
+  },
+  {
+    "name": "HTTPRouteHostRewrite"
+  },
+  {
+    "name": "HTTPRouteMethodMatching"
+  },
+  {
+    "name": "HTTPRouteNamedRouteRule"
+  },
+  {
+    "name": "HTTPRoutePathRedirect"
+  },
+  {
+    "name": "HTTPRoutePathRewrite"
+  },
+  {
+    "name": "HTTPRoutePortRedirect"
+  },
+  {
+    "name": "HTTPRouteQueryParamMatching"
+  },
+  {
+    "name": "HTTPRouteRequestMirror"
+  },
+  {
+    "name": "HTTPRouteRequestMultipleMirrors"
+  },
+  {
+    "name": "HTTPRouteRequestPercentageMirror"
+  },
+  {
+    "name": "HTTPRouteRequestTimeout"
+  },
+  {
+    "name": "HTTPRouteResponseHeaderModification"
+  },
+  {
+    "name": "HTTPRouteSchemeRedirect"
+  },
+  {
+    "name": "Mesh"
+  },
+  {
+    "name": "MeshClusterIPMatching"
+  },
+  {
+    "name": "MeshHTTPRouteBackendRequestHeaderModification"
+  },
+  {
+    "name": "MeshHTTPRouteNamedRouteRule"
+  },
+  {
+    "name": "MeshHTTPRouteQueryParamMatching"
+  },
+  {
+    "name": "MeshHTTPRouteRedirectPath"
+  },
+  {
+    "name": "MeshHTTPRouteRedirectPort"
+  },
+  {
+    "name": "MeshHTTPRouteRewritePath"
+  },
+  {
+    "name": "MeshHTTPRouteSchemeRedirect"
+  },
+  {
+    "name": "ReferenceGrant"
+  },
+  {
+    "name": "TLSRoute"
+  },
+  {
+    "name": "TLSRouteModeMixed"
+  }
+]
+```
+
+If the `GatewayClass` does not show anything in the `status` section, we have to fall back to the documentation to verify the compatibility matrix.
+
+In the next section, we'll rely on Envoy Gateway v1.8.2 for which we did check the compatibility of `ListenerSets` &#128527;
 
 ## 3. Experimenting with `listenersets`
 
@@ -292,6 +464,21 @@ spec:
        group: ""
        name: gundamapp-tls
        namespace: certificates
+
+```
+
+Checking its `GatewayClass`, we can see no info displayed about the compatibility as just discussed.
+
+```yaml
+
+status:
+  conditions:
+  - lastTransitionTime: "2026-07-08T06:47:56Z"
+    message: Valid GatewayClass
+    observedGeneration: 1
+    reason: Accepted
+    status: "True"
+    type: Accepted
 
 ```
 
@@ -482,7 +669,7 @@ We know that for each envoy gateway, we have a corresponding deployment in the n
 
 ```sh
 
-➜  ~ k $cil1 get deployments.apps -n envoy-gateway-system 
+➜  ~ k get deployments.apps -n envoy-gateway-system 
 NAME                                                    READY   UP-TO-DATE   AVAILABLE   AGE
 envoy-gateway                                           1/1     1            1           24d
 envoy-gundam-gundam-gw-8863faac                         1/1     1            1           3d11h
