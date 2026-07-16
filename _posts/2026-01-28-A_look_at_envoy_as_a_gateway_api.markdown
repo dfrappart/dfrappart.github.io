@@ -1003,7 +1003,7 @@ date: Thu, 29 Jan 2026 15:33:48 GMT
 
 ![illustration8](/assets/envoyproxy/envoy008.png)
 
-Ok, that's fun, What elso do we have?
+Ok, that's fun, What else do we have?
 
 
 ### 2.5 Managing traffic with Rate limiting
