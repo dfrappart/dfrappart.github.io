@@ -213,10 +213,8 @@ aks-lab1/managedns  rsg-cluster-aks  francecentral
 ![illustration3](/assets/managedns/managedns003.png)
 
 
-Leveraging the rbac roles we introduced earlier, we can grant access to the namespace level, without touching the kubernetes cli, for now. 
-
-Fun fact though, when we list the managed namespace from the cli or from the portal, we do have a resource group property which hint that we should be able to choose the target rg of the managed namespace.
-However, we can only refer to the cluster own resource group in the cli, and there is no resourceGroup or anything similar in the arm api. So we are stuck with creating the managed namespace in the cluster's rg.
+Fun fact, when we list the managed namespace from the cli or from the portal, we do have a resource group property which hint that we should be able to choose the target rg of the managed namespace.
+However, we can only refer to the cluster own resource group in the cli, and there is no resourceGroup or anything similar in the arm api. So we are stuck with creating the managed namespace in the cluster's rg. But well, it does not really live anywhere else than the aks cluster so... &#129323;
 
 That being said, let's have a look at this namespace now.
 
@@ -329,9 +327,36 @@ We can say that it does simplify the kubernetes management, at least from the ad
 
 Before moving on, we should have a look at 2 arguments on the managed namespace.
 
-The first one is the `deletePolicy`
+The first one is the `deletePolicy`.
 
 The second one is the `adoptionPolicy`
+
+The `deletePolicy` defines how the lifecycle of the namespace is managed, once it's created.
+Once the object is created from the Azure plane, we do have its reflect in the kubernetes plane.
+We have 2 choices then. 
+
+Either the source of truth is the Azure plane, and then the value should be set to `Delete`, which means that deleting the object on the Azure plane delete also its refelct in the kubernetes plane.
+
+The other way around is to set the `deletePolicy` to `Keep`. It means that we are only bootstraping the namespace then and that we don't care to track it in the Azure plane.
+It implies some caution with automated build that could rely on the IaC defining the code. The [documentation](https://learn.microsoft.com/en-us/azure/aks/concepts-managed-namespaces#delete-policy) also states that the label `ManagedByARM` is in this case deleted.
+
+the `adoptionPolicy` is also related to the resource lifecycle, but it allows us to onboard as an Azure managed namespace an existing kubernetes namespace, depending on the value set for the parameters.
+
+- `Never`: If the namespace already exists in the cluster, attempts to create that namespace as a managed namespace fails.
+- `IfIdentical`: Take over the existing namespace to be managed, provided there are no differences between the existing namespace and the desired configuration.
+- `Always`: Always take over the existing namespace to be managed, even if some fields in the namespace might be overwritten.
+
+
+
+There are some exceptions to the onboardable namespaces:
+
+- `kube-system`, 
+- `app-routing-system`, 
+- `istio-system`, 
+- `gatekeeper-system`
+
+And other system namespace as specified on this specific documentation [page](https://learn.microsoft.com/en-us/azure/aks/managed-namespaces?pivots=azure-cli#limitations).
+
 
 ## 3. RBAC considerations for AKS and managed namespace
 
