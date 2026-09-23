@@ -8,7 +8,7 @@ categories: Kubernetes AKS
 
 Hello!
 
-Summer being almost done, it's time fto go back to tech stuff.
+Summer being almost done, it's time to go back to tech stuff.
 In this article, we'll have a look at a not so new feature of AKS called the managed namespace.
 The fact that it's been around for some time does not diminish its value, so we'll take some time on the topic ^^.
 
@@ -18,7 +18,7 @@ Our agenda:
 
 1. Overview of the managed namespace in AKS
 2. Creating and managing a managed namespace
-3. Managed namespaces vs native namespaces
+3. Rbac considerations for Managed namespaces
 
 ## 1. Overview of the managed namespace in AKS
 
@@ -218,9 +218,14 @@ However, we can only refer to the cluster own resource group in the cli, and the
 
 That being said, let's have a look at this namespace now.
 
-```yaml
+```zsh
 
 ➜  ~ k get ns managedns -o yaml
+
+```
+
+```yaml
+
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -246,7 +251,7 @@ status:
 It looks like the parameters we passed to the Azure object are visible on the namespace in kubernetes, so that's nice.
 Additionaly, there is also the `kubernetes.azure.com/managedByArm: "true"` label that hint that this namespace is an Azure managed one.
 
-We should also find the `resourcequotas` and the `networkpolicy`
+We should also find the `resourcequotas` and the `networkpolicy`.
 
 ```zsh
 
@@ -361,7 +366,7 @@ Once a managed namespace is created, it is manageable only from the Azure plane.
 
 ```zsh
 
-➜  ~ k label namespaces managedns apferfectcircle=passive
+➜  ~ k label namespaces managedns aperfectcircle=passive
 Error from server: admission webhook "aks-namespace-validating-webhook.azmk8s.io" denied the request: Updating/deleting namespace managedns labels is not allowed because it is managed by ARM. Please update this namespace through ARM api.
 
 
@@ -473,7 +478,7 @@ curl   1/1     Running   0          16s
 
 ```
 
-We should note that in the case of onboarding existing namespace, the resourcer management should be taking care of carefully.
+We should note that in the case of onboarding existing namespace, the resource management should be taking care of carefully.
 
 Now let's discuss RBAC.
 
