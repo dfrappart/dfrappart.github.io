@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Keep control of k8s namespaces from the Azure plane"
-date:   2026-09-10 18:00:00 +0200
+date:   2026-09-22 18:00:00 +0200
 year: 2026
 categories: Kubernetes AKS
 ---
