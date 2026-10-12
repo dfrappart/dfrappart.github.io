@@ -9,7 +9,7 @@ categories: Kubernetes AKS Security
 Hello again,
 
 Today a short article about Deployment Safeguards in AKS.
-It's something I really came accross by happenstance, while looking for something on the Terraform doc (Yes I still parse documentation manually, I've always been fond on reading &#x1F937;&#x1F3FB;&#x200D;&#x2642;&#xFE0F;)
+It's something I really came accross by happenstance, while looking for something on the Terraform doc (Yes I still parse documentation manually, I've always been fond of reading &#x1F937;&#x1F3FB;&#x200D;&#x2642;&#xFE0F;)
 
 I found it interesting so I'll talk about it today ^^.
 
